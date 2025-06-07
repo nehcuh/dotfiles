@@ -7,7 +7,6 @@
 
 # Variables
 DOTFILES=$HOME/.dotfiles
-EMACSD=$HOME/.emacs.d
 TMUX=$HOME/.tmux
 ZSH=$HOME/.local/share/zinit
 
@@ -128,16 +127,14 @@ clean_dotfiles() {
     .Brewfile
     "
     for c in ${confs}; do
-        [ -f $HOME/${c} ] && mv $HOME/${c} $HOME/${c}.bak
+        [ -f $HOME/${c} ] && rm -rf $HOME/${c}
     done
 
     if [ -f $HOME/.config/starship.toml ]; then
-        mv $HOME/.config/starship.toml $HOME/.config/starship.toml.bak
+        rm -rf $HOME/.config/starship.toml
     fi
 
-    [ -d $EMACSD ] && mv $EMACSD $EMACSD.bak
-
-    rm -rf $ZSH $TMUX $DOTFILES
+    rm -rf $ZSH $TMUX
     rm -rf $HOME/.pip
 
     rm -f $HOME/.gitignore_global
@@ -157,7 +154,7 @@ promote_yn() {
 }
 
 # Clean or not?
-if [ -d $ZSH ] || [ -d $TMUX ] || [ -d $EMACSD ]; then
+if [ -d $ZSH ] || [ -d $TMUX ]; then
     promote_yn "${YELLOW}Do you want to reset all configurations?${NORMAL}" "continue"
     if [ $continue -eq $YES ]; then
         clean_dotfiles
@@ -217,22 +214,18 @@ fi
 printf "${GREEN}▓▒░ Installing Zinit...${NORMAL}\n"
 sh -c "$(curl -fsSL https://git.io/zinit-install)"
 
-# Dotfiles
-printf "${GREEN}▓▒░ Installing Dotfiles...${NORMAL}\n"
-sync_repo seagle0128/dotfiles $DOTFILES
-
+# Personal config
 ln -sf $DOTFILES/.zshenv $HOME/.zshenv
 ln -sf $DOTFILES/.zshrc $HOME/.zshrc
 ln -sf $DOTFILES/Brewfile $HOME/.Brewfile
-ln -sf $DOTFILES/.vimrc $HOME/.vimrc
 ln -sf $DOTFILES/.tmux.conf.local $HOME/.tmux.conf.local
 ln -sf $DOTFILES/.markdownlintrc $HOME/.markdownlintrc
 ln -sf $DOTFILES/starship.toml $HOME/.config/starship.toml
+ln -sf $DOTFILES/.zshrc.local $HOME/.zshrc.local
 
 cp -n $DOTFILES/.npmrc $HOME/.npmrc
 cp -n $DOTFILES/.gemrc $HOME/.gemrc
 mkdir -p $HOME/.cargo && cp -n $DOTFILES/cargo.toml $HOME/.cargo/config.toml
-cp -n $DOTFILES/.zshrc.local $HOME/.zshrc.local
 mkdir -p $HOME/.pip; cp -n $DOTFILES/.pip.conf $HOME/.pip/pip.conf
 
 ln -sf $DOTFILES/.gitignore_global $HOME/.gitignore_global
@@ -248,10 +241,6 @@ fi
 if is_cygwin; then
     ln -sf $DOTFILES/.minttyrc $HOME/.minttyrc
 fi
-
-# Emacs Configurations
-printf "${GREEN}▓▒░ Installing Centaur Emacs...${NORMAL}\n"
-sync_repo seagle0128/.emacs.d $EMACSD
 
 # Oh My Tmux
 printf "${GREEN}▓▒░ Installing Oh My Tmux...${NORMAL}\n"
