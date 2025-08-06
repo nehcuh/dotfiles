@@ -1,0 +1,50 @@
+[
+  // File operations
+  {
+    "context": "Workspace",
+    "bindings": {
+      "cmd-shift-p": "command_palette::Toggle",
+      "cmd-p": "file_finder::Toggle",
+      "cmd-shift-f": "workspace::NewSearch",
+      "cmd-shift-h": "workspace::ToggleLeftDock",
+      "cmd-j": "workspace::ToggleBottomDock",
+      "cmd-shift-j": "workspace::ToggleRightDock"
+    }
+  },
+  
+  // Editor operations
+  {
+    "context": "Editor",
+    "bindings": {
+      "cmd-/": "editor::ToggleComments",
+      "cmd-shift-k": "editor::DeleteLine",
+      "alt-up": "editor::MoveLineUp",
+      "alt-down": "editor::MoveLineDown",
+      "cmd-d": "editor::SelectNext",
+      "cmd-shift-l": "editor::SelectAllMatches",
+      "cmd-u": "editor::UndoSelection",
+      "cmd-shift-u": "editor::RedoSelection"
+    }
+  },
+  
+  // Terminal
+  {
+    "context": "Workspace",
+    "bindings": {
+      "ctrl-`": "terminal_panel::ToggleFocus"
+    }
+  },
+  
+  // Navigation
+  {
+    "context": "Editor",
+    "bindings": {
+      "cmd-shift-o": "outline::Toggle",
+      "cmd-t": "file_finder::Toggle",
+      "cmd-shift-t": "workspace::NewFile",
+      "f12": "editor::GoToDefinition",
+      "cmd-f12": "editor::GoToDefinitionSplit",
+      "shift-f12": "editor::FindAllReferences"
+    }
+  }
+]
