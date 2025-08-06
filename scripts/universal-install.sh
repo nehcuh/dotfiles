@@ -267,7 +267,7 @@ main() {
     
     # Ask user for confirmation
     printf "Do you want to proceed with the installation? [Y/n]: "
-    read -r response
+    read response < /dev/tty
     case "$response" in
         [nN][oO]|[nN])
             print_color "$YELLOW" "Installation cancelled."
