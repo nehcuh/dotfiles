@@ -205,7 +205,9 @@ run_installer() {
     print_color "$YELLOW" "🚀 Starting installation..."
     
     # Make scripts executable
-    chmod +x scripts/*.sh 2>/dev/null || true
+    if [ -d "scripts" ]; then
+        chmod +x scripts/*.sh 2>/dev/null || true
+    fi
     
     # Check if interactive installer exists and is executable
     if [ -f "scripts/interactive-install.sh" ] && [ -x "scripts/interactive-install.sh" ]; then
@@ -250,8 +252,54 @@ run_installer() {
                 sh scripts/install-unified.sh
                 ;;
         esac
+    elif [ -f "scripts/interactive-install.sh" ]; then
+        print_color "$BLUE" "Running interactive installer (forcing executable)..."
+        chmod +x scripts/interactive-install.sh
+        case "$SHELL_TYPE" in
+            zsh)
+                if command_exists zsh; then
+                    zsh scripts/interactive-install.sh
+                else
+                    sh scripts/interactive-install.sh
+                fi
+                ;;
+            bash)
+                if command_exists bash; then
+                    bash scripts/interactive-install.sh
+                else
+                    sh scripts/interactive-install.sh
+                fi
+                ;;
+            *)
+                sh scripts/interactive-install.sh
+                ;;
+        esac
+    elif [ -f "scripts/install-unified.sh" ]; then
+        print_color "$BLUE" "Running unified installer (forcing executable)..."
+        chmod +x scripts/install-unified.sh
+        case "$SHELL_TYPE" in
+            zsh)
+                if command_exists zsh; then
+                    zsh scripts/install-unified.sh
+                else
+                    sh scripts/install-unified.sh
+                fi
+                ;;
+            bash)
+                if command_exists bash; then
+                    bash scripts/install-unified.sh
+                else
+                    sh scripts/install-unified.sh
+                fi
+                ;;
+            *)
+                sh scripts/install-unified.sh
+                ;;
+        esac
     else
-        print_color "$RED" "Error: No installer script found or not executable"
+        print_color "$RED" "Error: No installer script found"
+        print_color "$YELLOW" "Available files in scripts/:"
+        ls -la scripts/ 2>/dev/null || print_color "$RED" "scripts/ directory not found"
         exit 1
     fi
 }
