@@ -371,14 +371,86 @@ show_menu() {
 # Toggle selection
 toggle_selection() {
     case $1 in
-        1) INSTALL_SYSTEM_PACKAGES=$([[ $INSTALL_SYSTEM_PACKAGES == true ]] && echo false || echo true) ;;
-        2) INSTALL_SHELL_CONFIG=$([[ $INSTALL_SHELL_CONFIG == true ]] && echo false || echo true) ;;
-        3) INSTALL_DEV_TOOLS=$([[ $INSTALL_DEV_TOOLS == true ]] && echo false || echo true) ;;
-        4) INSTALL_EDITORS=$([[ $INSTALL_EDITORS == true ]] && echo false || echo true) ;;
-        5) INSTALL_PYTHON_ENV=$([[ $INSTALL_PYTHON_ENV == true ]] && echo false || echo true) ;;
-        6) INSTALL_NODE_ENV=$([[ $INSTALL_NODE_ENV == true ]] && echo false || echo true) ;;
-        7) INSTALL_DOCKER_ENV=$([[ $INSTALL_DOCKER_ENV == true ]] && echo false || echo true) ;;
-        8) SETUP_GIT_CONFIG=$([[ $SETUP_GIT_CONFIG == true ]] && echo false || echo true) ;;
+        1) 
+            INSTALL_SYSTEM_PACKAGES=$([[ $INSTALL_SYSTEM_PACKAGES == true ]] && echo false || echo true)
+            if [[ $INSTALL_SYSTEM_PACKAGES == true ]]; then
+                echo -e "${BLUE}正在安装系统软件包...${NC}"
+                install_system_packages
+                echo -e "${GREEN}✓ 系统软件包安装完成${NC}"
+            else
+                echo -e "${YELLOW}已取消选择系统软件包${NC}"
+            fi
+            ;;
+        2) 
+            INSTALL_SHELL_CONFIG=$([[ $INSTALL_SHELL_CONFIG == true ]] && echo false || echo true)
+            if [[ $INSTALL_SHELL_CONFIG == true ]]; then
+                echo -e "${BLUE}正在安装 Shell 配置...${NC}"
+                install_shell_config
+                echo -e "${GREEN}✓ Shell 配置安装完成${NC}"
+            else
+                echo -e "${YELLOW}已取消选择 Shell 配置${NC}"
+            fi
+            ;;
+        3) 
+            INSTALL_DEV_TOOLS=$([[ $INSTALL_DEV_TOOLS == true ]] && echo false || echo true)
+            if [[ $INSTALL_DEV_TOOLS == true ]]; then
+                echo -e "${BLUE}正在安装开发工具...${NC}"
+                install_dev_tools
+                echo -e "${GREEN}✓ 开发工具安装完成${NC}"
+            else
+                echo -e "${YELLOW}已取消选择开发工具${NC}"
+            fi
+            ;;
+        4) 
+            INSTALL_EDITORS=$([[ $INSTALL_EDITORS == true ]] && echo false || echo true)
+            if [[ $INSTALL_EDITORS == true ]]; then
+                echo -e "${BLUE}正在安装编辑器...${NC}"
+                install_editors
+                echo -e "${GREEN}✓ 编辑器安装完成${NC}"
+            else
+                echo -e "${YELLOW}已取消选择编辑器${NC}"
+            fi
+            ;;
+        5) 
+            INSTALL_PYTHON_ENV=$([[ $INSTALL_PYTHON_ENV == true ]] && echo false || echo true)
+            if [[ $INSTALL_PYTHON_ENV == true ]]; then
+                echo -e "${BLUE}正在设置 Python 环境...${NC}"
+                install_python_env
+                echo -e "${GREEN}✓ Python 环境设置完成${NC}"
+            else
+                echo -e "${YELLOW}已取消选择 Python 环境${NC}"
+            fi
+            ;;
+        6) 
+            INSTALL_NODE_ENV=$([[ $INSTALL_NODE_ENV == true ]] && echo false || echo true)
+            if [[ $INSTALL_NODE_ENV == true ]]; then
+                echo -e "${BLUE}正在设置 Node.js 环境...${NC}"
+                install_node_env
+                echo -e "${GREEN}✓ Node.js 环境设置完成${NC}"
+            else
+                echo -e "${YELLOW}已取消选择 Node.js 环境${NC}"
+            fi
+            ;;
+        7) 
+            INSTALL_DOCKER_ENV=$([[ $INSTALL_DOCKER_ENV == true ]] && echo false || echo true)
+            if [[ $INSTALL_DOCKER_ENV == true ]]; then
+                echo -e "${BLUE}正在设置 Docker 环境...${NC}"
+                install_docker_env
+                echo -e "${GREEN}✓ Docker 环境设置完成${NC}"
+            else
+                echo -e "${YELLOW}已取消选择 Docker 环境${NC}"
+            fi
+            ;;
+        8) 
+            SETUP_GIT_CONFIG=$([[ $SETUP_GIT_CONFIG == true ]] && echo false || echo true)
+            if [[ $SETUP_GIT_CONFIG == true ]]; then
+                echo -e "${BLUE}正在设置 Git 配置...${NC}"
+                setup_git_config
+                echo -e "${GREEN}✓ Git 配置设置完成${NC}"
+            else
+                echo -e "${YELLOW}已取消选择 Git 配置${NC}"
+            fi
+            ;;
         a) 
             INSTALL_SYSTEM_PACKAGES=true
             INSTALL_SHELL_CONFIG=true
@@ -388,17 +460,20 @@ toggle_selection() {
             INSTALL_NODE_ENV=true
             INSTALL_DOCKER_ENV=true
             SETUP_GIT_CONFIG=true
+            echo -e "${GREEN}✓ 已选择所有组件${NC}"
             ;;
         c)
             INSTALL_SYSTEM_PACKAGES=true
             INSTALL_SHELL_CONFIG=true
             INSTALL_DEV_TOOLS=true
             INSTALL_EDITORS=true
+            echo -e "${GREEN}✓ 已选择核心组件${NC}"
             ;;
         d)
             INSTALL_PYTHON_ENV=true
             INSTALL_NODE_ENV=true
             INSTALL_DOCKER_ENV=true
+            echo -e "${GREEN}✓ 已选择开发环境${NC}"
             ;;
     esac
 }
@@ -496,100 +571,118 @@ clone_dotfiles() {
 
 # Installation functions
 install_system_packages() {
-    if [[ $INSTALL_SYSTEM_PACKAGES == true ]]; then
-        echo -e "${BLUE}$(get_string "installing_system")...${NC}"
-        ./scripts/stow.sh install system
-        echo -e "${GREEN}✓ $(get_string "system_installed")${NC}"
+    if [ ! -d "$DOTFILES_DIR" ]; then
+        clone_dotfiles
     fi
+    echo -e "${YELLOW}正在安装系统软件包...${NC}"
+    cd "$DOTFILES_DIR"
+    ./scripts/stow.sh install system
+    echo -e "${GREEN}✓ 系统软件包安装完成${NC}"
 }
 
 install_shell_config() {
-    if [[ $INSTALL_SHELL_CONFIG == true ]]; then
-        echo -e "${BLUE}$(get_string "installing_shell")...${NC}"
-        ./scripts/stow.sh install zsh
-        
-        # Install Zinit if not exists
-        if [ ! -d "$HOME/.local/share/zinit" ]; then
-            echo -e "${YELLOW}$(get_string "installing_zinit")...${NC}"
-            sh -c "$(curl -fsSL https://git.io/zinit-install)"
-        fi
-        
-        echo -e "${GREEN}✓ $(get_string "shell_installed")${NC}"
+    if [ ! -d "$DOTFILES_DIR" ]; then
+        clone_dotfiles
     fi
+    echo -e "${YELLOW}正在安装 Shell 配置...${NC}"
+    cd "$DOTFILES_DIR"
+    ./scripts/stow.sh install zsh
+    
+    # Install Zinit if not exists
+    if [ ! -d "$HOME/.local/share/zinit" ]; then
+        echo -e "${YELLOW}正在安装 Zinit...${NC}"
+        sh -c "$(curl -fsSL https://git.io/zinit-install)"
+    fi
+    
+    echo -e "${GREEN}✓ Shell 配置安装完成${NC}"
 }
 
 install_dev_tools() {
-    if [[ $INSTALL_DEV_TOOLS == true ]]; then
-        echo -e "${BLUE}$(get_string "installing_dev")...${NC}"
-        ./scripts/stow.sh install git tools
-        echo -e "${GREEN}✓ $(get_string "dev_installed")${NC}"
+    if [ ! -d "$DOTFILES_DIR" ]; then
+        clone_dotfiles
     fi
+    echo -e "${YELLOW}正在安装开发工具...${NC}"
+    cd "$DOTFILES_DIR"
+    ./scripts/stow.sh install git tools
+    echo -e "${GREEN}✓ 开发工具安装完成${NC}"
 }
 
 install_editors() {
-    if [[ $INSTALL_EDITORS == true ]]; then
-        echo -e "${BLUE}$(get_string "installing_editors")...${NC}"
-        ./scripts/stow.sh install vim nvim tmux
-        
-        # Install Oh My Tmux if not exists
-        if [ ! -d "$HOME/.tmux" ]; then
-            echo -e "${YELLOW}$(get_string "installing_tmux")...${NC}"
-            git clone https://github.com/gpakosz/.tmux.git ~/.tmux
-            ln -sf ~/.tmux/.tmux.conf ~/.tmux.conf
-            cp ~/.tmux/.tmux.conf.local ~/.tmux.conf.local
-        fi
-        
-        # Install Zed configuration if Zed is available
-        if command -v zed >/dev/null 2>&1; then
-            ./scripts/stow.sh install zed
-        fi
-        
-        echo -e "${GREEN}✓ $(get_string "editors_installed")${NC}"
+    if [ ! -d "$DOTFILES_DIR" ]; then
+        clone_dotfiles
     fi
+    echo -e "${YELLOW}正在安装编辑器...${NC}"
+    cd "$DOTFILES_DIR"
+    ./scripts/stow.sh install vim nvim tmux
+    
+    # Install Oh My Tmux if not exists
+    if [ ! -d "$HOME/.tmux" ]; then
+        echo -e "${YELLOW}正在安装 Oh My Tmux...${NC}"
+        git clone https://github.com/gpakosz/.tmux.git ~/.tmux
+        ln -sf ~/.tmux/.tmux.conf ~/.tmux.conf
+        cp ~/.tmux/.tmux.conf.local ~/.tmux.conf.local
+    fi
+    
+    # Install Zed configuration if Zed is available
+    if command -v zed >/dev/null 2>&1; then
+        ./scripts/stow.sh install zed
+    fi
+    
+    echo -e "${GREEN}✓ 编辑器安装完成${NC}"
 }
 
 install_python_env() {
-    if [[ $INSTALL_PYTHON_ENV == true ]]; then
-        echo -e "${BLUE}$(get_string "setting_python")...${NC}"
-        ./scripts/setup-python-env.sh
-        echo -e "${GREEN}✓ $(get_string "python_configured")${NC}"
+    if [ ! -d "$DOTFILES_DIR" ]; then
+        clone_dotfiles
     fi
+    echo -e "${YELLOW}正在设置 Python 环境...${NC}"
+    cd "$DOTFILES_DIR"
+    ./scripts/setup-python-env.sh
+    echo -e "${GREEN}✓ Python 环境设置完成${NC}"
 }
 
 install_node_env() {
-    if [[ $INSTALL_NODE_ENV == true ]]; then
-        echo -e "${BLUE}$(get_string "setting_node")...${NC}"
-        ./scripts/setup-node-env.sh
-        echo -e "${GREEN}✓ $(get_string "node_configured")${NC}"
+    if [ ! -d "$DOTFILES_DIR" ]; then
+        clone_dotfiles
     fi
+    echo -e "${YELLOW}正在设置 Node.js 环境...${NC}"
+    cd "$DOTFILES_DIR"
+    ./scripts/setup-node-env.sh
+    echo -e "${GREEN}✓ Node.js 环境设置完成${NC}"
 }
 
 install_docker_env() {
-    if [[ $INSTALL_DOCKER_ENV == true ]]; then
-        echo -e "${BLUE}$(get_string "setting_docker")...${NC}"
-        
-        # Install OrbStack on macOS
-        if [[ $PLATFORM == "macos" ]] && ! command -v orbstack >/dev/null 2>&1; then
-            echo -e "${YELLOW}$(get_string "installing_orbstack")...${NC}"
-            brew install --cask orbstack
-        fi
-        
-        # Build Docker development environment
-        if [ -f "docker/docker-compose.ubuntu-dev.yml" ]; then
-            echo -e "${YELLOW}$(get_string "building_ubuntu")...${NC}"
-            docker-compose -f docker/docker-compose.ubuntu-dev.yml build
-            echo -e "${GREEN}✓ $(get_string "docker_ready")${NC}"
-            echo -e "${CYAN}$(get_string "docker_start_cmd"): docker-compose -f docker/docker-compose.ubuntu-dev.yml up -d${NC}"
-        fi
+    if [ ! -d "$DOTFILES_DIR" ]; then
+        clone_dotfiles
     fi
+    echo -e "${YELLOW}正在设置 Docker 环境...${NC}"
+    cd "$DOTFILES_DIR"
+    
+    # Install OrbStack on macOS
+    if [[ $PLATFORM == "macos" ]] && ! command -v orbstack >/dev/null 2>&1; then
+        echo -e "${YELLOW}正在安装 OrbStack...${NC}"
+        brew install --cask orbstack
+    fi
+    
+    # Build Docker development environment
+    if [ -f "docker/docker-compose.ubuntu-dev.yml" ]; then
+        echo -e "${YELLOW}正在构建 Ubuntu 开发环境...${NC}"
+        docker-compose -f docker/docker-compose.ubuntu-dev.yml build
+        echo -e "${GREEN}✓ Docker 环境准备就绪${NC}"
+        echo -e "${CYAN}启动命令: docker-compose -f docker/docker-compose.ubuntu-dev.yml up -d${NC}"
+    fi
+    
+    echo -e "${GREEN}✓ Docker 环境设置完成${NC}"
 }
 
 setup_git_config() {
-    if [[ $SETUP_GIT_CONFIG == true ]]; then
-        echo -e "${BLUE}$(get_string "setting_git")...${NC}"
-        ./scripts/setup-git-config.sh
-        echo -e "${GREEN}✓ $(get_string "git_setup")${NC}"
+    if [ ! -d "$DOTFILES_DIR" ]; then
+        clone_dotfiles
     fi
+    echo -e "${YELLOW}正在设置 Git 配置...${NC}"
+    cd "$DOTFILES_DIR"
+    ./scripts/setup-git-config.sh
+    echo -e "${GREEN}✓ Git 配置设置完成${NC}"
 }
 
 # Platform-specific installations
@@ -688,23 +781,27 @@ main() {
         case $choice in
             [1-8]) 
                 toggle_selection $choice 
-                echo -e "${GREEN}✓ Selection updated${NC}"
-                sleep 1
+                echo ""
+                echo -n "$(get_string "press_enter")"
+                read -r dummy < /dev/tty
                 ;;
             a|A) 
                 toggle_selection a
-                echo -e "${GREEN}✓ All components selected${NC}"
-                sleep 1
+                echo ""
+                echo -n "$(get_string "press_enter")"
+                read -r dummy < /dev/tty
                 ;;
             c|C) 
                 toggle_selection c
-                echo -e "${GREEN}✓ Core components selected${NC}"
-                sleep 1
+                echo ""
+                echo -n "$(get_string "press_enter")"
+                read -r dummy < /dev/tty
                 ;;
             d|D) 
                 toggle_selection d
-                echo -e "${GREEN}✓ Development environments selected${NC}"
-                sleep 1
+                echo ""
+                echo -n "$(get_string "press_enter")"
+                read -r dummy < /dev/tty
                 ;;
             s|S) 
                 print_header
@@ -721,8 +818,29 @@ main() {
                     echo -n "$(get_string "press_enter")"
                     read -r dummy < /dev/tty
                 else
-                    run_installation
-                    exit 0
+                    # 检查是否所有选中的组件都已安装
+                    all_installed=true
+                    if [[ $INSTALL_SYSTEM_PACKAGES == true ]] || [[ $INSTALL_SHELL_CONFIG == true ]] || 
+                       [[ $INSTALL_DEV_TOOLS == true ]] || [[ $INSTALL_EDITORS == true ]] || 
+                       [[ $INSTALL_PYTHON_ENV == true ]] || [[ $INSTALL_NODE_ENV == true ]] || 
+                       [[ $INSTALL_DOCKER_ENV == true ]] || [[ $SETUP_GIT_CONFIG == true ]]; then
+                        all_installed=false
+                    fi
+                    
+                    if [[ $all_installed == true ]]; then
+                        echo ""
+                        echo -e "${GREEN}🎉 所有选中的组件都已安装完成！${NC}"
+                        echo -e "${YELLOW}请重启终端以应用所有更改。${NC}"
+                        echo -e "${BLUE}你可以使用以下命令管理 dotfiles：${NC}"
+                        echo -e "${CYAN}  cd ~/.dotfiles && ./scripts/stow.sh [install|remove|list|status]${NC}"
+                        echo ""
+                        echo -e "${GREEN}编程愉快！${NC}"
+                        exit 0
+                    else
+                        echo -e "${YELLOW}还有组件未安装，请继续选择安装。${NC}"
+                        echo -n "$(get_string "press_enter")"
+                        read -r dummy < /dev/tty
+                    fi
                 fi
                 ;;
             q|Q) 
@@ -731,7 +849,8 @@ main() {
                 ;;
             *) 
                 echo -e "${RED}$(get_string "invalid_choice")${NC}"
-                sleep 1
+                echo -n "$(get_string "press_enter")"
+                read -r dummy < /dev/tty
                 ;;
         esac
     done
