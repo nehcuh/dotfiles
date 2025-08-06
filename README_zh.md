@@ -258,6 +258,45 @@ make docker-down         # 停止开发环境
 make docker-shell        # 进入开发环境
 ```
 
+### 开发环境使用
+
+**Python 开发:**
+```bash
+# 使用 pyenv 管理 Python 版本
+pyenv versions                    # 列出已安装版本
+pyenv install 3.11.0             # 安装特定版本
+pyenv local 3.11.0               # 为当前目录设置版本
+
+# 使用 direnv 进行项目特定环境
+echo 'layout python' > .envrc    # 创建 Python 环境
+direnv allow                      # 允许当前目录的 direnv
+
+# 使用 uv 进行快速包管理
+uv pip install package-name      # 快速包安装
+```
+
+**Node.js 开发:**
+```bash
+# 使用 nvm 管理 Node.js 版本
+nvm list                          # 列出已安装版本
+nvm install 18.17.0              # 安装特定版本
+nvm use 18.17.0                  # 使用特定版本
+echo '18.17.0' > .nvmrc          # 为项目设置版本
+nvm use                          # 使用 .nvmrc 中的版本
+```
+
+**Docker 开发:**
+```bash
+# 启动开发环境
+docker-compose -f docker/docker-compose.ubuntu-dev.yml up -d
+
+# 进入环境
+docker-compose -f docker/docker-compose.ubuntu-dev.yml exec ubuntu-dev zsh
+
+# 停止环境
+docker-compose -f docker/docker-compose.ubuntu-dev.yml down
+```
+
 ## 平台特定说明
 
 ### Docker 开发环境
