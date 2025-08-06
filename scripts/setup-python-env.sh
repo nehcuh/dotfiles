@@ -41,15 +41,15 @@ export PYENV_ROOT="$HOME/.pyenv"
 [[ -d $PYENV_ROOT/bin ]] && export PATH="$PYENV_ROOT/bin:$PATH"
 eval "$(pyenv init -)"
 
-# Install anaconda3 latest version
-echo -e "${YELLOW}Installing anaconda3 latest version...${NC}"
-ANACONDA_VERSION=$(pyenv install --list | grep -E "^\s*anaconda3-" | tail -1 | tr -d ' ')
-if [ -n "$ANACONDA_VERSION" ]; then
+# Install anaconda3 (fixed version for security)
+echo -e "${YELLOW}Installing anaconda3...${NC}"
+ANACONDA_VERSION="anaconda3-2024.10-1"
+if pyenv install --list | grep -q "$ANACONDA_VERSION"; then
     pyenv install $ANACONDA_VERSION
     pyenv global $ANACONDA_VERSION
     echo -e "${GREEN}✓ anaconda3 $ANACONDA_VERSION installed and set as global${NC}"
 else
-    echo -e "${RED}✗ Failed to find anaconda3 version${NC}"
+    echo -e "${RED}✗ anaconda3 $ANACONDA_VERSION not found, please check available versions${NC}"
     exit 1
 fi
 
