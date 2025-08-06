@@ -686,9 +686,18 @@ main() {
         read -r choice < /dev/tty
         
         case $choice in
+                echo -e "${GREEN}✓ All components selected${NC}"
+                sleep 1
             [1-8]) toggle_selection $choice ;;
             a|A) toggle_selection a ;;
+                # Show immediate feedback
+                echo -e "${GREEN}✓ Core components selected${NC}"
+                sleep 1
+                echo -e "${GREEN}✓ Selection updated${NC}"
+                sleep 1
             c|C) toggle_selection c ;;
+                echo -e "${GREEN}✓ Development environments selected${NC}"
+                sleep 1
             d|D) toggle_selection d ;;
             s|S) 
                 print_header
