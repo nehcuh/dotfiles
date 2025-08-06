@@ -17,7 +17,6 @@
 
 **所有平台:**
 ```bash
-curl -fsSL https://raw.githubusercontent.com/nehcuh/dotfiles/main/scripts/interactive-install.sh | bash
 ```
 
 这将启动一个交互式向导，让你选择需要安装的组件。
