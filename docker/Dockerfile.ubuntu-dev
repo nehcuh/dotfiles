@@ -38,7 +38,7 @@ RUN apt-get update && apt-get install -y \
     && rm -rf /var/lib/apt/lists/*
 
 # Create user
-ARG USERNAME=developer
+ARG USERNAME=huchen
 ARG USER_UID=1000
 ARG USER_GID=$USER_UID
 
@@ -124,11 +124,11 @@ RUN brew install \
     gitui
 
 # Copy dotfiles (if available)
-COPY --chown=$USERNAME:$USERNAME . /home/$USERNAME/.dotfiles
+COPY --chown=huchen:huchen . /home/huchen/.dotfiles
 
 # Install dotfiles if available
-RUN if [ -d "/home/$USERNAME/.dotfiles" ]; then \
-        cd /home/$USERNAME/.dotfiles && \
+RUN if [ -d "/home/huchen/.dotfiles" ]; then \
+        cd /home/huchen/.dotfiles && \
         ./scripts/stow.sh install system zsh git tools vim nvim tmux; \
     fi
 
