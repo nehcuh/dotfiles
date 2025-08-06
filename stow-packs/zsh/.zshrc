@@ -4,6 +4,9 @@
 DOTFILES=$HOME/.dotfiles
 NVIMD=$HOME/.config/nvim
 
+# Initialize starship prompt
+eval "$(starship init zsh)"
+
 ### Added by Zinit's installer
 if [[ ! -f $HOME/.local/share/zinit/zinit.git/zinit.zsh ]]; then
     print -P "%F{33}▓▒░ %F{220}Installing %F{33}ZDHARMA-CONTINUUM%F{220} Initiative Plugin Manager (%F{33}zdharma-continuum/zinit%F{220})…%f"
@@ -228,10 +231,10 @@ elif [[ $OSTYPE == linux* ]]; then
 fi
 
 # LSP booster
-if (( $+commands[nvim-lsp-booster] == 0 )); then
-    zinit ice wait lucid depth"1" from"gh-r" sbin"**/nvim-lsp-booster"
-    zinit light blahgeek/nvim-lsp-booster
-fi
+# if (( $+commands[nvim-lsp-booster] == 0 )); then
+#     zinit ice wait lucid depth"1" sbin"**/nvim-lsp-booster"
+#     zinit light blahgeek/nvim-lsp-booster
+# fi
 
 #
 # Aliases
