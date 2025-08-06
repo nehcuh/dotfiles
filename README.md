@@ -76,6 +76,7 @@ make install
 ### 🖥️ System Packages
 **Core Development Tools:**
 - **Neovim**: Modern, extensible text editor with LSP support
+- **Zed**: Lightning-fast, collaborative code editor
 - **Tmux**: Terminal multiplexer for session management
 - **Git**: Version control with enhanced configuration
 - **Zsh**: Powerful shell with Zinit plugin manager
@@ -97,6 +98,11 @@ make install
 - **Python**: Python language server (basedpyright)
 - **Node.js**: TypeScript and JavaScript language servers
 - **Docker**: Container management (when available)
+
+**Container Development:**
+- **Dev Containers**: VS Code development containers support
+- **Docker Compose**: Multi-container development environments
+- **Dockerfile**: Containerized development setup
 
 **System Monitoring:**
 - **bottom**: Better `top` with charts and GPU monitoring
