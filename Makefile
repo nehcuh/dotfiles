@@ -184,17 +184,6 @@ update:
 setup-git:
 	@echo "$(BLUE)Setting up git configuration...$(NC)"
 	@./scripts/setup-git-config.sh
-	@echo "$(GREEN)✓ Git configuration setup complete!$(NC)"
-
-.PHONY: setup-python
-setup-python:
-	@echo "$(BLUE)Setting up Python environment...$(NC)"
-	@./scripts/setup-python-env.sh
-	@echo "$(GREEN)✓ Python environment setup complete!$(NC)"
-
-.PHONY: setup-node
-setup-node:
-	@echo "$(BLUE)Setting up Node.js environment...$(NC)"
 	@./scripts/setup-node-env.sh
 	@echo "$(GREEN)✓ Node.js environment setup complete!$(NC)"
 
