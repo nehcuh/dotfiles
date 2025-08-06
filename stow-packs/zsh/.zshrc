@@ -335,9 +335,11 @@ alias toggleproxy='if [ -n "$http_proxy" ]; then unsetproxy; else setproxy; fi'
 # Local customizations, e.g. theme, plugins, aliases, etc.
 [ -f $HOME/.zshrc.local ] && source $HOME/.zshrc.local
 
-# Initialize Starship prompt
+# Initialize Starship prompt (must be at the end)
 if command -v starship >/dev/null 2>&1; then
     eval "$(starship init zsh)"
+else
+    echo "Warning: Starship not found in PATH"
 fi
 
 # Added by LM Studio CLI (lms)
