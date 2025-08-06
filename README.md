@@ -14,6 +14,15 @@ and Windows.
 
 ## Quickstart
 
+### Interactive Installation (Recommended)
+
+**All Platforms:**
+```bash
+curl -fsSL https://raw.githubusercontent.com/nehcuh/dotfiles/main/scripts/interactive-install.sh | bash
+```
+
+This will launch an interactive wizard that lets you choose exactly what to install.
+
 ### One-Command Installation (Recommended)
 
 **Linux & macOS:**
@@ -76,6 +85,7 @@ make install
 ### 🖥️ System Packages
 **Core Development Tools:**
 - **Neovim**: Modern, extensible text editor with LSP support
+- **Zed**: Lightning-fast, collaborative code editor with optimized settings
 - **Zed**: Lightning-fast, collaborative code editor
 - **Tmux**: Terminal multiplexer for session management
 - **Git**: Version control with enhanced configuration
@@ -95,16 +105,30 @@ make install
 **Development Tools:**
 - **Go**: Go programming language with gopls
 - **Rust**: Rust programming language with rust-analyzer
-- **Python**: Python language server (basedpyright)
+- **Python**: Python language servers (basedpyright, pyrefly for Zed)
 - **Node.js**: TypeScript and JavaScript language servers
-- **Docker**: Container management (when available)
+- **OrbStack**: Modern Docker alternative for macOS
+- **Java**: OpenJDK with Maven and Gradle
+- **C/C++**: GCC, Clang, CMake, and debugging tools
 
 **Container Development:**
 - **Dev Containers**: VS Code development containers support
-- **Docker Compose**: Multi-container development environments
-- **Ubuntu Dev Environment**: Complete Ubuntu 24.04.2 LTS development container
-- **OrbStack**: Modern Docker alternative for macOS
+- **Docker Compose**: Multi-container development environments  
+- **Ubuntu Dev Environment**: Complete Ubuntu 24.04.2 LTS development container with user "huchen"
+- **OrbStack**: Modern Docker alternative for macOS with better performance
 
+**Python Development Environment:**
+- **Pyenv**: Python version management
+- **Anaconda3**: Latest version installed globally via pyenv
+- **uv**: Modern Python package installer and resolver
+- **direnv**: Directory-specific environment variable management
+- **Language Servers**: basedpyright for general use, pyrefly for Zed editor
+
+**Node.js Development Environment:**
+- **NVM**: Node Version Manager for easy Node.js version switching
+- **Node.js LTS**: Latest LTS version installed by default
+- **Package Managers**: npm, yarn, pnpm all supported
+- **Development Tools**: TypeScript, Prettier, ESLint pre-configured
 **System Monitoring:**
 - **bottom**: Better `top` with charts and GPU monitoring
 - **procs**: Modern replacement for `ps`
@@ -173,6 +197,12 @@ make install
 
 ## Management
 
+### Interactive Management
+```bash
+cd ~/.dotfiles
+./scripts/interactive-install.sh  # Interactive installation wizard
+```
+
 ### Using stow.sh
 ```bash
 cd ~/.dotfiles
@@ -185,6 +215,9 @@ cd ~/.dotfiles
 ### Using Make
 ```bash
 cd ~/.dotfiles
+make setup-python        # Setup Python environment
+make setup-node          # Setup Node.js environment
+make setup-dev            # Setup both Python and Node.js
 make install          # Install all dotfiles
 make remove           # Remove all dotfiles
 make status           # Check current status
@@ -199,6 +232,14 @@ make update           # Update repository
 - `Tab`: Smart completions
 
 ## Platform-Specific Notes
+
+### Docker Development Environment
+- **Ubuntu 24.04.2 LTS**: Complete development environment in container
+- **User**: "huchen" with sudo privileges
+- **Synchronized Configuration**: Your dotfiles are automatically available inside the container
+- **Persistent Storage**: Home directory persists between container restarts
+- **Port Mapping**: Common development ports (3000, 8000, 8080, etc.) are mapped
+- **Usage**: `docker-compose -f docker/docker-compose.ubuntu-dev.yml up -d`
 
 ### Windows
 - Requires Windows 10/11 with PowerShell 5.1+
@@ -230,6 +271,12 @@ make update           # Update repository
 
 ### First Time Setup
 
+#### Quick Interactive Setup (Recommended)
+```bash
+curl -fsSL https://raw.githubusercontent.com/nehcuh/dotfiles/main/scripts/interactive-install.sh | bash
+```
+
+#### Manual Setup
 1. **Clone the repository**
    ```bash
    git clone https://github.com/nehcuh/dotfiles.git ~/.dotfiles
@@ -302,6 +349,45 @@ zinit light ptavares/zsh-direnv
 # Personal tmux settings
 set -g mouse on
 set -g status-interval 5
+```
+
+### Development Environment Usage
+
+**Python Development:**
+```bash
+# Use pyenv to manage Python versions
+pyenv versions                    # List installed versions
+pyenv install 3.11.0             # Install specific version
+pyenv local 3.11.0               # Set version for current directory
+
+# Use direnv for project-specific environments
+echo 'layout python' > .envrc    # Create Python environment
+direnv allow                      # Allow direnv for current directory
+
+# Use uv for fast package management
+uv pip install package-name      # Fast package installation
+```
+
+**Node.js Development:**
+```bash
+# Use nvm to manage Node.js versions
+nvm list                          # List installed versions
+nvm install 18.17.0              # Install specific version
+nvm use 18.17.0                  # Use specific version
+echo '18.17.0' > .nvmrc          # Set version for project
+nvm use                          # Use version from .nvmrc
+```
+
+**Docker Development:**
+```bash
+# Start development environment
+docker-compose -f docker/docker-compose.ubuntu-dev.yml up -d
+
+# Access the environment
+docker-compose -f docker/docker-compose.ubuntu-dev.yml exec ubuntu-dev zsh
+
+# Stop the environment
+docker-compose -f docker/docker-compose.ubuntu-dev.yml down
 ```
 
 ## Acknowledgements
