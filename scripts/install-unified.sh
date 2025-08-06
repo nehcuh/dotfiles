@@ -199,7 +199,7 @@ echo -e "${BLUE}Installing system packages...${NC}"
 case "$PLATFORM" in
     macos)
         echo -e "${BLUE}Installing macOS-specific packages...${NC}"
-        # macOS specific packages if any
+        ./scripts/stow.sh install macos
         ;;
     linux)
         echo -e "${BLUE}Installing Linux-specific packages...${NC}"
