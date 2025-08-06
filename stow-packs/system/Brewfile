@@ -31,25 +31,33 @@ brew "yaml-language-server"
 brew "yazi"
 brew "zoxide"
 
+# Python development
+brew "pyenv"
+brew "uv"
+brew "direnv"
+
+# Node.js development
+brew "nvm"
+
 # Development tools for specific languages
-brew "black\"          # Python formatter
-brew "isort\"          # Python import sorter
-brew "prettier\"       # JavaScript/TypeScript formatter
-brew "eslint\"         # JavaScript/TypeScript linter
-brew "maven\"          # Java build tool
-brew "gradle\"         # Java build tool
+brew "black"          # Python formatter
+brew "isort"          # Python import sorter
+brew "prettier"       # JavaScript/TypeScript formatter
+brew "eslint"         # JavaScript/TypeScript linter
+brew "maven"          # Java build tool
+brew "gradle"         # Java build tool
 
 # Additional development utilities
-brew "jq\"             # JSON processor
-brew "yq\"             # YAML processor
-brew "httpie\"         # HTTP client
-brew "gh\"             # GitHub CLI
+brew "jq"             # JSON processor
+brew "yq"             # YAML processor
+brew "httpie"         # HTTP client
+brew "gh"             # GitHub CLI
 
-cask "warp"
 cask "font-fira-code"
 cask "font-hack-nerd-font"
 cask "font-sf-mono"
 cask "font-google-sans-code"
+cask "warp"
 cask "hiddenbar"
 cask "maczip"
 cask "mos"
@@ -59,7 +67,7 @@ cask "obsidian"
 cask "raycast"
 cask "rectangle"
 cask "zed"
-cask "docker"
+cask "orbstack"
 cask "sfm"
 cask "microsoft-excel"
 cask "microsoft-word"

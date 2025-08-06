@@ -1,7 +1,7 @@
 {
   // Editor settings
   "theme": "Catppuccin Mocha",
-  "buffer_font_family": "JetBrains Mono",
+  "buffer_font_family": "Google Sans Code",
   "buffer_font_size": 14,
   "ui_font_size": 16,
   "tab_size": 4,
@@ -25,7 +25,7 @@
     "shell": {
       "program": "zsh"
     },
-    "font_family": "JetBrains Mono",
+    "font_family": "Google Sans Code",
     "font_size": 14
   },
   
@@ -55,6 +55,26 @@
           }
         }
       }
+    },
+    "basedpyright": {
+      "settings": {
+        "python": {
+          "analysis": {
+            "typeCheckingMode": "strict"
+          }
+        }
+      }
+    },
+    "pyrefly": {
+      "initialization_options": {
+        "settings": {
+          "python": {
+            "analysis": {
+              "typeCheckingMode": "strict"
+            }
+          }
+        }
+      }
     }
   },
   
@@ -72,7 +92,8 @@
           "command": "black",
           "arguments": ["-"]
         }
-      }
+      },
+      "language_servers": ["pyrefly", "basedpyright"]
     },
     "Rust": {
       "format_on_save": "on",
