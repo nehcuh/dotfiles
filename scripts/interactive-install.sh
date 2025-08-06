@@ -691,6 +691,14 @@ run_installation() {
     if [[ $INSTALL_SYSTEM_PACKAGES == true ]]; then
         echo -e "${BLUE}Installing system packages...${NC}"
         if [ -f "scripts/stow.sh" ]; then
+            # Check for conflicts first
+            if [ -f "$HOME/.config/starship.toml" ] && [ ! -L "$HOME/.config/starship.toml" ]; then
+                echo -e "${YELLOW}Backing up existing starship.toml...${NC}"
+                backup_dir="$HOME/.dotfiles-backup-$(date +%Y%m%d-%H%M%S)"
+                mkdir -p "$backup_dir/.config"
+                cp "$HOME/.config/starship.toml" "$backup_dir/.config/"
+                rm -f "$HOME/.config/starship.toml"
+            fi
             ./scripts/stow.sh install system
         else
             echo -e "${RED}Error: stow.sh script not found${NC}"
@@ -736,6 +744,14 @@ run_installation() {
         
         # Install Zed configuration if Zed is available
         if command -v zed >/dev/null 2>&1; then
+            # Handle Zed config conflicts
+            if [ -f "$HOME/.config/zed/settings.json" ] && [ ! -L "$HOME/.config/zed/settings.json" ]; then
+                echo -e "${YELLOW}Backing up existing Zed settings...${NC}"
+                backup_dir="$HOME/.dotfiles-backup-$(date +%Y%m%d-%H%M%S)"
+                mkdir -p "$backup_dir/.config/zed"
+                cp "$HOME/.config/zed/settings.json" "$backup_dir/.config/zed/"
+                rm -f "$HOME/.config/zed/settings.json"
+            fi
             ./scripts/stow.sh install zed
         fi
         echo -e "${GREEN}✓ Editors installed${NC}"
