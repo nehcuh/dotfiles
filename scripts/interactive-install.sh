@@ -688,13 +688,23 @@ main() {
         case $choice in
                 echo -e "${GREEN}✓ All components selected${NC}"
                 sleep 1
-            [1-8]) toggle_selection $choice ;;
-            a|A) toggle_selection a ;;
-            c|C) toggle_selection c ;;
+            [1-8]) 
+                toggle_selection $choice 
+                echo -e "${GREEN}✓ Selection updated${NC}"
+                sleep 1
+                ;;
+            a|A) 
+                toggle_selection a
+                echo -e "${GREEN}✓ All components selected${NC}"
+                sleep 1
+                ;;
+            c|C) 
+                toggle_selection c
                 echo -e "${GREEN}✓ Core components selected${NC}"
                 sleep 1
                 ;;
-            d|D) toggle_selection d ;;
+            d|D) 
+                toggle_selection d
                 echo -e "${GREEN}✓ Development environments selected${NC}"
                 sleep 1
                 ;;
