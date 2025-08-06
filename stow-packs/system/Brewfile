@@ -40,18 +40,18 @@ brew "direnv"
 brew "nvm"
 
 # Development tools for specific languages
-brew "black"          # Python formatter
-brew "isort"          # Python import sorter
-brew "prettier"       # JavaScript/TypeScript formatter
-brew "eslint"         # JavaScript/TypeScript linter
-brew "maven"          # Java build tool
-brew "gradle"         # Java build tool
+brew "black\"          # Python formatter
+brew "isort\"          # Python import sorter
+brew "prettier\"       # JavaScript/TypeScript formatter
+brew "eslint\"         # JavaScript/TypeScript linter
+brew "maven\"          # Java build tool
+brew "gradle\"         # Java build tool
 
 # Additional development utilities
-brew "jq"             # JSON processor
-brew "yq"             # YAML processor
-brew "httpie"         # HTTP client
-brew "gh"             # GitHub CLI
+brew "jq\"             # JSON processor
+brew "yq\"             # YAML processor
+brew "httpie\"         # HTTP client
+brew "gh\"             # GitHub CLI
 
 cask "font-fira-code"
 cask "font-hack-nerd-font"
