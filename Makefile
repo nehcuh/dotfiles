@@ -34,6 +34,9 @@ help:
 	@echo "$(CYAN)Cross-Platform Dotfiles Management$(NC)"
 	@echo "=================================="
 	@echo ""
+	@echo "$(BLUE)Quick start:$(NC)"
+	@echo "  $(GREEN)make interactive$(NC) - Interactive installation wizard"
+	@echo ""
 	@echo "$(BLUE)Available targets:$(NC)"
 	@echo "  $(GREEN)install$(NC)     - Install dotfiles (default)"
 	@echo "  $(GREEN)install-all$(NC) - Install all packages"
@@ -57,6 +60,11 @@ help:
 	@echo "  make install     # Install all dotfiles"
 	@echo "  make clean       # Clean up before installation"
 	@echo "  make status      # Check current status"
+
+# Interactive installation
+.PHONY: interactive
+interactive:
+	@./scripts/interactive-install.sh
 
 # Installation targets
 .PHONY: install
@@ -250,3 +258,27 @@ check-requirements:
 bootstrap: check-requirements install
 	@echo "$(GREEN)🎉 Bootstrap complete!$(NC)"
 	@echo "$(YELLOW)Please restart your terminal.$(NC)"
+
+# Docker development environment
+.PHONY: docker-build
+docker-build:
+	@echo "$(BLUE)Building Docker development environment...$(NC)"
+	@docker-compose -f docker/docker-compose.ubuntu-dev.yml build
+	@echo "$(GREEN)✓ Docker environment built!$(NC)"
+
+.PHONY: docker-up
+docker-up:
+	@echo "$(BLUE)Starting Docker development environment...$(NC)"
+	@docker-compose -f docker/docker-compose.ubuntu-dev.yml up -d
+	@echo "$(GREEN)✓ Docker environment started!$(NC)"
+	@echo "$(CYAN)Access with: docker-compose -f docker/docker-compose.ubuntu-dev.yml exec ubuntu-dev zsh$(NC)"
+
+.PHONY: docker-down
+docker-down:
+	@echo "$(BLUE)Stopping Docker development environment...$(NC)"
+	@docker-compose -f docker/docker-compose.ubuntu-dev.yml down
+	@echo "$(GREEN)✓ Docker environment stopped!$(NC)"
+
+.PHONY: docker-shell
+docker-shell:
+	@docker-compose -f docker/docker-compose.ubuntu-dev.yml exec ubuntu-dev zsh

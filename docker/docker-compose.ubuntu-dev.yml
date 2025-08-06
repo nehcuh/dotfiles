@@ -6,20 +6,20 @@ services:
       context: ..
       dockerfile: docker/Dockerfile.ubuntu-dev
       args:
-        USERNAME: developer
+        USERNAME: huchen
         USER_UID: 1000
         USER_GID: 1000
-    container_name: ubuntu-dev-env
+    container_name: huchen-dev-env
     hostname: ubuntu-dev
     volumes:
       # Mount workspace
       - ../:/workspace:cached
       # Mount SSH keys (read-only)
-      - ~/.ssh:/home/developer/.ssh:ro
+      - ~/.ssh:/home/huchen/.ssh:ro
       # Mount git config (read-only)
-      - ~/.gitconfig:/home/developer/.gitconfig:ro
+      - ~/.gitconfig:/home/huchen/.gitconfig:ro
       # Persistent home directory
-      - ubuntu-dev-home:/home/developer
+      - huchen-dev-home:/home/huchen
       # Mount OrbStack socket if available
       - /var/run/docker.sock:/var/run/docker.sock
     ports:
