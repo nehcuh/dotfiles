@@ -242,10 +242,11 @@ elif [[ $OSTYPE == linux* ]]; then
 fi
 
 # LSP booster
-if (( $+commands[nvim-lsp-booster] == 0 )); then
-    zinit ice wait lucid depth"1" from"gh-r" sbin"**/nvim-lsp-booster"
-    zinit light blahgeek/nvim-lsp-booster
-fi
+# LSP booster - commented out due to installation issues on macOS
+# if (( $+commands[nvim-lsp-booster] == 0 )); then
+#     zinit ice wait lucid depth"1" from"gh-r" sbin"**/nvim-lsp-booster"
+#     zinit light blahgeek/nvim-lsp-booster
+# fi
 
 #
 # Aliases
