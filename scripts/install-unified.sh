@@ -207,6 +207,12 @@ echo -e "${BLUE}Installing development tools...${NC}"
 echo -e "${BLUE}Installing editors...${NC}"
 ./scripts/stow.sh install vim nvim tmux
 
+# Zed editor configuration
+if command -v zed >/dev/null 2>&1; then
+    echo -e "${BLUE}Installing Zed configuration...${NC}"
+    ./scripts/stow.sh install zed
+fi
+
 # Platform-specific installations
 case "$PLATFORM" in
     macos)

@@ -1,0 +1,28 @@
+version: '3.8'
+
+services:
+  dev:
+    build:
+      context: ..
+      dockerfile: docker/Dockerfile.dev
+      args:
+        USERNAME: developer
+        USER_UID: 1000
+        USER_GID: 1000
+    volumes:
+      - ..:/workspace:cached
+      - ~/.ssh:/home/developer/.ssh:ro
+      - ~/.gitconfig:/home/developer/.gitconfig:ro
+      - dev-home:/home/developer
+    ports:
+      - "3000:3000"
+      - "8000:8000"
+      - "8080:8080"
+    environment:
+      - TERM=xterm-256color
+    stdin_open: true
+    tty: true
+    command: zsh
+
+volumes:
+  dev-home:
