@@ -192,7 +192,7 @@ select_language() {
     echo "2) $(get_string "chinese")"
     echo ""
     echo -n "$(get_string "enter_choice") (1-2): "
-    read -r choice
+    read choice < /dev/tty
     
     case $choice in
         1) CURRENT_LANG=$LANG_EN ;;
@@ -233,7 +233,7 @@ check_conflicts() {
         echo "4) $(get_string "cancel_option")"
         echo ""
         echo -n "$(get_string "enter_choice") (1-4): "
-        read -r choice
+        read choice < /dev/tty
         
         case $choice in
             1) CONFLICT_ACTION="backup" ;;
@@ -651,7 +651,7 @@ main() {
         show_menu
         
         echo -n "$(get_string "enter_choice"): "
-        read -r choice
+        read choice < /dev/tty
         
         case $choice in
             [1-8]) toggle_selection $choice ;;
@@ -662,7 +662,7 @@ main() {
                 print_header
                 show_selections
                 echo -n "$(get_string "press_enter")"
-                read -r
+                read dummy < /dev/tty
                 ;;
             i|I) 
                 if [[ $INSTALL_SYSTEM_PACKAGES == false ]] && [[ $INSTALL_SHELL_CONFIG == false ]] && 
@@ -671,7 +671,7 @@ main() {
                    [[ $INSTALL_DOCKER_ENV == false ]] && [[ $SETUP_GIT_CONFIG == false ]]; then
                     echo -e "${RED}$(get_string "no_components")${NC}"
                     echo -n "$(get_string "press_enter")"
-                    read -r
+                    read dummy < /dev/tty
                 else
                     run_installation
                     exit 0
