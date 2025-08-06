@@ -58,8 +58,37 @@ stow_install() {
         if [ -d "$STOW_DIR/$pkg" ]; then
             echo -e "${YELLOW}Installing $pkg...${NC}"
             cd "$STOW_DIR"
-            stow -v -t "$TARGET_DIR" "$pkg"
-            echo -e "${GREEN}✓ $pkg installed${NC}"
+            
+            # Try to stow, if conflicts exist, handle them
+            if ! stow -v -t "$TARGET_DIR" "$pkg" 2>/dev/null; then
+                echo -e "${YELLOW}Conflicts detected for $pkg, backing up existing files...${NC}"
+                
+                # Create backup directory
+                backup_dir="$HOME/.dotfiles-backup-$(date +%Y%m%d-%H%M%S)"
+                mkdir -p "$backup_dir"
+                
+                # Find conflicting files and back them up
+                stow -v -t "$TARGET_DIR" -n "$pkg" 2>&1 | grep "existing target" | while read -r line; do
+                    if [[ $line =~ "existing target "(.+)" since" ]]; then
+                        conflict_file="${BASH_REMATCH[1]}"
+                        if [ -f "$TARGET_DIR/$conflict_file" ] && [ ! -L "$TARGET_DIR/$conflict_file" ]; then
+                            echo -e "${YELLOW}  Backing up $conflict_file${NC}"
+                            mkdir -p "$backup_dir/$(dirname "$conflict_file")"
+                            cp "$TARGET_DIR/$conflict_file" "$backup_dir/$conflict_file"
+                            rm -f "$TARGET_DIR/$conflict_file"
+                        fi
+                    fi
+                done
+                
+                # Try stowing again
+                if stow -v -t "$TARGET_DIR" "$pkg"; then
+                    echo -e "${GREEN}✓ $pkg installed (conflicts backed up to $backup_dir)${NC}"
+                else
+                    echo -e "${RED}✗ Failed to install $pkg${NC}"
+                fi
+            else
+                echo -e "${GREEN}✓ $pkg installed${NC}"
+            fi
         else
             echo -e "${RED}✗ Package $pkg not found${NC}"
         fi
