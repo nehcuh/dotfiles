@@ -195,6 +195,22 @@ echo -e "${YELLOW}Installing dotfiles packages...${NC}"
 echo -e "${BLUE}Installing system packages...${NC}"
 ./scripts/stow.sh install system
 
+# Platform-specific packages
+case "$PLATFORM" in
+    macos)
+        echo -e "${BLUE}Installing macOS-specific packages...${NC}"
+        # macOS specific packages if any
+        ;;
+    linux)
+        echo -e "${BLUE}Installing Linux-specific packages...${NC}"
+        ./scripts/stow.sh install linux
+        ;;
+    windows)
+        echo -e "${BLUE}Installing Windows-specific packages...${NC}"
+        ./scripts/stow.sh install windows
+        ;;
+esac
+
 # Shell configuration
 echo -e "${BLUE}Installing shell configuration...${NC}"
 ./scripts/stow.sh install zsh

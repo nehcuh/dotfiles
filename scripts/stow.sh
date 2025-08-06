@@ -15,7 +15,7 @@ BLUE='\033[0;34m'
 NC='\033[0m' # No Color
 
 # Available packages
-PACKAGES=("zsh" "git" "vim" "nvim" "tmux" "tools" "system" "windows" "zed")
+PACKAGES=("zsh" "git" "vim" "nvim" "tmux" "tools" "system" "linux" "windows" "zed")
 
 usage() {
     echo "Usage: $0 [command] [package...]"
