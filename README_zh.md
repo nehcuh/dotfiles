@@ -13,6 +13,15 @@
 
 ## 快速开始
 
+### 交互式安装（推荐）
+
+**所有平台:**
+```bash
+curl -fsSL https://raw.githubusercontent.com/nehcuh/dotfiles/main/scripts/interactive-install.sh | bash
+```
+
+这将启动一个交互式向导，让你选择需要安装的组件。
+
 ### 一键安装（推荐）
 
 **Linux & macOS:**
@@ -66,7 +75,7 @@ make install
 ### 包含的工具
 - **Shell**: Zsh 配合 Zinit 插件管理器
 - **终端**: tmux 配合 Oh My Tmux
-- **编辑器**: Neovim、Vim
+- **编辑器**: Neovim、Vim、Zed
 - **实用工具**: fzf、ripgrep、eza、bat、starship、zoxide
 - **Git**: 增强的配置和别名
 
@@ -90,12 +99,28 @@ make install
 - **delta**: Git 的语法高亮分页器
 - **yazi**: 极速终端文件管理器
 
+**现代工具与传统工具对比:**
+| 传统工具 | 现代替代 | 主要优势 |
+|---------|---------|---------|
+| `ls` | `eza` | 彩色输出、图标、Git 状态、树形视图 |
+| `cat` | `bat` | 语法高亮、行号、Git 集成、分页 |
+| `grep` | `ripgrep` | 速度快 10-100 倍、智能忽略、Unicode 支持 |
+| `find` | `fd` | 简洁语法、并行搜索、智能忽略 |
+| `cd` | `zoxide` | 智能跳转、频率学习、模糊匹配 |
+| `top` | `bottom/btop` | 更好的界面、GPU 监控、可交互 |
+| `du` | `dust` | 可视化输出、更直观的大小显示 |
+| `df` | `duf` | 彩色输出、更清晰的格式 |
+| `ps` | `procs` | 彩色输出、树形视图、更多信息 |
+| `ping` | `gping` | 实时图表、多目标、统计信息 |
+
 **开发工具:**
 - **Go**: Go 编程语言，包含 gopls
 - **Rust**: Rust 编程语言，包含 rust-analyzer
-- **Python**: Python 语言服务器 (basedpyright)
+- **Python**: Python 语言服务器 (basedpyright, pyrefly for Zed)
 - **Node.js**: TypeScript 和 JavaScript 语言服务器
-- **Docker**: 容器管理（可用时）
+- **Java**: OpenJDK 多版本支持，Maven 和 Gradle
+- **C/C++**: GCC, Clang, CMake 和调试工具
+- **OrbStack**: 现代 Docker 替代品（macOS）
 
 **系统监控:**
 - **bottom**: 更好的 `top`，包含图表和 GPU 监控
@@ -104,6 +129,25 @@ make install
 - **dust**: 更直观的 `du` 版本
 - **hyperfine**: 命令行基准测试工具
 - **gping**: 带图表的 ping
+
+**容器化开发:**
+- **Dev Containers**: VS Code 开发容器支持
+- **Docker Compose**: 多容器开发环境  
+- **Ubuntu 开发环境**: 完整的 Ubuntu 24.04.2 LTS 开发容器，用户名 "huchen"
+- **OrbStack**: macOS 上的现代 Docker 替代品，性能更佳
+
+**Python 开发环境:**
+- **Pyenv**: Python 版本管理
+- **Anaconda3**: 通过 pyenv 全局安装最新版本
+- **uv**: 现代 Python 包安装器和解析器
+- **direnv**: 目录特定的环境变量管理
+- **语言服务器**: 通用使用 basedpyright，Zed 编辑器使用 pyrefly
+
+**Node.js 开发环境:**
+- **NVM**: Node 版本管理器，轻松切换 Node.js 版本
+- **Node.js LTS**: 默认安装最新 LTS 版本
+- **包管理器**: 支持 npm、yarn、pnpm
+- **开发工具**: 预配置 TypeScript、Prettier、ESLint
 
 ### 🎨 Shell 配置
 **Zsh 功能:**
@@ -163,7 +207,19 @@ make install
 - **格式化**: 代码格式化工具集成
 - **调试**: 可用的调试适配器支持
 
+### 🎯 编辑器支持
+- **Zed**: 现代协作代码编辑器，优化配置
+- **Neovim**: 现代、可扩展的文本编辑器
+- **VS Code**: 通过 Dev Containers 支持
+- **字体**: Google Sans Code 字体配置
+
 ## 管理
+
+### 交互式管理
+```bash
+cd ~/.dotfiles
+./scripts/interactive-install.sh  # 交互式安装向导
+```
 
 ### 使用 stow.sh
 ```bash
@@ -177,6 +233,9 @@ cd ~/.dotfiles
 ### 使用 Make
 ```bash
 cd ~/.dotfiles
+make setup-python        # 设置 Python 环境
+make setup-node          # 设置 Node.js 环境
+make setup-dev            # 设置 Python 和 Node.js 环境
 make install          # 安装所有 dotfiles
 make remove           # 移除所有 dotfiles
 make status           # 检查当前状态
@@ -190,7 +249,24 @@ make update           # 更新仓库
 - `Ctrl-t`: 粘贴选中的文件路径
 - `Tab`: 智能补全
 
+### Docker 开发环境管理
+```bash
+cd ~/.dotfiles
+make docker-build        # 构建开发环境
+make docker-up           # 启动开发环境
+make docker-down         # 停止开发环境
+make docker-shell        # 进入开发环境
+```
+
 ## 平台特定说明
+
+### Docker 开发环境
+- **Ubuntu 24.04.2 LTS**: 完整的开发环境容器
+- **用户**: "huchen" 具有 sudo 权限
+- **同步配置**: 你的 dotfiles 自动在容器内可用
+- **持久化存储**: 用户目录在容器重启间保持
+- **端口映射**: 常用开发端口（3000, 8000, 8080 等）已映射
+- **使用方法**: `docker-compose -f docker/docker-compose.ubuntu-dev.yml up -d`
 
 ### Windows
 - 需要 Windows 10/11 和 PowerShell 5.1+
@@ -222,6 +298,12 @@ make update           # 更新仓库
 
 ### 首次设置
 
+#### 快速交互式设置（推荐）
+```bash
+curl -fsSL https://raw.githubusercontent.com/nehcuh/dotfiles/main/scripts/interactive-install.sh | bash
+```
+
+#### 手动设置
 1. **克隆仓库**
    ```bash
    git clone https://github.com/nehcuh/dotfiles.git ~/.dotfiles
