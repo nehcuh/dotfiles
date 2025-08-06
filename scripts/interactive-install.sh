@@ -686,8 +686,6 @@ main() {
         read -r choice < /dev/tty
         
         case $choice in
-                echo -e "${GREEN}✓ All components selected${NC}"
-                sleep 1
             [1-8]) 
                 toggle_selection $choice 
                 echo -e "${GREEN}✓ Selection updated${NC}"
