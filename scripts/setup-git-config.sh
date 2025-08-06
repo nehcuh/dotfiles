@@ -25,27 +25,27 @@ fi
 case "$OS" in
     Darwin)
         echo -e "${YELLOW}Creating macOS git configuration...${NC}"
-        cp "$DOTFILES_DIR/stow-packs/git/.gitconfig_macOS" "$HOME/.gitconfig"
+        cp "$DOTFILES_DIR/stow-packs/git/.platform-specific/.gitconfig_macOS" "$HOME/.gitconfig"
         ;;
     Linux)
         echo -e "${YELLOW}Creating Linux git configuration...${NC}"
-        cp "$DOTFILES_DIR/stow-packs/git/.gitconfig_linux" "$HOME/.gitconfig"
+        cp "$DOTFILES_DIR/stow-packs/git/.platform-specific/.gitconfig_linux" "$HOME/.gitconfig"
         ;;
     CYGWIN*|MINGW*|MSYS*)
         echo -e "${YELLOW}Creating Windows/Cygwin git configuration...${NC}"
-        cp "$DOTFILES_DIR/stow-packs/git/.gitconfig_cygwin" "$HOME/.gitconfig"
+        cp "$DOTFILES_DIR/stow-packs/git/.platform-specific/.gitconfig_cygwin" "$HOME/.gitconfig"
         ;;
     *)
         echo -e "${RED}Unsupported OS: $OS${NC}"
         echo -e "${YELLOW}Using default git configuration...${NC}"
-        cp "$DOTFILES_DIR/stow-packs/git/.gitconfig_linux" "$HOME/.gitconfig"
+        cp "$DOTFILES_DIR/stow-packs/git/.platform-specific/.gitconfig_linux" "$HOME/.gitconfig"
         ;;
 esac
 
 # Create local gitconfig if it doesn't exist
 if [ ! -f "$HOME/.gitconfig_local" ]; then
     echo -e "${YELLOW}Creating local git configuration template...${NC}"
-    cp "$DOTFILES_DIR/stow-packs/git/.gitconfig_local.template" "$HOME/.gitconfig_local"
+    cp "$DOTFILES_DIR/stow-packs/git/.platform-specific/.gitconfig_local.template" "$HOME/.gitconfig_local"
     echo -e "${GREEN}✓ Local git configuration template created${NC}"
     echo -e "${YELLOW}Please edit ~/.gitconfig_local to set your name and email${NC}"
 else
