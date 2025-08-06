@@ -14,6 +14,8 @@ services:
     volumes:
       # Mount workspace
       - ../:/workspace:cached
+      # Mount entire home directory
+      - ~/:/home/huchen/host-home:cached
       # Mount SSH keys (read-only)
       - ~/.ssh:/home/huchen/.ssh:ro
       # Mount git config (read-only)
