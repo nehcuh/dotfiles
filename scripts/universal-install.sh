@@ -194,24 +194,24 @@ clone_dotfiles() {
         git clone https://github.com/nehcuh/dotfiles.git "$DOTFILES_DIR"
         print_color "$GREEN" "✓ Dotfiles cloned to $DOTFILES_DIR"
     else
-        print_color "$YELLOW" "📁 Dotfiles directory already exists at $DOTFILES_DIR"
+        print_color "$YELLOW" "📁 Dotfiles directory already exists"
         printf "Do you want to update the existing dotfiles? [Y/n]: "
-        read response < /dev/tty
+        read -r response < /dev/tty
         case "$response" in
             [nN][oO]|[nN])
-                print_color "$YELLOW" "Using existing dotfiles configuration..."
+                print_color "$YELLOW" "Using existing dotfiles..."
                 ;;
             *)
-                print_color "$YELLOW" "Updating dotfiles repository..."
+                print_color "$YELLOW" "Updating dotfiles..."
                 cd "$DOTFILES_DIR"
                 # Backup any local changes
                 if [ -n "$(git status --porcelain 2>/dev/null)" ]; then
-                    print_color "$YELLOW" "Backing up local changes..."
+                    print_color "$YELLOW" "Stashing local changes..."
                     git stash push -m "Backup before update $(date)"
                 fi
                 # Pull latest changes
                 git pull origin main 2>/dev/null || git pull origin master 2>/dev/null || {
-                    print_color "$RED" "Failed to update repository. Removing and re-cloning..."
+                    print_color "$YELLOW" "Update failed. Re-cloning repository..."
                     cd "$HOME"
                     rm -rf "$DOTFILES_DIR"
                     git clone https://github.com/nehcuh/dotfiles.git "$DOTFILES_DIR"
@@ -344,14 +344,14 @@ run_installer() {
             make install
         else
             print_color "$RED" "Make not available"
+            exit 1
         fi
     else
-        print_color "$YELLOW" "Trying direct stow installation..."
         if [ -f "scripts/stow.sh" ]; then
             print_color "$BLUE" "Running stow installer..."
             ./scripts/stow.sh install
         else
-            print_color "$RED" "No installation method available"
+            print_color "$RED" "Error: No installation scripts found"
             exit 1
         fi
     fi
