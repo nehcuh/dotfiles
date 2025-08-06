@@ -1,10 +1,10 @@
-# ZSH envioronment
+# ZSH environment
 
 export LANG="en_US.UTF-8"
 export LC_ALL="en_US.UTF-8"
 export TERM=xterm-256color
 export DEFAULT_USER=$USER
-export EDITOR='nvim'
+export EDITOR='emacsclient -a ""'
 export PATH=$HOME/bin:$HOME/.local/bin:/usr/local/sbin:$PATH
 
 # Zinit
@@ -22,15 +22,15 @@ export PATH=${GOPATH//://bin:}/bin:$PATH
 # Rust
 export PATH=$HOME/.cargo/bin:$PATH
 
-# APIKEY - Replace with your actual keys
-# export OPENAI_API_KEY=your-openai-api-key
-# export OPENAI_BASE_URL="https://api.openai.com/v1"
-# export GEMINI_API_KEY=your-gemini-api-key
-# export DEEPSEEK_API_KEY=your-deepseek-api-key
-# export DEEPSEEK_BASE_URL="https://api.deepseek.com"
-# export MOONSHOT_API_KEY=your-moonshot-api-key
-# export AVANTE_MOONSHOT_API_KEY=your-moonshot-api-key
-# export ANTHROPIC_BASE_URL=https://api.anthropic.com
-# export ANTHROPIC_AUTH_TOKEN=your-anthropic-api-key
+# API Keys - Set these in your environment or ~/.zshrc_local
+# export OPENAI_API_KEY=""
+# export OPENAI_BASE_URL=""
+# export GEMINI_API_KEY=""
+# export DEEPSEEK_API_KEY=""
+# export DEEPSEEK_BASE_URL=""
+# export MOONSHOT_API_KEY=""
+# export AVANTE_MOONSHOT_API_KEY=""
+# export ANTHROPIC_BASE_URL=""
+# export ANTHROPIC_AUTH_TOKEN=""
 # setproxy
-# export https_proxy=http://127.0.0.1:7897 http_proxy=http://127.0.0.1:7897 all_proxy=socks5://127.0.0.1:7897
+export https_proxy=http://127.0.0.1:7897 http_proxy=http://127.0.0.1:7897 all_proxy=socks5://127.0.0.1:7897
