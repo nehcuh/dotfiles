@@ -681,61 +681,130 @@ run_installation() {
     install_prerequisites
     clone_dotfiles
     
+    # Make sure we're in the dotfiles directory
+    cd "$DOTFILES_DIR"
+    
+    # Make scripts executable
+    chmod +x scripts/*.sh 2>/dev/null || true
+    
     # Install selected components
     if [[ $INSTALL_SYSTEM_PACKAGES == true ]]; then
-        echo -e "${BLUE}正在安装系统软件包...${NC}"
-        install_system_packages
-        echo -e "${GREEN}✓ 系统软件包安装完成${NC}"
+        echo -e "${BLUE}Installing system packages...${NC}"
+        if [ -f "scripts/stow.sh" ]; then
+            ./scripts/stow.sh install system
+        else
+            echo -e "${RED}Error: stow.sh script not found${NC}"
+        fi
+        echo -e "${GREEN}✓ System packages installed${NC}"
     fi
     
     if [[ $INSTALL_SHELL_CONFIG == true ]]; then
-        echo -e "${BLUE}正在安装 Shell 配置...${NC}"
-        install_shell_config
-        echo -e "${GREEN}✓ Shell 配置安装完成${NC}"
+        echo -e "${BLUE}Installing shell configuration...${NC}"
+        if [ -f "scripts/stow.sh" ]; then
+            ./scripts/stow.sh install zsh
+        fi
+        
+        # Install Zinit if not exists
+        if [ ! -d "$HOME/.local/share/zinit" ]; then
+            echo -e "${YELLOW}Installing Zinit...${NC}"
+            sh -c "$(curl -fsSL https://git.io/zinit-install)"
+        fi
+        echo -e "${GREEN}✓ Shell configuration installed${NC}"
     fi
     
     if [[ $INSTALL_DEV_TOOLS == true ]]; then
-        echo -e "${BLUE}正在安装开发工具...${NC}"
-        install_dev_tools
-        echo -e "${GREEN}✓ 开发工具安装完成${NC}"
+        echo -e "${BLUE}Installing development tools...${NC}"
+        if [ -f "scripts/stow.sh" ]; then
+            ./scripts/stow.sh install git tools
+        fi
+        echo -e "${GREEN}✓ Development tools installed${NC}"
     fi
     
     if [[ $INSTALL_EDITORS == true ]]; then
-        echo -e "${BLUE}正在安装编辑器...${NC}"
-        install_editors
-        echo -e "${GREEN}✓ 编辑器安装完成${NC}"
+        echo -e "${BLUE}Installing editors...${NC}"
+        if [ -f "scripts/stow.sh" ]; then
+            ./scripts/stow.sh install vim nvim tmux
+        fi
+        
+        # Install Oh My Tmux if not exists
+        if [ ! -d "$HOME/.tmux" ]; then
+            echo -e "${YELLOW}Installing Oh My Tmux...${NC}"
+            git clone https://github.com/gpakosz/.tmux.git ~/.tmux
+            ln -sf ~/.tmux/.tmux.conf ~/.tmux.conf
+            cp ~/.tmux/.tmux.conf.local ~/.tmux.conf.local
+        fi
+        
+        # Install Zed configuration if Zed is available
+        if command -v zed >/dev/null 2>&1; then
+            ./scripts/stow.sh install zed
+        fi
+        echo -e "${GREEN}✓ Editors installed${NC}"
     fi
     
     if [[ $INSTALL_PYTHON_ENV == true ]]; then
-        echo -e "${BLUE}正在设置 Python 环境...${NC}"
-        install_python_env
-        echo -e "${GREEN}✓ Python 环境设置完成${NC}"
+        echo -e "${BLUE}Setting up Python environment...${NC}"
+        if [ -f "scripts/setup-python-env.sh" ]; then
+            ./scripts/setup-python-env.sh
+        fi
+        echo -e "${GREEN}✓ Python environment configured${NC}"
     fi
     
     if [[ $INSTALL_NODE_ENV == true ]]; then
-        echo -e "${BLUE}正在设置 Node.js 环境...${NC}"
-        install_node_env
-        echo -e "${GREEN}✓ Node.js 环境设置完成${NC}"
+        echo -e "${BLUE}Setting up Node.js environment...${NC}"
+        if [ -f "scripts/setup-node-env.sh" ]; then
+            ./scripts/setup-node-env.sh
+        fi
+        echo -e "${GREEN}✓ Node.js environment configured${NC}"
     fi
     
     if [[ $INSTALL_DOCKER_ENV == true ]]; then
-        echo -e "${BLUE}正在设置 Docker 环境...${NC}"
-        install_docker_env
-        echo -e "${GREEN}✓ Docker 环境设置完成${NC}"
+        echo -e "${BLUE}Setting up Docker environment...${NC}"
+        
+        # Install OrbStack on macOS
+        if [[ $PLATFORM == "macos" ]] && ! command -v orbstack >/dev/null 2>&1; then
+            echo -e "${YELLOW}Installing OrbStack...${NC}"
+            if command -v brew >/dev/null 2>&1; then
+                brew install --cask orbstack
+            fi
+        fi
+        
+        # Build Docker development environment
+        if [ -f "docker/docker-compose.ubuntu-dev.yml" ]; then
+            echo -e "${YELLOW}Building Ubuntu development environment...${NC}"
+            if command -v docker-compose >/dev/null 2>&1; then
+                docker-compose -f docker/docker-compose.ubuntu-dev.yml build
+                echo -e "${GREEN}✓ Docker environment ready${NC}"
+                echo -e "${CYAN}Start command: docker-compose -f docker/docker-compose.ubuntu-dev.yml up -d${NC}"
+            else
+                echo -e "${YELLOW}Docker Compose not available, skipping Docker environment setup${NC}"
+            fi
+        fi
+        echo -e "${GREEN}✓ Docker environment configured${NC}"
     fi
     
     if [[ $SETUP_GIT_CONFIG == true ]]; then
-        echo -e "${BLUE}正在设置 Git 配置...${NC}"
-        setup_git_config
-        echo -e "${GREEN}✓ Git 配置设置完成${NC}"
+        echo -e "${BLUE}Setting up Git configuration...${NC}"
+        if [ -f "scripts/setup-git-config.sh" ]; then
+            ./scripts/setup-git-config.sh
+        fi
+        echo -e "${GREEN}✓ Git configuration setup complete${NC}"
     fi
     
     # Platform-specific installations
     platform_specific_install
     
-    # Change default shell if shell config was installed
-    if [[ $INSTALL_SHELL_CONFIG == true ]]; then
-        change_default_shell
+    # Change default shell to zsh if shell config was installed
+    if [[ $INSTALL_SHELL_CONFIG == true ]] && [ "$PLATFORM" != "windows" ] && [ "$SHELL" != "$(which zsh)" ]; then
+        echo -e "${YELLOW}Changing default shell to zsh...${NC}"
+        if [ "$PLATFORM" = "macos" ]; then
+            sudo chsh -s $(which zsh) $USER
+        else
+            if ! grep -q "$(which zsh)" /etc/shells; then
+                echo "$(which zsh)" | sudo tee -a /etc/shells
+            fi
+            sudo chsh -s $(which zsh) $USER
+        fi
+        echo -e "${GREEN}✓ Default shell changed to zsh${NC}"
     fi
     
     echo ""
@@ -807,7 +876,7 @@ main() {
                     echo -n "$(get_string "press_enter")"
                     read -r dummy < /dev/tty
                 else
-                    # 执行实际安装
+                    # Execute actual installation
                     run_installation
                     exit 0
                 fi
