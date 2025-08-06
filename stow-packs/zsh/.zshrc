@@ -75,20 +75,6 @@ else
     zinit light agkozak/zsh-z
 fi
 
-# Pyenv
-if command -v pyenv >/dev/null 2>&1; then
-    eval "$(pyenv init -)"
-fi
-
-# Direnv
-if command -v direnv >/dev/null 2>&1; then
-    eval "$(direnv hook zsh)"
-fi
-
-# NVM
-[ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"
-[ -s "$NVM_DIR/bash_completion" ] && \. "$NVM_DIR/bash_completion"
-
 # Git extras
 zinit ice wait lucid depth"1" as"program" pick"$ZPFX/bin/git-*" \
       src"etc/git-extras-completion.zsh" make"PREFIX=$ZPFX" \
@@ -242,11 +228,10 @@ elif [[ $OSTYPE == linux* ]]; then
 fi
 
 # LSP booster
-# LSP booster - commented out due to installation issues on macOS
-# if (( $+commands[nvim-lsp-booster] == 0 )); then
-#     zinit ice wait lucid depth"1" from"gh-r" sbin"**/nvim-lsp-booster"
-#     zinit light blahgeek/nvim-lsp-booster
-# fi
+if (( $+commands[nvim-lsp-booster] == 0 )); then
+    zinit ice wait lucid depth"1" from"gh-r" sbin"**/nvim-lsp-booster"
+    zinit light blahgeek/nvim-lsp-booster
+fi
 
 #
 # Aliases
@@ -334,13 +319,6 @@ alias toggleproxy='if [ -n "$http_proxy" ]; then unsetproxy; else setproxy; fi'
 
 # Local customizations, e.g. theme, plugins, aliases, etc.
 [ -f $HOME/.zshrc.local ] && source $HOME/.zshrc.local
-
-# Initialize Starship prompt (must be at the end)
-if command -v starship >/dev/null 2>&1; then
-    eval "$(starship init zsh)"
-else
-    echo "Warning: Starship not found in PATH"
-fi
 
 # Added by LM Studio CLI (lms)
 export PATH="$PATH:/Users/huchen/.lmstudio/bin"

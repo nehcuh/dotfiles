@@ -401,5 +401,76 @@ main() {
     print_color "$GREEN" "🎉 Happy coding!"
 }
 
+# Uninstall function
+uninstall_dotfiles() {
+    print_color "$RED" "🗑️  Dotfiles Uninstaller"
+    print_color "$YELLOW" "This will help you uninstall dotfiles packages"
+    printf "\n"
+    
+    # Check if uninstall script exists
+    if [ -f "$DOTFILES_DIR/scripts/uninstall.sh" ]; then
+        print_color "$BLUE" "Running uninstall script..."
+        chmod +x "$DOTFILES_DIR/scripts/uninstall.sh"
+        "$DOTFILES_DIR/scripts/uninstall.sh" "$@"
+    else
+        print_color "$RED" "Error: Uninstall script not found"
+        exit 1
+    fi
+}
+
+# Main installation process
+main() {
+    # Check for uninstall flag
+    if [ "$1" = "uninstall" ]; then
+        detect_shell
+        detect_platform
+        DOTFILES_DIR="$HOME/.dotfiles"
+        uninstall_dotfiles "${@:2}"
+        return
+    fi
+    
+    # Detect environment
+    detect_shell
+    detect_platform
+    
+    # Print header with detected information
+    print_header
+    
+    # Ask user for confirmation
+    printf "Do you want to proceed with the installation? [Y/n]: "
+    read response < /dev/tty
+    case "$response" in
+        [nN][oO]|[nN])
+            print_color "$YELLOW" "Installation cancelled."
+            exit 0
+            ;;
+        *)
+            ;;
+    esac
+    
+    # Install prerequisites
+    install_prerequisites
+    
+    # Clone dotfiles
+    clone_dotfiles
+    
+    # Check for configuration conflicts
+    check_config_conflicts
+    
+    # Run installer
+    run_installer
+    
+    print_color "$GREEN" ""
+    print_color "$GREEN" "╔══════════════════════════════════════════════════════════════╗"
+    print_color "$GREEN" "║                      Installation Complete!                  ║"
+    print_color "$GREEN" "╚══════════════════════════════════════════════════════════════╝"
+    print_color "$YELLOW" "Please restart your terminal to apply all changes."
+    print_color "$BLUE" "You can manage your dotfiles with:"
+    print_color "$CYAN" "  cd ~/.dotfiles && ./scripts/stow.sh [install|remove|list|status]"
+    print_color "$CYAN" "  cd ~/.dotfiles && ./scripts/uninstall.sh [package|complete|clean]"
+    printf "\n"
+    print_color "$GREEN" "🎉 Happy coding!"
+}
+
 # Run main function
 main "$@"

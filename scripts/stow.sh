@@ -32,6 +32,8 @@ usage() {
     echo "  $0 install            # Install all packages"
     echo "  $0 install zsh git    # Install only zsh and git"
     echo "  $0 remove nvim        # Remove nvim package"
+    echo ""
+    echo "For complete uninstallation, use: ./scripts/uninstall.sh complete"
 }
 
 list_packages() {
