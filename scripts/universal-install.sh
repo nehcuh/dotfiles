@@ -194,31 +194,109 @@ clone_dotfiles() {
         git clone https://github.com/nehcuh/dotfiles.git "$DOTFILES_DIR"
         print_color "$GREEN" "✓ Dotfiles cloned to $DOTFILES_DIR"
     else
-        print_color "$GREEN" "✓ Dotfiles directory already exists"
+        print_color "$YELLOW" "📁 Dotfiles directory already exists at $DOTFILES_DIR"
+        printf "Do you want to update the existing dotfiles? [Y/n]: "
+        read response < /dev/tty
+        case "$response" in
+            [nN][oO]|[nN])
+                print_color "$YELLOW" "Using existing dotfiles configuration..."
+                ;;
+            *)
+                print_color "$YELLOW" "Updating dotfiles repository..."
+                cd "$DOTFILES_DIR"
+                # Backup any local changes
+                if [ -n "$(git status --porcelain 2>/dev/null)" ]; then
+                    print_color "$YELLOW" "Backing up local changes..."
+                    git stash push -m "Backup before update $(date)"
+                fi
+                # Pull latest changes
+                git pull origin main 2>/dev/null || git pull origin master 2>/dev/null || {
+                    print_color "$RED" "Failed to update repository. Removing and re-cloning..."
+                    cd "$HOME"
+                    rm -rf "$DOTFILES_DIR"
+                    git clone https://github.com/nehcuh/dotfiles.git "$DOTFILES_DIR"
+                }
+                print_color "$GREEN" "✓ Dotfiles updated"
+                ;;
+        esac
     fi
     
     cd "$DOTFILES_DIR"
+}
+
+# Check for configuration conflicts
+check_config_conflicts() {
+    print_color "$YELLOW" "🔍 Checking for configuration conflicts..."
+    
+    conflicts_found=false
+    config_files="$HOME/.zshrc $HOME/.gitconfig $HOME/.config/starship.toml $HOME/.tmux.conf $HOME/.vimrc"
+    
+    for file in $config_files; do
+        if [ -f "$file" ] && [ ! -L "$file" ]; then
+            if [ "$conflicts_found" = false ]; then
+                print_color "$YELLOW" "⚠️  Configuration conflicts detected:"
+                conflicts_found=true
+            fi
+            print_color "$RED" "  ✗ $file (existing file, not a symlink)"
+        fi
+    done
+    
+    if [ "$conflicts_found" = true ]; then
+        printf "\nHow would you like to handle these conflicts?\n"
+        printf "1) Backup existing files and install dotfiles\n"
+        printf "2) Overwrite existing files\n"
+        printf "3) Skip installation\n"
+        printf "Enter your choice [1-3]: "
+        read choice < /dev/tty
+        
+        case "$choice" in
+            1)
+                backup_dir="$HOME/.dotfiles-backup-$(date +%Y%m%d-%H%M%S)"
+                print_color "$YELLOW" "Creating backup at $backup_dir..."
+                mkdir -p "$backup_dir"
+                for file in $config_files; do
+                    if [ -f "$file" ] && [ ! -L "$file" ]; then
+                        cp "$file" "$backup_dir/"
+                        rm -f "$file"
+                        print_color "$GREEN" "  ✓ Backed up $(basename "$file")"
+                    fi
+                done
+                print_color "$GREEN" "✓ Backup completed"
+                ;;
+            2)
+                print_color "$YELLOW" "Removing conflicting files..."
+                for file in $config_files; do
+                    if [ -f "$file" ] && [ ! -L "$file" ]; then
+                        rm -f "$file"
+                        print_color "$GREEN" "  ✓ Removed $(basename "$file")"
+                    fi
+                done
+                ;;
+            3)
+                print_color "$YELLOW" "Installation cancelled by user."
+                exit 0
+                ;;
+            *)
+                print_color "$RED" "Invalid choice. Installation cancelled."
+                exit 1
+                ;;
+        esac
+    else
+        print_color "$GREEN" "✓ No configuration conflicts found"
+    fi
 }
 
 # Run the appropriate installer based on shell
 run_installer() {
     print_color "$YELLOW" "🚀 Starting installation..."
     
-    # Debug: Show current directory and available files
-    print_color "$BLUE" "Debug: Current directory: $(pwd)"
-    print_color "$BLUE" "Debug: Available scripts:"
-    ls -la scripts/ 2>/dev/null || print_color "$RED" "scripts/ directory not found"
-    
     # Make scripts executable
     if [ -d "scripts" ]; then
         chmod +x scripts/*.sh 2>/dev/null || true
-        print_color "$BLUE" "Debug: Set executable permissions"
     fi
     
     # Check if interactive installer exists
     if [ -f "scripts/interactive-install.sh" ]; then
-        print_color "$BLUE" "Debug: Found interactive-install.sh"
-        chmod +x scripts/interactive-install.sh
         print_color "$BLUE" "Running interactive installer..."
         case "$SHELL_TYPE" in
             zsh)
@@ -240,8 +318,6 @@ run_installer() {
                 ;;
         esac
     elif [ -f "scripts/install-unified.sh" ]; then
-        print_color "$BLUE" "Debug: Found install-unified.sh"
-        chmod +x scripts/install-unified.sh
         print_color "$BLUE" "Running unified installer..."
         case "$SHELL_TYPE" in
             zsh)
@@ -263,22 +339,21 @@ run_installer() {
                 ;;
         esac
     elif [ -f "Makefile" ]; then
-        print_color "$BLUE" "Debug: Found Makefile, trying make install"
         if command_exists make; then
+            print_color "$BLUE" "Running make install..."
             make install
         else
             print_color "$RED" "Make not available"
         fi
     else
-        print_color "$RED" "Error: No installer script found"
-        print_color "$YELLOW" "Debug: Trying direct stow installation..."
+        print_color "$YELLOW" "Trying direct stow installation..."
         if [ -f "scripts/stow.sh" ]; then
-            chmod +x scripts/stow.sh
+            print_color "$BLUE" "Running stow installer..."
             ./scripts/stow.sh install
         else
             print_color "$RED" "No installation method available"
+            exit 1
         fi
-        exit 1
     fi
 }
 
@@ -308,6 +383,9 @@ main() {
     
     # Clone dotfiles
     clone_dotfiles
+    
+    # Check for configuration conflicts
+    check_config_conflicts
     
     # Run installer
     run_installer
