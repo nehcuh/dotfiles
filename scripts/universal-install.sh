@@ -204,13 +204,21 @@ clone_dotfiles() {
 run_installer() {
     print_color "$YELLOW" "🚀 Starting installation..."
     
+    # Debug: Show current directory and available files
+    print_color "$BLUE" "Debug: Current directory: $(pwd)"
+    print_color "$BLUE" "Debug: Available scripts:"
+    ls -la scripts/ 2>/dev/null || print_color "$RED" "scripts/ directory not found"
+    
     # Make scripts executable
     if [ -d "scripts" ]; then
         chmod +x scripts/*.sh 2>/dev/null || true
+        print_color "$BLUE" "Debug: Set executable permissions"
     fi
     
-    # Check if interactive installer exists and is executable
-    if [ -f "scripts/interactive-install.sh" ] && [ -x "scripts/interactive-install.sh" ]; then
+    # Check if interactive installer exists
+    if [ -f "scripts/interactive-install.sh" ]; then
+        print_color "$BLUE" "Debug: Found interactive-install.sh"
+        chmod +x scripts/interactive-install.sh
         print_color "$BLUE" "Running interactive installer..."
         case "$SHELL_TYPE" in
             zsh)
@@ -231,7 +239,9 @@ run_installer() {
                 sh scripts/interactive-install.sh
                 ;;
         esac
-    elif [ -f "scripts/install-unified.sh" ] && [ -x "scripts/install-unified.sh" ]; then
+    elif [ -f "scripts/install-unified.sh" ]; then
+        print_color "$BLUE" "Debug: Found install-unified.sh"
+        chmod +x scripts/install-unified.sh
         print_color "$BLUE" "Running unified installer..."
         case "$SHELL_TYPE" in
             zsh)
@@ -252,54 +262,22 @@ run_installer() {
                 sh scripts/install-unified.sh
                 ;;
         esac
-    elif [ -f "scripts/interactive-install.sh" ]; then
-        print_color "$BLUE" "Running interactive installer (forcing executable)..."
-        chmod +x scripts/interactive-install.sh
-        case "$SHELL_TYPE" in
-            zsh)
-                if command_exists zsh; then
-                    zsh scripts/interactive-install.sh
-                else
-                    sh scripts/interactive-install.sh
-                fi
-                ;;
-            bash)
-                if command_exists bash; then
-                    bash scripts/interactive-install.sh
-                else
-                    sh scripts/interactive-install.sh
-                fi
-                ;;
-            *)
-                sh scripts/interactive-install.sh
-                ;;
-        esac
-    elif [ -f "scripts/install-unified.sh" ]; then
-        print_color "$BLUE" "Running unified installer (forcing executable)..."
-        chmod +x scripts/install-unified.sh
-        case "$SHELL_TYPE" in
-            zsh)
-                if command_exists zsh; then
-                    zsh scripts/install-unified.sh
-                else
-                    sh scripts/install-unified.sh
-                fi
-                ;;
-            bash)
-                if command_exists bash; then
-                    bash scripts/install-unified.sh
-                else
-                    sh scripts/install-unified.sh
-                fi
-                ;;
-            *)
-                sh scripts/install-unified.sh
-                ;;
-        esac
+    elif [ -f "Makefile" ]; then
+        print_color "$BLUE" "Debug: Found Makefile, trying make install"
+        if command_exists make; then
+            make install
+        else
+            print_color "$RED" "Make not available"
+        fi
     else
         print_color "$RED" "Error: No installer script found"
-        print_color "$YELLOW" "Available files in scripts/:"
-        ls -la scripts/ 2>/dev/null || print_color "$RED" "scripts/ directory not found"
+        print_color "$YELLOW" "Debug: Trying direct stow installation..."
+        if [ -f "scripts/stow.sh" ]; then
+            chmod +x scripts/stow.sh
+            ./scripts/stow.sh install
+        else
+            print_color "$RED" "No installation method available"
+        fi
         exit 1
     fi
 }
