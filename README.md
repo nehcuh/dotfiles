@@ -102,7 +102,8 @@ make install
 **Container Development:**
 - **Dev Containers**: VS Code development containers support
 - **Docker Compose**: Multi-container development environments
-- **Dockerfile**: Containerized development setup
+- **Ubuntu Dev Environment**: Complete Ubuntu 24.04.2 LTS development container
+- **OrbStack**: Modern Docker alternative for macOS
 
 **System Monitoring:**
 - **bottom**: Better `top` with charts and GPU monitoring

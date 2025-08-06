@@ -213,6 +213,14 @@ if command -v zed >/dev/null 2>&1; then
     ./scripts/stow.sh install zed
 fi
 
+# Setup Python environment
+echo -e "${BLUE}Setting up Python environment...${NC}"
+./scripts/setup-python-env.sh
+
+# Setup Node.js environment
+echo -e "${BLUE}Setting up Node.js environment...${NC}"
+./scripts/setup-node-env.sh
+
 # Platform-specific installations
 case "$PLATFORM" in
     macos)
