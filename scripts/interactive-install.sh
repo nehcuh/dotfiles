@@ -373,83 +373,27 @@ toggle_selection() {
     case $1 in
         1) 
             INSTALL_SYSTEM_PACKAGES=$([[ $INSTALL_SYSTEM_PACKAGES == true ]] && echo false || echo true)
-            if [[ $INSTALL_SYSTEM_PACKAGES == true ]]; then
-                echo -e "${BLUE}正在安装系统软件包...${NC}"
-                install_system_packages
-                echo -e "${GREEN}✓ 系统软件包安装完成${NC}"
-            else
-                echo -e "${YELLOW}已取消选择系统软件包${NC}"
-            fi
             ;;
         2) 
             INSTALL_SHELL_CONFIG=$([[ $INSTALL_SHELL_CONFIG == true ]] && echo false || echo true)
-            if [[ $INSTALL_SHELL_CONFIG == true ]]; then
-                echo -e "${BLUE}正在安装 Shell 配置...${NC}"
-                install_shell_config
-                echo -e "${GREEN}✓ Shell 配置安装完成${NC}"
-            else
-                echo -e "${YELLOW}已取消选择 Shell 配置${NC}"
-            fi
             ;;
         3) 
             INSTALL_DEV_TOOLS=$([[ $INSTALL_DEV_TOOLS == true ]] && echo false || echo true)
-            if [[ $INSTALL_DEV_TOOLS == true ]]; then
-                echo -e "${BLUE}正在安装开发工具...${NC}"
-                install_dev_tools
-                echo -e "${GREEN}✓ 开发工具安装完成${NC}"
-            else
-                echo -e "${YELLOW}已取消选择开发工具${NC}"
-            fi
             ;;
         4) 
             INSTALL_EDITORS=$([[ $INSTALL_EDITORS == true ]] && echo false || echo true)
-            if [[ $INSTALL_EDITORS == true ]]; then
-                echo -e "${BLUE}正在安装编辑器...${NC}"
-                install_editors
-                echo -e "${GREEN}✓ 编辑器安装完成${NC}"
-            else
-                echo -e "${YELLOW}已取消选择编辑器${NC}"
-            fi
             ;;
         5) 
             INSTALL_PYTHON_ENV=$([[ $INSTALL_PYTHON_ENV == true ]] && echo false || echo true)
-            if [[ $INSTALL_PYTHON_ENV == true ]]; then
-                echo -e "${BLUE}正在设置 Python 环境...${NC}"
-                install_python_env
-                echo -e "${GREEN}✓ Python 环境设置完成${NC}"
-            else
-                echo -e "${YELLOW}已取消选择 Python 环境${NC}"
-            fi
             ;;
         6) 
             INSTALL_NODE_ENV=$([[ $INSTALL_NODE_ENV == true ]] && echo false || echo true)
-            if [[ $INSTALL_NODE_ENV == true ]]; then
-                echo -e "${BLUE}正在设置 Node.js 环境...${NC}"
-                install_node_env
-                echo -e "${GREEN}✓ Node.js 环境设置完成${NC}"
-            else
-                echo -e "${YELLOW}已取消选择 Node.js 环境${NC}"
-            fi
             ;;
         7) 
             INSTALL_DOCKER_ENV=$([[ $INSTALL_DOCKER_ENV == true ]] && echo false || echo true)
-            if [[ $INSTALL_DOCKER_ENV == true ]]; then
-                echo -e "${BLUE}正在设置 Docker 环境...${NC}"
-                install_docker_env
-                echo -e "${GREEN}✓ Docker 环境设置完成${NC}"
-            else
-                echo -e "${YELLOW}已取消选择 Docker 环境${NC}"
-            fi
             ;;
         8) 
             SETUP_GIT_CONFIG=$([[ $SETUP_GIT_CONFIG == true ]] && echo false || echo true)
-            if [[ $SETUP_GIT_CONFIG == true ]]; then
-                echo -e "${BLUE}正在设置 Git 配置...${NC}"
-                setup_git_config
-                echo -e "${GREEN}✓ Git 配置设置完成${NC}"
-            else
-                echo -e "${YELLOW}已取消选择 Git 配置${NC}"
-            fi
             ;;
         a) 
             INSTALL_SYSTEM_PACKAGES=true
@@ -460,20 +404,17 @@ toggle_selection() {
             INSTALL_NODE_ENV=true
             INSTALL_DOCKER_ENV=true
             SETUP_GIT_CONFIG=true
-            echo -e "${GREEN}✓ 已选择所有组件${NC}"
             ;;
         c)
             INSTALL_SYSTEM_PACKAGES=true
             INSTALL_SHELL_CONFIG=true
             INSTALL_DEV_TOOLS=true
             INSTALL_EDITORS=true
-            echo -e "${GREEN}✓ 已选择核心组件${NC}"
             ;;
         d)
             INSTALL_PYTHON_ENV=true
             INSTALL_NODE_ENV=true
             INSTALL_DOCKER_ENV=true
-            echo -e "${GREEN}✓ 已选择开发环境${NC}"
             ;;
     esac
 }
@@ -736,18 +677,66 @@ run_installation() {
     # Handle conflicts first
     handle_conflicts
     
+    # Install prerequisites first
     install_prerequisites
     clone_dotfiles
-    install_system_packages
-    install_shell_config
-    install_dev_tools
-    install_editors
-    install_python_env
-    install_node_env
-    install_docker_env
-    setup_git_config
+    
+    # Install selected components
+    if [[ $INSTALL_SYSTEM_PACKAGES == true ]]; then
+        echo -e "${BLUE}正在安装系统软件包...${NC}"
+        install_system_packages
+        echo -e "${GREEN}✓ 系统软件包安装完成${NC}"
+    fi
+    
+    if [[ $INSTALL_SHELL_CONFIG == true ]]; then
+        echo -e "${BLUE}正在安装 Shell 配置...${NC}"
+        install_shell_config
+        echo -e "${GREEN}✓ Shell 配置安装完成${NC}"
+    fi
+    
+    if [[ $INSTALL_DEV_TOOLS == true ]]; then
+        echo -e "${BLUE}正在安装开发工具...${NC}"
+        install_dev_tools
+        echo -e "${GREEN}✓ 开发工具安装完成${NC}"
+    fi
+    
+    if [[ $INSTALL_EDITORS == true ]]; then
+        echo -e "${BLUE}正在安装编辑器...${NC}"
+        install_editors
+        echo -e "${GREEN}✓ 编辑器安装完成${NC}"
+    fi
+    
+    if [[ $INSTALL_PYTHON_ENV == true ]]; then
+        echo -e "${BLUE}正在设置 Python 环境...${NC}"
+        install_python_env
+        echo -e "${GREEN}✓ Python 环境设置完成${NC}"
+    fi
+    
+    if [[ $INSTALL_NODE_ENV == true ]]; then
+        echo -e "${BLUE}正在设置 Node.js 环境...${NC}"
+        install_node_env
+        echo -e "${GREEN}✓ Node.js 环境设置完成${NC}"
+    fi
+    
+    if [[ $INSTALL_DOCKER_ENV == true ]]; then
+        echo -e "${BLUE}正在设置 Docker 环境...${NC}"
+        install_docker_env
+        echo -e "${GREEN}✓ Docker 环境设置完成${NC}"
+    fi
+    
+    if [[ $SETUP_GIT_CONFIG == true ]]; then
+        echo -e "${BLUE}正在设置 Git 配置...${NC}"
+        setup_git_config
+        echo -e "${GREEN}✓ Git 配置设置完成${NC}"
+    fi
+    
+    # Platform-specific installations
     platform_specific_install
-    change_default_shell
+    
+    # Change default shell if shell config was installed
+    if [[ $INSTALL_SHELL_CONFIG == true ]]; then
+        change_default_shell
+    fi
     
     echo ""
     echo -e "${GREEN}"
@@ -818,29 +807,9 @@ main() {
                     echo -n "$(get_string "press_enter")"
                     read -r dummy < /dev/tty
                 else
-                    # 检查是否所有选中的组件都已安装
-                    all_installed=true
-                    if [[ $INSTALL_SYSTEM_PACKAGES == true ]] || [[ $INSTALL_SHELL_CONFIG == true ]] || 
-                       [[ $INSTALL_DEV_TOOLS == true ]] || [[ $INSTALL_EDITORS == true ]] || 
-                       [[ $INSTALL_PYTHON_ENV == true ]] || [[ $INSTALL_NODE_ENV == true ]] || 
-                       [[ $INSTALL_DOCKER_ENV == true ]] || [[ $SETUP_GIT_CONFIG == true ]]; then
-                        all_installed=false
-                    fi
-                    
-                    if [[ $all_installed == true ]]; then
-                        echo ""
-                        echo -e "${GREEN}🎉 所有选中的组件都已安装完成！${NC}"
-                        echo -e "${YELLOW}请重启终端以应用所有更改。${NC}"
-                        echo -e "${BLUE}你可以使用以下命令管理 dotfiles：${NC}"
-                        echo -e "${CYAN}  cd ~/.dotfiles && ./scripts/stow.sh [install|remove|list|status]${NC}"
-                        echo ""
-                        echo -e "${GREEN}编程愉快！${NC}"
-                        exit 0
-                    else
-                        echo -e "${YELLOW}还有组件未安装，请继续选择安装。${NC}"
-                        echo -n "$(get_string "press_enter")"
-                        read -r dummy < /dev/tty
-                    fi
+                    # 执行实际安装
+                    run_installation
+                    exit 0
                 fi
                 ;;
             q|Q) 
