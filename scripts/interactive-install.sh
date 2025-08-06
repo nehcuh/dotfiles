@@ -1,5 +1,22 @@
 #!/bin/bash
 # Interactive installation script for cross-platform dotfiles
+# Compatible with bash and zsh
+
+# Check if we're running in a compatible shell
+if [ -z "$BASH_VERSION" ] && [ -z "$ZSH_VERSION" ]; then
+    echo "This script requires bash or zsh. Detected shell: $0"
+    echo "Trying to run with bash..."
+    if command -v bash >/dev/null 2>&1; then
+        exec bash "$0" "$@"
+    elif command -v zsh >/dev/null 2>&1; then
+        exec zsh "$0" "$@"
+    else
+        echo "Error: Neither bash nor zsh is available"
+        exit 1
+    fi
+fi
+
+# Interactive installation script for cross-platform dotfiles
 # Provides a user-friendly interface for selective installation
 
 set -e

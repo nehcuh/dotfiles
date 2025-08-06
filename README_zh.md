@@ -17,9 +17,15 @@
 
 **所有平台:**
 ```bash
+# 通用安装器（自动检测你的 shell）
+curl -fsSL https://raw.githubusercontent.com/nehcuh/dotfiles/main/scripts/universal-install.sh | sh
+
+# 或使用特定 shell
+curl -fsSL https://raw.githubusercontent.com/nehcuh/dotfiles/main/scripts/interactive-install.sh | bash
+curl -fsSL https://raw.githubusercontent.com/nehcuh/dotfiles/main/scripts/interactive-install.sh | zsh
 ```
 
-这将启动一个交互式向导，让你选择需要安装的组件。
+这将启动一个交互式向导，自动检测你的 shell 并让你选择需要安装的组件。
 
 ### 一键安装（推荐）
 
