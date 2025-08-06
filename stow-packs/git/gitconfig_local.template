@@ -1,0 +1,32 @@
+# Git Configuration Template
+# Copy this file to .gitconfig_local and fill in your personal information
+
+[user]
+    # Your name
+    name = Your Name
+    
+    # Your email
+    email = your.email@example.com
+    
+    # Optional: Your GitHub username
+    # signingkey = YOUR_GPG_KEY_ID
+
+[github]
+    # Optional: Your GitHub username
+    user = your-github-username
+    
+    # Optional: GitHub personal access token (for private repositories)
+    # oauth-token = your-github-token
+
+[commit]
+    # Optional: Sign commits using GPG
+    # gpgsign = true
+
+[init]
+    defaultBranch = main
+
+# Optional: Add your custom configurations here
+# [alias]
+#     st = status
+#     co = checkout
+#     br = branch
