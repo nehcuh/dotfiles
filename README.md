@@ -18,10 +18,15 @@ and Windows.
 
 **All Platforms:**
 ```bash
+# Universal installer (auto-detects your shell)
+curl -fsSL https://raw.githubusercontent.com/nehcuh/dotfiles/main/scripts/universal-install.sh | sh
+
+# Or use specific shell
 curl -fsSL https://raw.githubusercontent.com/nehcuh/dotfiles/main/scripts/interactive-install.sh | bash
+curl -fsSL https://raw.githubusercontent.com/nehcuh/dotfiles/main/scripts/interactive-install.sh | zsh
 ```
 
-This will launch an interactive wizard that lets you choose exactly what to install.
+This will launch an interactive wizard that automatically detects your shell and lets you choose exactly what to install.
 
 ### One-Command Installation (Recommended)
 
