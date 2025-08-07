@@ -69,6 +69,9 @@ chmod +x install.sh
 
 # Run the installation
 log_info "Running installation..."
+log_warning "Note: On macOS, Homebrew will be automatically installed if not present"
+log_info "This may require user interaction and sudo privileges"
+
 if [ -n "$INSTALL_PACKAGES" ]; then
     log_info "Installing specific packages: $INSTALL_PACKAGES"
     ./install.sh $INSTALL_PACKAGES
