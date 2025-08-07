@@ -514,123 +514,16 @@ show_selections() {
 
 # Install prerequisites
 install_prerequisites() {
-    echo -e "${YELLOW}$(get_string "installing_prerequisites")...${NC}"
+    echo -e "${YELLOW}Installing prerequisites...${NC}"
     
-    case "$PLATFORM" in
-        macos)
-            # Check if Xcode Command Line Tools are installed
-            if ! command -v xcode-select &> /dev/null; then
-                echo -e "${YELLOW}$(get_string "installing_xcode")...${NC}"
-                xcode-select --install
-                echo -e "${YELLOW}$(get_string "xcode_complete")${NC}"
-                read -r -p "$(get_string "press_enter")" dummy < /dev/tty
-            fi
-
-            # Install Homebrew if not exists
-            if ! command -v brew &> /dev/null; then
-                echo -e "${YELLOW}$(get_string "installing_homebrew")...${NC}"
-                /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
-                
-                # Add Homebrew to PATH for Apple Silicon Macs
-                if [ -d "/opt/homebrew/bin" ]; then
-                    echo 'eval "$(/opt/homebrew/bin/brew shellenv)"' >> ~/.zprofile
-                    eval "$(/opt/homebrew/bin/brew shellenv)"
-                fi
-            fi
-
-            # Install GNU Stow
-            if ! command -v stow &> /dev/null; then
-                brew install stow
-            fi
-            ;;
-        linux)
-            # Check if we have sudo access
-            if [ "${NO_SUDO:-0}" -eq 1 ]; then
-                echo -e "${YELLOW}No sudo access detected. Checking for required packages...${NC}"
-                missing_packages=""
-                
-                # Check for required packages
-                for pkg in git stow curl; do
-                    if ! command -v $pkg >/dev/null 2>&1; then
-                        missing_packages="$missing_packages $pkg"
-                    fi
-                done
-                
-                if [ -n "$missing_packages" ]; then
-                    echo -e "${YELLOW}The following packages are missing and cannot be installed without sudo:${NC}"
-                    echo -e "${YELLOW}$missing_packages${NC}"
-                    echo -e "${YELLOW}Please install them manually and run this script again.${NC}"
-                    echo -e "${YELLOW}Continuing with limited functionality...${NC}"
-                else
-                    echo -e "${GREEN}Required packages are already installed.${NC}"
-                fi
-            else
-                # Normal installation with sudo
-                case "$DISTRO" in
-                    ubuntu|debian|linuxmint)
-                        if ! safe_sudo apt update; then
-                            echo -e "${YELLOW}Failed to update package lists. Continuing anyway...${NC}"
-                        fi
-                        if ! safe_sudo apt install -y git stow curl build-essential; then
-                            echo -e "${YELLOW}Failed to install some required packages. Continuing with limited functionality...${NC}"
-                        fi
-                        ;;
-                    arch|manjaro)
-                        if ! safe_sudo pacman -Syu --noconfirm git stow curl base-devel; then
-                            echo -e "${YELLOW}Failed to install some required packages. Continuing with limited functionality...${NC}"
-                        fi
-                        ;;
-                    fedora|centos|rhel)
-                        if ! safe_sudo dnf install -y git stow curl @development-tools; then
-                            echo -e "${YELLOW}Failed to install some required packages. Continuing with limited functionality...${NC}"
-                        fi
-                        ;;
-                    *)
-                        if command -v apt >/dev/null 2>&1; then
-                            if ! safe_sudo apt update; then
-                                echo -e "${YELLOW}Failed to update package lists. Continuing anyway...${NC}"
-                            fi
-                            if ! safe_sudo apt install -y git stow curl build-essential; then
-                                echo -e "${YELLOW}Failed to install some required packages. Continuing with limited functionality...${NC}"
-                            fi
-                        elif command -v pacman >/dev/null 2>&1; then
-                            if ! safe_sudo pacman -Syu --noconfirm git stow curl base-devel; then
-                                echo -e "${YELLOW}Failed to install some required packages. Continuing with limited functionality...${NC}"
-                            fi
-                        elif command -v dnf >/dev/null 2>&1; then
-                            if ! safe_sudo dnf install -y git stow curl @development-tools; then
-                                echo -e "${YELLOW}Failed to install some required packages. Continuing with limited functionality...${NC}"
-                            fi
-                        else
-                            echo -e "${YELLOW}Please install git, stow, curl, and build tools manually${NC}"
-                            echo -e "${YELLOW}Continuing with limited functionality...${NC}"
-                        fi
-                    ;;
-            esac
-        windows)
-            if grep -q Microsoft /proc/version 2>/dev/null; then
-                # WSL environment
-                echo -e "${YELLOW}Installing required packages in WSL...${NC}"
-                if ! safe_sudo apt update; then
-                    echo -e "${YELLOW}Failed to update package lists in WSL. Continuing anyway...${NC}"
-                fi
-                if ! safe_sudo apt install -y git stow curl; then
-                    echo -e "${YELLOW}Failed to install some required packages in WSL. Continuing with limited functionality...${NC}"
-                fi
-            elif command -v pacman &> /dev/null; then
-                # MSYS2 environment
-                if ! pacman -Syu --noconfirm git stow curl; then
-                    echo -e "${YELLOW}Failed to install some packages in MSYS2. Continuing with limited functionality...${NC}"
-                fi
-            else
-                echo -e "${YELLOW}On Windows, please install Git for Windows and other tools manually${NC}"
-                echo -e "${YELLOW}Visit https://gitforwindows.org/ to download Git for Windows${NC}"
-                echo -e "${YELLOW}Continuing with limited functionality...${NC}"
-            fi
-            ;;
-    esac
+    # Check for basic tools
+    for tool in git curl stow; do
+        if ! command -v $tool >/dev/null 2>&1; then
+            echo -e "${YELLOW}Warning: $tool is not installed. Please install it manually.${NC}"
+        fi
+    done
     
-    echo -e "${GREEN}✓ $(get_string "prerequisites_installed")${NC}"
+    echo -e "${GREEN}✓ Prerequisites check completed${NC}"
 }
 
 # Clone dotfiles if not exists
@@ -1054,7 +947,6 @@ change_default_shell() {
             else
                 echo -e "${GREEN}✓ $(get_string "shell_changed")${NC}"
             fi
-        fi
         fi
     fi
 }
