@@ -460,7 +460,18 @@ show_selections() {
     
     printf "\n"
     printf "%s\n" "$(get_string "press_enter")"
-    read -r dummy
+    
+    # Check if stdin is a terminal before reading
+    if [ ! -t 0 ]; then
+        printf "${YELLOW}Press Enter to continue... (not a terminal, skipping wait)${NC}\n"
+        return
+    fi
+    
+    # Read with error handling
+    if ! read -r dummy; then
+        printf "${YELLOW}Failed to read input, continuing...${NC}\n"
+        return
+    fi
 }
 
 # Function to handle user input
@@ -468,7 +479,17 @@ handle_input() {
     while true; do
         show_main_menu
         printf "%s:\n" "$(get_string "enter_choice")"
-        read -r choice
+        
+        # Read user input with error handling
+        if ! read -r choice 2>/dev/null; then
+            if [ ! -t 0 ]; then
+                printf "${RED}Error: This script requires an interactive terminal.${NC}\n"
+                printf "${YELLOW}Please run this script directly in your terminal, not through a pipe.${NC}\n"
+            else
+                printf "${RED}Error: Failed to read input.${NC}\n"
+            fi
+            exit 1
+        fi
         
         case "$choice" in
             1) INSTALL_SYSTEM_PACKAGES=true ;;
