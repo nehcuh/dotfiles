@@ -33,6 +33,11 @@ GITHUB_MIRROR=""
 NPM_MIRROR=""
 PYTHON_MIRROR=""
 
+# Tsinghua mirror configuration
+# Set to "y" to use Tsinghua mirror for Homebrew installation
+# This is useful for users in China to speed up installation
+USE_TSINGHUA_MIRROR="n"  # Options: "y" or "n"
+
 # Default packages for each platform
 DEFAULT_PACKAGES_LINUX="system,zsh,git,tools,vim,nvim,tmux"
 DEFAULT_PACKAGES_MACOS="system,zsh,git,tools,vim,nvim,tmux"

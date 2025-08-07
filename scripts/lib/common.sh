@@ -372,9 +372,28 @@ install_homebrew() {
     return 1
   fi
   
-  # Ask user if they want to use Tsinghua mirror (for users in China)
-  log_info "Do you want to use Tsinghua mirror for faster installation in China? (y/n)"
-  read -r use_tsinghua_mirror
+  # Check if USE_TSINGHUA_MIRROR is already set in environment or config
+  if [ -z "${USE_TSINGHUA_MIRROR}" ]; then
+    # Check if we're in non-interactive mode
+    if [ "${DOTFILES_NON_INTERACTIVE}" = "true" ]; then
+      # Default to not using Tsinghua mirror in non-interactive mode
+      use_tsinghua_mirror="n"
+      log_info "Non-interactive mode: Not using Tsinghua mirror for Homebrew installation"
+    else
+      # Ask user if they want to use Tsinghua mirror (for users in China)
+      log_info "Do you want to use Tsinghua mirror for faster installation in China? (y/n) [default: n]"
+      read -r use_tsinghua_mirror
+      
+      # Default to not using Tsinghua mirror if no input is provided
+      if [ -z "${use_tsinghua_mirror}" ]; then
+        use_tsinghua_mirror="n"
+      fi
+    fi
+  else
+    # Use the value from environment or config
+    use_tsinghua_mirror="${USE_TSINGHUA_MIRROR}"
+    log_info "Using pre-configured setting for Tsinghua mirror: ${use_tsinghua_mirror}"
+  fi
   
   if [ "${use_tsinghua_mirror}" = "y" ] || [ "${use_tsinghua_mirror}" = "Y" ]; then
     log_info "Using Tsinghua mirror for Homebrew installation..."
