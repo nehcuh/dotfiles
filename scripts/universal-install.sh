@@ -4,64 +4,40 @@
 
 set -e
 
-# Get script directory
-if [ -n "$0" ] && [ "$0" != "sh" ]; then
+# Get script directory - handle piped execution
+if [ -n "$0" ] && [ "$0" != "sh" ] && [ "$0" != "-sh" ]; then
     SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
     DOTFILES_DIR="$(dirname "$SCRIPT_DIR")"
 else
-    # Script is being piped, use current directory
+    # Script is being piped, use current directory and assume we're in a temp location
     SCRIPT_DIR="$(pwd)"
-    DOTFILES_DIR="$(dirname "$SCRIPT_DIR")"
-    # If we're in scripts directory, go up one level
-    if [ "$(basename "$SCRIPT_DIR")" = "scripts" ]; then
-        DOTFILES_DIR="$(dirname "$SCRIPT_DIR")"
+    # Create a temporary script file
+    TEMP_SCRIPT="/tmp/universal-install.sh"
+    if [ ! -f "$TEMP_SCRIPT" ]; then
+        # Download the script to temp location
+        if command -v curl >/dev/null 2>&1; then
+            curl -fsSL "https://raw.githubusercontent.com/nehcuh/dotfiles/main/scripts/universal-install.sh" -o "$TEMP_SCRIPT"
+        elif command -v wget >/dev/null 2>&1; then
+            wget -q "https://raw.githubusercontent.com/nehcuh/dotfiles/main/scripts/universal-install.sh" -O "$TEMP_SCRIPT"
+        else
+            echo "Error: Cannot download script - no curl or wget available"
+            exit 1
+        fi
+        chmod +x "$TEMP_SCRIPT"
     fi
+    # Re-execute the downloaded script
+    exec "$TEMP_SCRIPT" "$@"
 fi
 
-# Smart shell detection and re-execution
-smart_shell_detection() {
-    # Detect current shell environment
+# Detect current shell
+detect_shell() {
     if [ -n "$BASH_VERSION" ]; then
-        CURRENT_SHELL="bash"
-        SHELL_PATH="$(command -v bash)"
+        echo "bash"
     elif [ -n "$ZSH_VERSION" ]; then
-        CURRENT_SHELL="zsh"
-        SHELL_PATH="$(command -v zsh)"
+        echo "zsh"
     else
-        # Try to detect from process
-        CURRENT_SHELL=$(ps -p $$ -o comm= 2>/dev/null | tail -1)
-        case "$CURRENT_SHELL" in
-            *bash*)
-                CURRENT_SHELL="bash"
-                SHELL_PATH="$(command -v bash)"
-                ;;
-            *zsh*)
-                CURRENT_SHELL="zsh"
-                SHELL_PATH="$(command -v zsh)"
-                ;;
-            *)
-                # Default to bash if available, otherwise use sh
-                if command -v bash >/dev/null 2>&1; then
-                    CURRENT_SHELL="bash"
-                    SHELL_PATH="$(command -v bash)"
-                elif command -v zsh >/dev/null 2>&1; then
-                    CURRENT_SHELL="zsh"
-                    SHELL_PATH="$(command -v zsh)"
-                else
-                    CURRENT_SHELL="sh"
-                    SHELL_PATH="$(command -v sh)"
-                fi
-                ;;
-        esac
+        ps -p $$ -o comm= 2>/dev/null | tail -1 | grep -E "(bash|zsh)" || echo "sh"
     fi
-    
-    # If we're running with sh but have a better shell available, re-exec
-    if [ "$CURRENT_SHELL" = "sh" ] && [ -n "$SHELL_PATH" ] && [ "$SHELL_PATH" != "$(command -v sh)" ]; then
-        echo "Re-executing with $CURRENT_SHELL for better compatibility..."
-        exec "$SHELL_PATH" "$0" "$@"
-    fi
-    
-    echo "Using shell: $CURRENT_SHELL"
 }
 
 # Colors (compatible with all shells)
@@ -104,30 +80,36 @@ main() {
     echo "=========================="
     echo ""
     
-    # Detect and use appropriate shell
-    smart_shell_detection
+    CURRENT_SHELL=$(detect_shell)
+    echo "Using shell: $CURRENT_SHELL"
     
-    # Check if interactive-install.sh exists
-    if [ ! -f "$DOTFILES_DIR/scripts/interactive-install.sh" ]; then
-        log_warning "Interactive install script not found locally, attempting to download..."
-        # Try to download it
+    # Set up dotfiles directory
+    if [ "$SCRIPT_DIR" = "/tmp" ]; then
+        # We're running from temp location, set up in user's home
+        DOTFILES_DIR="$HOME/.dotfiles"
+        mkdir -p "$DOTFILES_DIR/scripts"
+    fi
+    
+    # Download interactive install script
+    INTERACTIVE_SCRIPT="$DOTFILES_DIR/scripts/interactive-install.sh"
+    if [ ! -f "$INTERACTIVE_SCRIPT" ]; then
+        log_info "Downloading interactive install script..."
         if command -v curl >/dev/null 2>&1; then
-            curl -fsSL "https://raw.githubusercontent.com/nehcuh/dotfiles/main/scripts/interactive-install.sh" -o "$DOTFILES_DIR/scripts/interactive-install.sh"
+            curl -fsSL "https://raw.githubusercontent.com/nehcuh/dotfiles/main/scripts/interactive-install.sh" -o "$INTERACTIVE_SCRIPT"
         elif command -v wget >/dev/null 2>&1; then
-            wget -q "https://raw.githubusercontent.com/nehcuh/dotfiles/main/scripts/interactive-install.sh" -O "$DOTFILES_DIR/scripts/interactive-install.sh"
+            wget -q "https://raw.githubusercontent.com/nehcuh/dotfiles/main/scripts/interactive-install.sh" -O "$INTERACTIVE_SCRIPT"
         else
-            log_error "Interactive install script not found: $DOTFILES_DIR/scripts/interactive-install.sh"
-            log_error "No curl or wget available to download it"
+            log_error "Cannot download interactive install script - no curl or wget available"
             exit 1
         fi
     fi
     
     # Make sure it's executable
-    chmod +x "$DOTFILES_DIR/scripts/interactive-install.sh"
+    chmod +x "$INTERACTIVE_SCRIPT"
     
     # Execute the interactive installer
     log_info "Starting interactive installer..."
-    exec "$DOTFILES_DIR/scripts/interactive-install.sh" "$@"
+    exec "$INTERACTIVE_SCRIPT" "$@"
 }
 
 # Run main function
