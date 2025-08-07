@@ -407,16 +407,25 @@ install_homebrew() {
     local temp_dir
     temp_dir=$(mktemp -d)
     
-    # Clone the installation repository from Tsinghua mirror
-    if ! git clone --depth=1 https://mirrors.tuna.tsinghua.edu.cn/git/homebrew/install.git "${temp_dir}/brew-install"; then
-      log_error "Failed to clone Homebrew installation repository from Tsinghua mirror"
-      rm -rf "${temp_dir}"
-      return 1
+    # Download the installation script from GitHub
+    log_info "Downloading Homebrew installation script from GitHub..."
+    if command_exists curl; then
+      if ! curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh -o "${temp_dir}/install.sh"; then
+        log_error "Failed to download Homebrew installation script from GitHub"
+        rm -rf "${temp_dir}"
+        return 1
+      fi
+    else
+      if ! wget -q https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh -O "${temp_dir}/install.sh"; then
+        log_error "Failed to download Homebrew installation script from GitHub"
+        rm -rf "${temp_dir}"
+        return 1
+      fi
     fi
     
     # Run the installation script
-    if ! /bin/bash "${temp_dir}/brew-install/install.sh"; then
-      log_error "Failed to install Homebrew using Tsinghua mirror"
+    if ! /bin/bash "${temp_dir}/install.sh"; then
+      log_error "Failed to install Homebrew"
       rm -rf "${temp_dir}"
       return 1
     fi
