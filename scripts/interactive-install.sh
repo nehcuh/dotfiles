@@ -481,14 +481,35 @@ handle_input() {
         printf "%s:\n" "$(get_string "enter_choice")"
         
         # Read user input with error handling
-        if ! read -r choice 2>/dev/null; then
-            if [ ! -t 0 ]; then
-                printf "${RED}Error: This script requires an interactive terminal.${NC}\n"
-                printf "${YELLOW}Please run this script directly in your terminal, not through a pipe.${NC}\n"
+        # Try different methods to read input
+        choice=""
+        
+        # Method 1: Try standard read
+        if [ -t 0 ]; then
+            if read -r choice 2>/dev/null; then
+                : # Read successful
             else
-                printf "${RED}Error: Failed to read input.${NC}\n"
+                printf "${RED}Error: Failed to read input from terminal.${NC}\n"
+                exit 1
             fi
-            exit 1
+        else
+            # Method 2: Try reading from /dev/tty
+            if [ -c /dev/tty ]; then
+                printf "${YELLOW}Terminal not interactive, trying alternative input method...${NC}\n"
+                if read -r choice < /dev/tty 2>/dev/null; then
+                    : # Read from /dev/tty successful
+                else
+                    printf "${RED}Error: This script requires an interactive terminal.${NC}\n"
+                    printf "${YELLOW}Please run this script directly in your terminal, not through a pipe.${NC}\n"
+                    printf "${YELLOW}Or try: bash -i $(basename "$0")${NC}\n"
+                    exit 1
+                fi
+            else
+                printf "${RED}Error: This script requires an interactive terminal.${NC}\n"
+                printf "${YELLOW}Please run this script directly in your terminal.${NC}\n"
+                printf "${YELLOW}Or try: bash -i $(basename "$0")${NC}\n"
+                exit 1
+            fi
         fi
         
         case "$choice" in
