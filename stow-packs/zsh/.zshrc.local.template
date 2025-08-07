@@ -1,0 +1,147 @@
+# Local Zsh configuration
+# This file is not tracked by Git and should contain your personal settings
+# Copy this file to ~/.zshrc.local and customize it
+
+# ===== Personal Environment Variables =====
+# Uncomment and modify as needed
+
+# Set your preferred editor
+# export EDITOR="nvim"
+# export VISUAL="nvim"
+
+# Set language and locale
+# export LANG="en_US.UTF-8"
+# export LC_ALL="en_US.UTF-8"
+
+# Custom PATH additions
+# export PATH="$HOME/.local/bin:$PATH"
+# export PATH="$HOME/bin:$PATH"
+
+# ===== Personal Aliases =====
+# Add your personal aliases here
+
+# General aliases
+# alias ll='ls -alF'
+# alias la='ls -A'
+# alias l='ls -CF'
+# alias ..='cd ..'
+# alias ...='cd ../..'
+
+# Git aliases
+# alias gs='git status'
+# alias ga='git add'
+# alias gc='git commit'
+# alias gp='git push'
+# alias gl='git pull'
+
+# Docker aliases
+# alias dc='docker-compose'
+# alias dps='docker ps'
+# alias di='docker images'
+
+# ===== Personal Functions =====
+# Add your custom functions here
+
+# Example: Create and enter directory
+# mkcd() {
+#   mkdir -p "$1" && cd "$1"
+# }
+
+# Example: Extract various archive formats
+# extract() {
+#   if [ -f $1 ] ; then
+#     case $1 in
+#       *.tar.bz2)   tar xjf $1     ;;
+#       *.tar.gz)    tar xzf $1     ;;
+#       *.bz2)       bunzip2 $1     ;;
+#       *.rar)       unrar e $1     ;;
+#       *.gz)        gunzip $1      ;;
+#       *.tar)       tar xf $1      ;;
+#       *.tbz2)      tar xjf $1     ;;
+#       *.tgz)       tar xzf $1     ;;
+#       *.zip)       unzip $1       ;;
+#       *.Z)         uncompress $1  ;;
+#       *.7z)        7z x $1        ;;
+#       *)           echo "'$1' cannot be extracted via extract()" ;;
+#     esac
+#   else
+#     echo "'$1' is not a valid file"
+#   fi
+# }
+
+# ===== Personal Zinit Plugins =====
+# Add your additional Zinit plugins here
+
+# Example: Additional plugins
+# zinit light zsh-users/zsh-autosuggestions
+# zinit light zdharma-continuum/fast-syntax-highlighting
+# zinit light jeffreytse/zsh-vi-mode
+# zinit snippet OMZP::git
+# zinit snippet OMZP::docker
+# zinit snippet OMZP::docker-compose
+
+# ===== Personal Theme Settings =====
+# Customize your prompt theme here
+
+# Example: Starship prompt customization
+# export STARSHIP_CONFIG=~/.config/starship/config.toml
+
+# Example: Pure prompt
+# zinit ice compile'(pure|async).zsh' pick'async.zsh' src'pure.zsh'
+# zinit light sindresorhus/pure
+
+# ===== Development Environment Settings =====
+
+# Python settings
+# export PYTHONDONTWRITEBYTECODE=1
+# export PYTHONUNBUFFERED=1
+# export PYENV_ROOT="$HOME/.pyenv"
+# export PATH="$PYENV_ROOT/bin:$PATH"
+# eval "$(pyenv init -)"
+# eval "$(pyenv virtualenv-init -)"
+
+# Node.js settings
+# export NVM_DIR="$HOME/.nvm"
+# [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"
+# [ -s "$NVM_DIR/bash_completion" ] && \. "$NVM_DIR/bash_completion"
+
+# Ruby settings
+# export PATH="$HOME/.rbenv/bin:$PATH"
+# eval "$(rbenv init -)"
+
+# Go settings
+# export GOPATH="$HOME/go"
+# export PATH="$PATH:$GOPATH/bin"
+
+# Rust settings
+# export PATH="$HOME/.cargo/bin:$PATH"
+
+# ===== OS-Specific Settings =====
+
+# macOS specific settings
+if [[ "$OSTYPE" == "darwin"* ]]; then
+  # Add macOS specific settings here
+  # export PATH="/opt/homebrew/bin:$PATH"
+  # alias finder='open -a Finder ./'
+fi
+
+# Linux specific settings
+if [[ "$OSTYPE" == "linux-gnu"* ]]; then
+  # Add Linux specific settings here
+  # alias open='xdg-open'
+fi
+
+# WSL specific settings
+if grep -q "microsoft" /proc/version 2>/dev/null; then
+  # Add WSL specific settings here
+  # export BROWSER='/mnt/c/Program Files/Google/Chrome/Application/chrome.exe'
+fi
+
+# ===== Custom Keybindings =====
+# Add your custom keybindings here
+
+# Example: Ctrl+F for fzf file search
+# bindkey -s '^f' 'fzf^M'
+
+# ===== Additional Settings =====
+# Add any other personal settings below

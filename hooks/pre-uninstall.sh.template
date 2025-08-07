@@ -1,0 +1,64 @@
+#!/bin/sh
+# Pre-uninstallation hook
+# This script runs before the uninstallation process
+# Copy this file to pre-uninstall.sh and customize it
+
+# Source common library if available
+if [ -f "../scripts/lib/common.sh" ]; then
+  # shellcheck disable=SC1091
+  . "../scripts/lib/common.sh"
+else
+  # Define minimal logging functions if common.sh is not available
+  log_info() {
+    echo "[INFO] $1"
+  }
+  
+  log_success() {
+    echo "[SUCCESS] $1"
+  }
+  
+  log_warning() {
+    echo "[WARNING] $1"
+  }
+  
+  log_error() {
+    echo "[ERROR] $1" >&2
+  }
+fi
+
+log_info "Running pre-uninstallation hook..."
+
+# Add your custom pre-uninstallation commands here
+# For example:
+# - Backup user data
+# - Clean up temporary files
+# - Stop running services
+# - Export settings
+
+# Example: Backup user data
+# backup_dir="$HOME/.dotfiles-data-backup-$(date +%Y%m%d-%H%M%S)"
+# mkdir -p "$backup_dir"
+# log_info "Backing up user data..."
+# cp -r "$HOME/.config/custom-data" "$backup_dir/"
+# log_success "User data backed up to $backup_dir"
+
+# Example: Clean up temporary files
+# log_info "Cleaning up temporary files..."
+# rm -rf "$HOME/.cache/dotfiles-temp"
+# log_success "Temporary files cleaned up"
+
+# Example: Stop running services
+# log_info "Stopping running services..."
+# if command -v tmux >/dev/null 2>&1; then
+#   tmux kill-server 2>/dev/null || true
+#   log_success "Tmux server stopped"
+# fi
+
+# Example: Export settings
+# log_info "Exporting settings..."
+# if command -v git >/dev/null 2>&1; then
+#   git config --list > "$HOME/.dotfiles-git-config-backup"
+#   log_success "Git configuration exported"
+# fi
+
+log_success "Pre-uninstallation hook completed"

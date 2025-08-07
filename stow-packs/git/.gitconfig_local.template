@@ -1,0 +1,92 @@
+# Local Git configuration
+# This file is not tracked by Git and should contain your personal settings
+# Copy this file to ~/.gitconfig_local and customize it
+
+[user]
+    # Set your name and email
+    name = Your Name
+    email = your.email@example.com
+    # If you use GPG to sign commits, uncomment and set your key
+    # signingkey = YOUR_GPG_KEY_ID
+
+[commit]
+    # Uncomment to enable GPG signing of commits by default
+    # gpgsign = true
+
+[github]
+    # Your GitHub username for GitHub CLI integration
+    user = your-github-username
+
+[gitlab]
+    # Your GitLab username for GitLab CLI integration
+    user = your-gitlab-username
+
+[core]
+    # Uncomment and modify if you want to use a different editor
+    # editor = nvim
+    
+    # Uncomment if you want to customize the pager
+    # pager = delta
+
+[color]
+    # Customize colors if needed
+    ui = auto
+
+[init]
+    # Default branch name for new repositories
+    defaultBranch = main
+
+[pull]
+    # How to handle divergent branches on pull
+    # Options: merge, rebase, ff-only
+    ff = only
+
+[push]
+    # Push behavior
+    # Options: simple, current, matching, upstream, nothing
+    default = simple
+    
+    # Automatically set upstream when pushing a new branch
+    autoSetupRemote = true
+
+[merge]
+    # Uncomment to use a different merge tool
+    # tool = vimdiff
+    
+    # Show common ancestor in conflicts
+    conflictstyle = diff3
+
+[diff]
+    # Uncomment to use a different diff tool
+    # tool = vimdiff
+    
+    # Enable better word diff
+    wordRegex = [[:alnum:]_]+|[^[:alnum:]_[:space:]]+
+
+[alias]
+    # Add your personal Git aliases here
+    # Example:
+    # s = status -s
+    # l = log --oneline --graph --decorate
+    # ca = commit --amend
+    # unstage = reset HEAD --
+
+# Uncomment and modify if you use delta for diffs
+# [delta]
+#     navigate = true
+#     light = false
+#     side-by-side = true
+#     line-numbers = true
+
+# Uncomment if you use Git LFS
+# [filter "lfs"]
+#     clean = git-lfs clean -- %f
+#     smudge = git-lfs smudge -- %f
+#     process = git-lfs filter-process
+#     required = true
+
+# Proxy settings (if needed)
+# [http]
+#     proxy = http://proxy.example.com:8080
+# [https]
+#     proxy = http://proxy.example.com:8080
