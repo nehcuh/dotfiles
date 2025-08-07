@@ -1,0 +1,131 @@
+{
+    "privacy": {
+        "telemetry": {
+            "enabled": false,
+            "metrics": false,
+            "crash_reporting": false,
+            "usage_tracking": false,
+            "performance_tracking": false,
+            "feature_usage": false,
+            "error_reporting": false
+        },
+        "auto_update": {
+            "enabled": false,
+            "check_updates": false,
+            "download_updates": false,
+            "install_updates": false,
+            "restart_after_update": false
+        },
+        "diagnostics": {
+            "enabled": false,
+            "log_level": "none",
+            "debug_logging": false,
+            "verbose_logging": false,
+            "performance_logging": false
+        },
+        "online_features": {
+            "enabled": false,
+            "cloud_sync": false,
+            "collaboration": false,
+            "sharing": false,
+            "remote_access": false,
+            "web_features": false,
+            "api_calls": false
+        },
+        "data_collection": {
+            "enabled": false,
+            "analytics": false,
+            "personalization": false,
+            "recommendations": false,
+            "suggestions": false,
+            "usage_statistics": false
+        },
+        "file_monitoring": {
+            "enabled": false,
+            "watch_files": false,
+            "track_changes": false,
+            "index_files": false,
+            "scan_directories": false
+        },
+        "security": {
+            "disable_remote_access": true,
+            "disable_file_sharing": true,
+            "disable_network_access": false,
+            "disable_external_scripts": true,
+            "disable_auto_execution": true,
+            "disable_plugin_downloads": true
+        }
+    },
+    "cache": {
+        "enabled": false,
+        "max_size_mb": 0,
+        "auto_clean": true,
+        "persist_across_sessions": false,
+        "cache_location": "memory"
+    },
+    "sessions": {
+        "save_sessions": false,
+        "restore_sessions": false,
+        "session_timeout": 0,
+        "auto_save_interval": 0,
+        "max_sessions": 0
+    },
+    "history": {
+        "enabled": false,
+        "max_entries": 0,
+        "persist_history": false,
+        "save_command_history": false,
+        "save_file_history": false,
+        "save_search_history": false
+    },
+    "backup": {
+        "enabled": false,
+        "auto_backup": false,
+        "backup_interval": 0,
+        "max_backups": 0,
+        "backup_location": "none"
+    },
+    "logging": {
+        "enabled": false,
+        "log_level": "none",
+        "log_to_file": false,
+        "log_to_console": false,
+        "max_log_size_mb": 0,
+        "rotate_logs": false
+    },
+    "network": {
+        "disable_telemetry": true,
+        "disable_update_checks": true,
+        "disable_license_checks": false,
+        "disable_feature_checks": true,
+        "disable_analytics": true,
+        "disable_crash_reports": true,
+        "allowed_domains": [],
+        "blocked_domains": ["*"]
+    },
+    "ui": {
+        "disable_online_suggestions": true,
+        "disable_tooltips": false,
+        "disable_notifications": false,
+        "disable_popups": false,
+        "disable_advertisements": true,
+        "disable_recommendations": true,
+        "disable_personalization": true
+    },
+    "plugins": {
+        "auto_update": false,
+        "auto_install": false,
+        "allow_online_plugins": false,
+        "allow_plugin_telemetry": false,
+        "plugin_sandbox": true,
+        "plugin_permissions": "minimal"
+    },
+    "performance": {
+        "disable_background_tasks": true,
+        "disable_indexing": true,
+        "disable_scanning": true,
+        "disable_monitoring": true,
+        "disable_optimization": false,
+        "disable_caching": false
+    }
+}

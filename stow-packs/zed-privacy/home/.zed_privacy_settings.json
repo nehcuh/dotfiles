@@ -1,0 +1,178 @@
+{
+    "telemetry": {
+        "enabled": false,
+        "metrics": false,
+        "crash_reporting": false,
+        "usage": false
+    },
+    "auto_update": false,
+    "diagnostics": false,
+    "collaboration": {
+        "enabled": false,
+        "share_cursor": false,
+        "share_selection": false,
+        "share_follow": false
+    },
+    "ui": {
+        "show_inline_completions": false,
+        "show_ghost_text": false,
+        "show_status_bar": true,
+        "show_tab_bar": true,
+        "show_panel": true,
+        "show_search": true,
+        "show_open_files": true,
+        "show_file_status": true,
+        "show_git_status": true,
+        "show_diagnostics": false,
+        "show_inline_hints": false,
+        "show_signature_help": false
+    },
+    "file_watcher": {
+        "use_git_ignore": true,
+        "ignore_patterns": [
+            "**/node_modules/**",
+            "**/dist/**",
+            "**/build/**",
+            "**/.git/**",
+            "**/.svn/**",
+            "**/.hg/**",
+            "**/CVS/**",
+            "**/.DS_Store/**",
+            "**/Thumbs.db/**",
+            "**/*.log",
+            "**/*.tmp",
+            "**/*.temp",
+            "**/.env*",
+            "**/.vscode/**",
+            "**/.idea/**",
+            "**/.swp",
+            "**/.swo",
+            "**/coverage/**",
+            "**/.nyc_output/**",
+            "**/.pytest_cache/**",
+            "**/__pycache__/**",
+            "**/*.pyc",
+            "**/*.pyo",
+            "**/*.class",
+            "**/*.jar",
+            "**/*.war"
+        ]
+    },
+    "theme": {
+        "mode": "system",
+        "light": "One Light",
+        "dark": "One Dark"
+    },
+    "buffer_options": {
+        "soft_wrap": "preferred_line_length",
+        "word_wrap": false,
+        "show_line_numbers": true,
+        "show_git_diffs": true,
+        "show_indent_guides": true,
+        "show_whitespace": "none",
+        "show_line_endings": false,
+        "show_scrollbars": true,
+        "auto_save": {
+            "after_delay": {
+                "milliseconds": 30000
+            }
+        },
+        "remove_trailing_whitespace_on_save": true,
+        "ensure_final_newline_on_save": true,
+        "tab_size": 2,
+        "insert_spaces": true,
+        "detect_indentation": false
+    },
+    "search": {
+        "case_sensitive": false,
+        "whole_word": false,
+        "regex": false,
+        "include_ignored": false,
+        "preview_context": 3,
+        "max_results": 1000
+    },
+    "terminal": {
+        "copy_on_select": false,
+        "blinking": "off",
+        "alternate_scroll": true,
+        "option_as_meta": true,
+        "env": {
+            "ZED_TELEMETRY_DISABLED": "1",
+            "ZED_AUTO_UPDATE": "0",
+            "ZED_DIAGNOSTICS": "0",
+            "ZED_COLLABORATION": "0"
+        }
+    },
+    "languages": {
+        "Python": {
+            "format_on_save": false,
+            "lsp": {
+                "binary": {
+                    "path": "",
+                    "arguments": []
+                }
+            }
+        },
+        "JavaScript": {
+            "format_on_save": false,
+            "lsp": {
+                "binary": {
+                    "path": "",
+                    "arguments": []
+                }
+            }
+        },
+        "TypeScript": {
+            "format_on_save": false,
+            "lsp": {
+                "binary": {
+                    "path": "",
+                    "arguments": []
+                }
+            }
+        },
+        "JSON": {
+            "format_on_save": false
+        },
+        "YAML": {
+            "format_on_save": false
+        },
+        "Markdown": {
+            "format_on_save": false,
+            "soft_wrap": true
+        }
+    },
+    "project_panel": {
+        "show_git_status": true,
+        "show_git_diffs": true,
+        "show_file_icons": true,
+        "show_folder_icons": true,
+        "indent_size": 2,
+        "auto_fold_dirs": [
+            "node_modules",
+            "dist",
+            "build",
+            ".git",
+            ".idea",
+            ".vscode",
+            "coverage",
+            ".pytest_cache",
+            "__pycache__"
+        ]
+    },
+    "keymaps": [
+        {
+            "context": "Workspace",
+            "bindings": {
+                "ctrl-shift-p": "command_palette::toggle",
+                "ctrl-p": "file_finder::toggle",
+                "ctrl-shift-f": "project_search::toggle",
+                "ctrl-b": "toggle_left_panel",
+                "ctrl-j": "toggle_bottom_panel",
+                "ctrl-`": "terminal::toggle_focus",
+                "ctrl-tab": "pane::NextItem",
+                "ctrl-shift-tab": "pane::PrevItem"
+            }
+        }
+    ]
+}

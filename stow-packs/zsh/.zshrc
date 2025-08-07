@@ -340,3 +340,6 @@ export PATH="$BUN_INSTALL/bin:$PATH"
 
 [[ "$TERM_PROGRAM" == "kiro" ]] && . "$(kiro --locate-shell-integration-path zsh)"
 alias gitai="/Users/huchen/Projects/gitai/target/release/gitai"
+
+# Source shell history configuration
+source "/Users/huchen/.dotfiles/stow-packs/shell-history/home/.shell_history_config"

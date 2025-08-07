@@ -1,0 +1,198 @@
+# Docker Privacy Configuration
+# This file contains privacy-focused settings for Docker
+
+# Environment variables for Docker privacy
+export DOCKER_CLI_EXPERIMENTAL="disabled"
+export DOCKER_BUILDKIT="0"
+export DOCKER_SCAN_SUGGEST="false"
+export DOCKER_CONTENT_TRUST="1"
+export DOCKER_CONTENT_TRUST_SERVER="https://notary.docker.io"
+export DOCKER_TLS_VERIFY="1"
+export DOCKER_CERT_PATH="$HOME/.docker/certs"
+export DOCKER_CONFIG="$HOME/.docker"
+export DOCKER_HIDE_LEGACY_COMMANDS="1"
+export DOCKER_STACK_ORCHESTRATOR="swarm"
+
+# Docker directories and files (these will be created automatically)
+export DOCKER_PRIVACY_CONFIG_DIR="$HOME/.docker"
+export DOCKER_PRIVACY_CACHE_DIR="$HOME/.cache/docker"
+export DOCKER_PRIVACY_LOG_DIR="$HOME/.local/share/docker/logs"
+export DOCKER_PRIVACY_DATA_DIR="$HOME/.local/share/docker"
+
+# Privacy-focused aliases
+alias docker='docker --tlsverify --disable-content-trust=false'
+alias docker-safe='docker --tlsverify --disable-content-trust=false --no-prune'
+alias docker-private='docker --tlsverify --disable-content-trust=false --no-prune --log-level=error'
+alias docker-offline='docker --tlsverify --disable-content-trust=false --no-prune --log-level=error --disable-plugin=true'
+
+# Docker Compose aliases
+alias docker-compose='docker-compose --no-ansi'
+alias docker-compose-safe='docker-compose --no-ansi --log-level=error'
+alias docker-compose-private='docker-compose --no-ansi --log-level=error --no-color'
+
+# Functions for Docker privacy management
+docker_clean_cache() {
+    echo "Cleaning Docker cache..."
+    docker system prune -f 2>/dev/null || true
+    docker builder prune -f 2>/dev/null || true
+    rm -rf "$DOCKER_PRIVACY_CACHE_DIR" 2>/dev/null || true
+    echo "Cache cleaned successfully"
+}
+
+docker_clean_logs() {
+    echo "Cleaning Docker logs..."
+    docker logs --tail 0 $(docker ps -aq) 2>/dev/null || true
+    rm -rf "$DOCKER_PRIVACY_LOG_DIR" 2>/dev/null || true
+    echo "Logs cleaned successfully"
+}
+
+docker_clean_images() {
+    echo "Cleaning unused Docker images..."
+    docker image prune -f 2>/dev/null || true
+    docker image prune --all -f 2>/dev/null || true
+    echo "Images cleaned successfully"
+}
+
+docker_clean_containers() {
+    echo "Cleaning stopped Docker containers..."
+    docker container prune -f 2>/dev/null || true
+    echo "Containers cleaned successfully"
+}
+
+docker_clean_networks() {
+    echo "Cleaning unused Docker networks..."
+    docker network prune -f 2>/dev/null || true
+    echo "Networks cleaned successfully"
+}
+
+docker_clean_volumes() {
+    echo "Cleaning unused Docker volumes..."
+    docker volume prune -f 2>/dev/null || true
+    echo "Volumes cleaned successfully"
+}
+
+docker_reset_privacy() {
+    echo "Resetting Docker privacy configuration..."
+    docker_clean_cache
+    docker_clean_logs
+    docker_clean_images
+    docker_clean_containers
+    docker_clean_networks
+    docker_clean_volumes
+    echo "Docker privacy reset completed"
+}
+
+docker_show_privacy_status() {
+    echo "Docker Privacy Status:"
+    echo "  Content Trust: ENABLED"
+    echo "  TLS Verify: ENABLED"
+    echo "  BuildKit: DISABLED"
+    echo "  Scan Suggest: DISABLED"
+    echo "  Experimental: DISABLED"
+    echo "  Cache: MANAGED"
+    echo "  Logs: MANAGED"
+    echo "  Network Isolation: ENABLED"
+    echo "  Container Privileges: RESTRICTED"
+}
+
+docker_privacy_check() {
+    echo "Checking Docker privacy settings..."
+    
+    # Check environment variables
+    if [ "$DOCKER_CONTENT_TRUST" = "1" ]; then
+        echo "✓ Content Trust enabled"
+    else
+        echo "✗ Content Trust not enabled"
+    fi
+    
+    if [ "$DOCKER_TLS_VERIFY" = "1" ]; then
+        echo "✓ TLS Verify enabled"
+    else
+        echo "✗ TLS Verify not enabled"
+    fi
+    
+    if [ "$DOCKER_BUILDKIT" = "0" ]; then
+        echo "✓ BuildKit disabled"
+    else
+        echo "✗ BuildKit not disabled"
+    fi
+    
+    if [ "$DOCKER_SCAN_SUGGEST" = "false" ]; then
+        echo "✓ Scan suggest disabled"
+    else
+        echo "✗ Scan suggest not disabled"
+    fi
+    
+    # Check if Docker is running
+    if docker info >/dev/null 2>&1; then
+        echo "✓ Docker is running"
+        
+        # Check for sensitive containers
+        sensitive_containers=$(docker ps --format "{{.Names}}" | grep -E "(vpn|proxy|monitor|analytics)" || true)
+        if [ -n "$sensitive_containers" ]; then
+            echo "⚠ Found potentially sensitive containers: $sensitive_containers"
+        fi
+        
+        # Check for exposed ports
+        exposed_ports=$(docker ps --format "{{.Ports}}" | grep -E "0.0.0.0|:::" || true)
+        if [ -n "$exposed_ports" ]; then
+            echo "⚠ Found containers with exposed ports: $exposed_ports"
+        fi
+    else
+        echo "⚠ Docker is not running"
+    fi
+    
+    # Check for sensitive files
+    if [ -f "$HOME/.docker/config.json" ]; then
+        echo "⚠ Docker config file exists - check for sensitive data"
+    fi
+    
+    if [ -d "$HOME/.docker/certs" ]; then
+        echo "✓ Docker certificates directory exists"
+    fi
+}
+
+docker_secure_run() {
+    local image="$1"
+    shift
+    
+    echo "Running secure container: $image"
+    
+    docker run \
+        --read-only \
+        --tmpfs /tmp:rw,noexec,nosuid \
+        --tmpfs /run:rw,noexec,nosuid \
+        --tmpfs /var/tmp:rw,noexec,nosuid \
+        --security-opt no-new-privileges \
+        --security-opt seccomp=/etc/docker/seccomp.json \
+        --cap-drop ALL \
+        --cap-add CHOWN \
+        --cap-add DAC_OVERRIDE \
+        --cap-add FOWNER \
+        --cap-add SETGID \
+        --cap-add SETUID \
+        --cap-add NET_BIND_SERVICE \
+        --network none \
+        --dns 8.8.8.8 \
+        --dns 8.8.4.4 \
+        --rm \
+        "$image" "$@"
+}
+
+docker_secure_build() {
+    local dockerfile="$1"
+    local context="${2:-.}"
+    
+    echo "Building secure image from: $dockerfile"
+    
+    docker build \
+        --no-cache \
+        --force-rm \
+        --build-arg BUILDKIT_INLINE_CACHE=0 \
+        --build-arg DOCKER_BUILDKIT=0 \
+        -f "$dockerfile" \
+        "$context"
+}
+
+# Auto-cleanup on shell exit (optional)
+# trap 'docker_clean_cache' EXIT

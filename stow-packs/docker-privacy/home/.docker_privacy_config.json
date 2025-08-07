@@ -1,0 +1,28 @@
+{
+    "auths": {},
+    "credsStore": "",
+    "credsHelpers": {},
+    "currentContext": "",
+    "customHttpHeaders": {},
+    "detachKeys": "ctrl-p,ctrl-q",
+    "experimental": "disabled",
+    "features": {
+        "buildkit": false
+    },
+    "httpproxy": "http://proxy.example.com:80",
+    "httpsProxy": "https://proxy.example.com:443",
+    "noProxy": "localhost,127.0.0.1",
+    "plugins": {
+        "scan": {
+            "disable": true
+        }
+    },
+    "proxies": {
+        "default": {
+            "httpProxy": "http://proxy.example.com:80",
+            "httpsProxy": "https://proxy.example.com:443",
+            "noProxy": "localhost,127.0.0.1"
+        }
+    },
+    "stackOrchestrator": "swarm"
+}
