@@ -192,6 +192,47 @@ log_warning "Failed to install $package (conflicts detected)"
     done
 }
 
+# Install Brewfile packages
+install_brewfile() {
+    if [[ "$OS" == "macos" ]] && command -v brew &> /dev/null; then
+        local brewfile="$HOME/.Brewfile"
+        
+        if [ -f "$brewfile" ]; then
+            log_info "Installing Homebrew packages from Brewfile..."
+            log_warning "This may take several minutes and will install many applications"
+            
+            # Ask for confirmation unless in non-interactive mode
+            if [ "${NON_INTERACTIVE:-false}" != "true" ] && [ "${SKIP_BREWFILE:-false}" != "true" ]; then
+                echo
+                log_info "The Brewfile includes:"
+                log_info "• CLI tools: bat, eza, fzf, ripgrep, neovim, etc."
+                log_info "• Development tools: go, rust, pyenv, nvm, maven, gradle"
+                log_info "• Applications: Zed editor, Obsidian, Raycast, etc."
+                log_info "• Fonts: Fira Code, Hack Nerd Font, etc."
+                echo
+                read -p "Do you want to install Brewfile packages? (y/N): " -n 1 -r
+                echo
+                
+                if [[ ! $REPLY =~ ^[Yy]$ ]]; then
+                    log_info "Skipping Brewfile installation"
+                    log_info "You can install it later with: brew bundle --global"
+                    return
+                fi
+            fi
+            
+            # Install packages from Brewfile
+            if brew bundle --global; then
+                log_success "Brewfile packages installed successfully"
+            else
+                log_warning "Some Brewfile packages failed to install"
+                log_info "You can retry with: brew bundle --global"
+            fi
+        else
+            log_info "No Brewfile found at $brewfile, skipping Homebrew package installation"
+        fi
+    fi
+}
+
 # Setup shell
 setup_shell() {
     log_info "Setting up shell..."
@@ -293,6 +334,7 @@ main() {
     check_sudo
     check_prerequisites
     install_packages "${packages[@]}"
+    install_brewfile
     setup_shell
     
     # Setup development environments if requested
