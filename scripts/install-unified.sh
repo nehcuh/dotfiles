@@ -2,6 +2,18 @@
 # Unified cross-platform dotfiles installer
 # Supports Linux, macOS, and Windows (via WSL/MSYS2)
 
+# Check if we're running in bash
+if [ -z "$BASH_VERSION" ]; then
+    # Try to re-exec with bash
+    if command -v bash >/dev/null 2>&1; then
+        exec bash "$0" "$@"
+    else
+        echo "Error: This script requires bash, but bash is not available."
+        echo "Please install bash and run: bash $0 $*"
+        exit 1
+    fi
+fi
+
 set -e
 
 # Colors
@@ -104,6 +116,268 @@ if [ "$PLATFORM" != "windows" ]; then
     check_sudo_access
     keep_sudo_alive
 fi
+
+# Function to install editors (VS Code, Zed)
+install_editors() {
+    echo -e "${BLUE}Installing editors...${NC}"
+    
+    case "$PLATFORM" in
+        macos)
+            install_macos_editors
+            ;;
+        linux)
+            install_linux_editors
+            ;;
+        windows)
+            install_windows_editors
+            ;;
+    esac
+}
+
+install_macos_editors() {
+    echo -e "${YELLOW}Installing macOS editors...${NC}"
+    
+    # Use Homebrew Cask for GUI applications
+    if command -v brew >/dev/null 2>&1; then
+        # Install Zed editor
+        if ! command -v zed >/dev/null 2>&1; then
+            echo -e "${YELLOW}Installing Zed editor...${NC}"
+            if ! brew install --cask zed 2>/dev/null; then
+                echo -e "${RED}Failed to install Zed via Homebrew Cask${NC}"
+                echo -e "${YELLOW}You can install it manually from: https://zed.dev${NC}"
+            else
+                echo -e "${GREEN}✓ Zed editor installed${NC}"
+            fi
+        else
+            echo -e "${GREEN}✓ Zed editor already installed${NC}"
+        fi
+        
+        # Install Visual Studio Code
+        if ! command -v code >/dev/null 2>&1; then
+            echo -e "${YELLOW}Installing Visual Studio Code...${NC}"
+            if ! brew install --cask visual-studio-code 2>/dev/null; then
+                echo -e "${RED}Failed to install VS Code via Homebrew Cask${NC}"
+                echo -e "${YELLOW}You can install it manually from: https://code.visualstudio.com${NC}"
+            else
+                echo -e "${GREEN}✓ Visual Studio Code installed${NC}"
+            fi
+        else
+            echo -e "${GREEN}✓ Visual Studio Code already installed${NC}"
+        fi
+    else
+        echo -e "${RED}Homebrew not available. Please install editors manually.${NC}"
+        echo -e "${YELLOW}Zed: https://zed.dev${NC}"
+        echo -e "${YELLOW}VS Code: https://code.visualstudio.com${NC}"
+    fi
+}
+
+install_linux_editors() {
+    echo -e "${YELLOW}Installing Linux editors...${NC}"
+    
+    # Try to install Zed editor
+    if ! command -v zed >/dev/null 2>&1; then
+        echo -e "${YELLOW}Installing Zed editor...${NC}"
+        
+        # Try different installation methods
+        if install_zed_linux; then
+            echo -e "${GREEN}✓ Zed editor installed${NC}"
+        else
+            echo -e "${RED}Failed to install Zed editor${NC}"
+            echo -e "${YELLOW}You can install it manually from: https://zed.dev${NC}"
+        fi
+    else
+        echo -e "${GREEN}✓ Zed editor already installed${NC}"
+    fi
+    
+    # Try to install VS Code
+    if ! command -v code >/dev/null 2>&1; then
+        echo -e "${YELLOW}Installing Visual Studio Code...${NC}"
+        
+        # Try different installation methods
+        if install_vscode_linux; then
+            echo -e "${GREEN}✓ Visual Studio Code installed${NC}"
+        else
+            echo -e "${RED}Failed to install VS Code${NC}"
+            echo -e "${YELLOW}You can install it manually from: https://code.visualstudio.com${NC}"
+        fi
+    else
+        echo -e "${GREEN}✓ Visual Studio Code already installed${NC}"
+    fi
+}
+
+install_zed_linux() {
+    # Try package managers first
+    case "$DISTRO" in
+        ubuntu|debian|linuxmint)
+            if command -v apt >/dev/null 2>&1; then
+                echo -e "${YELLOW}Trying to install Zed via apt...${NC}"
+                # Add Zed's official repository
+                if ! safe_sudo apt update; then
+                    return 1
+                fi
+                if ! safe_sudo apt install -y curl gpg; then
+                    return 1
+                fi
+                # Add Zed's GPG key and repository
+                curl -fsSL https://zed.dev/install.sh | sh
+                return $?
+            fi
+            ;;
+        arch|manjaro)
+            if command -v pacman >/dev/null 2>&1; then
+                echo -e "${YELLOW}Trying to install Zed via pacman...${NC}"
+                # Zed is available in AUR
+                if command -v yay >/dev/null 2>&1; then
+                    yay -S --noconfirm zed
+                    return $?
+                elif command -v paru >/dev/null 2>&1; then
+                    paru -S --noconfirm zed
+                    return $?
+                else
+                    echo -e "${YELLOW}AUR helper not found. Please install yay or paru first.${NC}"
+                    return 1
+                fi
+            fi
+            ;;
+        fedora|centos|rhel)
+            if command -v dnf >/dev/null 2>&1; then
+                echo -e "${YELLOW}Trying to install Zed via dnf...${NC}"
+                # Use official installation script
+                curl -fsSL https://zed.dev/install.sh | sh
+                return $?
+            fi
+            ;;
+    esac
+    
+    # Try official installation script as fallback
+    echo -e "${YELLOW}Trying Zed official installation script...${NC}"
+    if curl -fsSL https://zed.dev/install.sh | sh; then
+        return 0
+    fi
+    
+    return 1
+}
+
+install_vscode_linux() {
+    # Try package managers first
+    case "$DISTRO" in
+        ubuntu|debian|linuxmint)
+            if command -v apt >/dev/null 2>&1; then
+                echo -e "${YELLOW}Trying to install VS Code via apt...${NC}"
+                # Add Microsoft's GPG key and repository
+                if ! safe_sudo apt update; then
+                    return 1
+                fi
+                if ! safe_sudo apt install -y curl gpg; then
+                    return 1
+                fi
+                
+                # Add Microsoft GPG key
+                curl -fsSL https://packages.microsoft.com/keys/microsoft.asc | gpg --dearmor | safe_sudo tee /etc/apt/trusted.gpg.d/microsoft.gpg >/dev/null
+                
+                # Add VS Code repository
+                echo "deb [arch=amd64,arm64,armhf signed-by=/etc/apt/trusted.gpg.d/microsoft.gpg] https://packages.microsoft.com/repos/code stable main" | safe_sudo tee /etc/apt/sources.list.d/vscode.list >/dev/null
+                
+                # Install VS Code
+                if ! safe_sudo apt update; then
+                    return 1
+                fi
+                if safe_sudo apt install -y code; then
+                    return 0
+                fi
+            fi
+            ;;
+        arch|manjaro)
+            if command -v pacman >/dev/null 2>&1; then
+                echo -e "${YELLOW}Trying to install VS Code via pacman...${NC}"
+                # VS Code is available in AUR
+                if command -v yay >/dev/null 2>&1; then
+                    yay -S --noconfirm visual-studio-code-bin
+                    return $?
+                elif command -v paru >/dev/null 2>&1; then
+                    paru -S --noconfirm visual-studio-code-bin
+                    return $?
+                else
+                    echo -e "${YELLOW}AUR helper not found. Please install yay or paru first.${NC}"
+                    return 1
+                fi
+            fi
+            ;;
+        fedora|centos|rhel)
+            if command -v dnf >/dev/null 2>&1; then
+                echo -e "${YELLOW}Trying to install VS Code via dnf...${NC}"
+                # Add Microsoft repository
+                sudo rpm --import https://packages.microsoft.com/keys/microsoft.asc
+                echo -e "[code]\nname=Visual Studio Code\nbaseurl=https://packages.microsoft.com/yumrepos/vscode\nenabled=1\ngpgcheck=1\ngpgkey=https://packages.microsoft.com/keys/microsoft.asc" | safe_sudo tee /etc/yum.repos.d/vscode.repo >/dev/null
+                
+                # Install VS Code
+                if safe_sudo dnf install -y code; then
+                    return 0
+                fi
+            fi
+            ;;
+    esac
+    
+    # Try official installation script as fallback
+    echo -e "${YELLOW}Trying VS Code official installation script...${NC}"
+    if curl -fsSL https://code.visualstudio.com/sha/download?build=stable&os=linux-x64 -o vscode.tar.gz; then
+        tar -xzf vscode.tar.gz
+        if [ -d "VSCode-linux-x64" ]; then
+            safe_sudo mv VSCode-linux-x64 /opt/vscode
+            safe_sudo ln -sf /opt/vscode/bin/code /usr/local/bin/code
+            rm -rf vscode.tar.gz VSCode-linux-x64
+            return 0
+        fi
+        rm -f vscode.tar.gz
+    fi
+    
+    return 1
+}
+
+install_windows_editors() {
+    echo -e "${YELLOW}Windows editors should be installed via package managers like scoop or winget${NC}"
+    echo -e "${YELLOW}For scoop: scoop install vscode zed${NC}"
+    echo -e "${YELLOW}For winget: winget install Microsoft.VisualStudioCode Zed.Zed${NC}"
+}
+
+# Setup Linux Homebrew with Tsinghua mirror
+setup_linux_homebrew() {
+    if [ "$PLATFORM" != "linux" ]; then
+        return 0
+    fi
+    
+    if command -v brew >/dev/null 2>&1; then
+        echo -e "${GREEN}✓ Homebrew already installed${NC}"
+        return 0
+    fi
+    
+    echo -e "${YELLOW}Setting up Linux Homebrew with Tsinghua mirror...${NC}"
+    
+    # Install Homebrew with Tsinghua mirror
+    export HOMEBREW_BREW_GIT_REMOTE="https://mirrors.tuna.tsinghua.edu.cn/git/homebrew/brew.git"
+    export HOMEBREW_CORE_GIT_REMOTE="https://mirrors.tuna.tsinghua.edu.cn/git/homebrew/homebrew-core.git"
+    export HOMEBREW_BOTTLE_DOMAIN="https://mirrors.tuna.tsinghua.edu.cn/homebrew-bottles"
+    
+    # Install Homebrew
+    if ! /bin/bash -c "$(curl -fsSL https://mirrors.tuna.tsinghua.edu.cn/git/homebrew/install.git/raw/master/install.sh)"; then
+        echo -e "${RED}Failed to install Homebrew with Tsinghua mirror${NC}"
+        return 1
+    fi
+    
+    # Add Homebrew to PATH
+    echo 'eval "$(/home/linuxbrew/.linuxbrew/bin/brew shellenv)"' >> ~/.zprofile
+    eval "$(/home/linuxbrew/.linuxbrew/bin/brew shellenv)"
+    
+    # Configure Tsinghua mirror for existing Homebrew installation
+    brew git -C "$(brew --repo)" remote set-url origin https://mirrors.tuna.tsinghua.edu.cn/git/homebrew/brew.git
+    brew git -C "$(brew --repo homebrew/core)" remote set-url origin https://mirrors.tuna.tsinghua.edu.cn/git/homebrew/homebrew-core.git
+    
+    # Configure bottle domain
+    echo 'export HOMEBREW_BOTTLE_DOMAIN="https://mirrors.tuna.tsinghua.edu.cn/homebrew-bottles"' >> ~/.zprofile
+    
+    echo -e "${GREEN}✓ Linux Homebrew installed with Tsinghua mirror${NC}"
+    return 0
+}
 
 # Function to install packages based on platform
 install_packages() {
@@ -268,6 +542,119 @@ install_windows_packages() {
 # Clone dotfiles if not exists
 if [ ! -d "$DOTFILES_DIR" ]; then
     echo -e "${YELLOW}Cloning dotfiles...${NC}"
+    
+    # Check if git is available
+    if ! command -v git &> /dev/null; then
+        echo -e "${YELLOW}Git is not installed. Installing git automatically...${NC}"
+        
+        case "$PLATFORM" in
+            macos)
+                # Install Xcode Command Line Tools first (includes git)
+                echo -e "${YELLOW}Installing Xcode Command Line Tools...${NC}"
+                xcode-select --install
+                echo -e "${YELLOW}Please press Enter when Xcode installation is complete${NC}"
+                read -p ""
+                
+                # Verify git is installed
+                if ! command -v git &> /dev/null; then
+                    echo -e "${RED}Error: git installation failed${NC}"
+                    echo -e "${YELLOW}Please install git manually: brew install git${NC}"
+                    exit 1
+                fi
+                ;;
+            linux)
+                case "$DISTRO" in
+                    ubuntu|debian|linuxmint)
+                        echo -e "${YELLOW}Installing git on Debian/Ubuntu...${NC}"
+                        if ! safe_sudo apt update; then
+                            echo -e "${RED}Failed to update package lists${NC}"
+                            exit 1
+                        fi
+                        if ! safe_sudo apt install -y git; then
+                            echo -e "${RED}Failed to install git${NC}"
+                            exit 1
+                        fi
+                        ;;
+                    arch|manjaro)
+                        echo -e "${YELLOW}Installing git on Arch/Manjaro...${NC}"
+                        if ! safe_sudo pacman -Syu --noconfirm git; then
+                            echo -e "${RED}Failed to install git${NC}"
+                            exit 1
+                        fi
+                        ;;
+                    fedora|centos|rhel)
+                        echo -e "${YELLOW}Installing git on Fedora/CentOS...${NC}"
+                        if ! safe_sudo dnf install -y git; then
+                            echo -e "${RED}Failed to install git${NC}"
+                            exit 1
+                        fi
+                        ;;
+                    *)
+                        if command -v apt >/dev/null 2>&1; then
+                            echo -e "${YELLOW}Installing git using apt...${NC}"
+                            if ! safe_sudo apt update; then
+                                echo -e "${RED}Failed to update package lists${NC}"
+                                exit 1
+                            fi
+                            if ! safe_sudo apt install -y git; then
+                                echo -e "${RED}Failed to install git${NC}"
+                                exit 1
+                            fi
+                        elif command -v pacman >/dev/null 2>&1; then
+                            echo -e "${YELLOW}Installing git using pacman...${NC}"
+                            if ! safe_sudo pacman -Syu --noconfirm git; then
+                                echo -e "${RED}Failed to install git${NC}"
+                                exit 1
+                            fi
+                        elif command -v dnf >/dev/null 2>&1; then
+                            echo -e "${YELLOW}Installing git using dnf...${NC}"
+                            if ! safe_sudo dnf install -y git; then
+                                echo -e "${RED}Failed to install git${NC}"
+                                exit 1
+                            fi
+                        else
+                            echo -e "${RED}Error: No supported package manager found${NC}"
+                            echo -e "${YELLOW}Please install git manually using your package manager${NC}"
+                            exit 1
+                        fi
+                        ;;
+                esac
+                ;;
+            windows)
+                if grep -q Microsoft /proc/version 2>/dev/null; then
+                    echo -e "${YELLOW}Installing git in WSL...${NC}"
+                    if ! safe_sudo apt update; then
+                        echo -e "${RED}Failed to update package lists in WSL${NC}"
+                        exit 1
+                    fi
+                    if ! safe_sudo apt install -y git; then
+                        echo -e "${RED}Failed to install git in WSL${NC}"
+                        exit 1
+                    fi
+                elif command -v pacman &> /dev/null; then
+                    echo -e "${YELLOW}Installing git in MSYS2...${NC}"
+                    if ! pacman -Syu --noconfirm git; then
+                        echo -e "${RED}Failed to install git in MSYS2${NC}"
+                        exit 1
+                    fi
+                else
+                    echo -e "${RED}Error: Unsupported Windows environment${NC}"
+                    echo -e "${YELLOW}Please install git manually or use WSL/MSYS2${NC}"
+                    exit 1
+                fi
+                ;;
+        esac
+        
+        # Verify git was successfully installed
+        if ! command -v git &> /dev/null; then
+            echo -e "${RED}Error: git installation failed${NC}"
+            echo -e "${YELLOW}Please install git manually and run this script again${NC}"
+            exit 1
+        fi
+        
+        echo -e "${GREEN}✓ Git installed successfully${NC}"
+    fi
+    
     git clone https://github.com/nehcuh/dotfiles.git "$DOTFILES_DIR"
     echo -e "${GREEN}✓ Dotfiles cloned${NC}"
 fi
@@ -316,11 +703,34 @@ echo -e "${BLUE}Installing development tools...${NC}"
 echo -e "${BLUE}Installing editors...${NC}"
 ./scripts/stow.sh install vim nvim tmux
 
-# Zed editor configuration
+# Install editors (VS Code, Zed)
+install_editors
+
+# Setup Linux Homebrew with Tsinghua mirror (if needed)
+if [ "$PLATFORM" = "linux" ]; then
+    echo -e "${YELLOW}Would you like to install Linux Homebrew with Tsinghua mirror? (y/N)${NC}"
+    read -r install_homebrew
+    if [ "$install_homebrew" = "y" ] || [ "$install_homebrew" = "Y" ]; then
+        setup_linux_homebrew
+    fi
+fi
+
+# Install editor configurations
 if command -v zed >/dev/null 2>&1; then
     echo -e "${BLUE}Installing Zed configuration...${NC}"
     ./scripts/stow.sh install zed
 fi
+
+if command -v code >/dev/null 2>&1; then
+    echo -e "${BLUE}Installing VS Code configuration...${NC}"
+    # Create VS Code config directory if it doesn't exist
+    mkdir -p "$HOME/.config/Code/User"
+    # Stow VS Code configuration if available
+    if [ -d "stow-packs/vscode" ]; then
+        ./scripts/stow.sh install vscode
+    fi
+fi
+
 
 # Setup Python environment
 echo -e "${BLUE}Setting up Python environment...${NC}"
@@ -378,9 +788,101 @@ if [ "$PLATFORM" != "windows" ] && [ "$SHELL" != "$(which zsh)" ]; then
     
     ZSH_PATH=$(which zsh)
     if [ -z "$ZSH_PATH" ]; then
-        echo -e "${RED}Error: zsh not found in PATH${NC}"
-        echo -e "${YELLOW}Please install zsh first${NC}"
-    else
+        echo -e "${YELLOW}Zsh not found. Installing zsh...${NC}"
+        
+        # Install zsh based on platform
+        case "$PLATFORM" in
+            macos)
+                if command -v brew >/dev/null 2>&1; then
+                    echo -e "${YELLOW}Installing zsh with Homebrew...${NC}"
+                    brew install zsh
+                else
+                    echo -e "${YELLOW}Installing zsh with Xcode Command Line Tools...${NC}"
+                    # On macOS, zsh is usually installed with Xcode CLT
+                    if ! command -v xcode-select &> /dev/null; then
+                        xcode-select --install
+                        echo -e "${YELLOW}Please press Enter when Xcode installation is complete${NC}"
+                        read -p ""
+                    fi
+                fi
+                ;;
+            linux)
+                case "$DISTRO" in
+                    ubuntu|debian|linuxmint)
+                        echo -e "${YELLOW}Installing zsh on Debian/Ubuntu...${NC}"
+                        if ! safe_sudo apt update; then
+                            echo -e "${RED}Failed to update package lists${NC}"
+                            exit 1
+                        fi
+                        if ! safe_sudo apt install -y zsh; then
+                            echo -e "${RED}Failed to install zsh${NC}"
+                            exit 1
+                        fi
+                        ;;
+                    arch|manjaro)
+                        echo -e "${YELLOW}Installing zsh on Arch/Manjaro...${NC}"
+                        if ! safe_sudo pacman -Syu --noconfirm zsh; then
+                            echo -e "${RED}Failed to install zsh${NC}"
+                            exit 1
+                        fi
+                        ;;
+                    fedora|centos|rhel)
+                        echo -e "${YELLOW}Installing zsh on Fedora/CentOS...${NC}"
+                        if ! safe_sudo dnf install -y zsh; then
+                            echo -e "${RED}Failed to install zsh${NC}"
+                            exit 1
+                        fi
+                        ;;
+                    *)
+                        if command -v apt >/dev/null 2>&1; then
+                            echo -e "${YELLOW}Installing zsh using apt...${NC}"
+                            if ! safe_sudo apt update; then
+                                echo -e "${RED}Failed to update package lists${NC}"
+                                exit 1
+                            fi
+                            if ! safe_sudo apt install -y zsh; then
+                                echo -e "${RED}Failed to install zsh${NC}"
+                                exit 1
+                            fi
+                        elif command -v pacman >/dev/null 2>&1; then
+                            echo -e "${YELLOW}Installing zsh using pacman...${NC}"
+                            if ! safe_sudo pacman -Syu --noconfirm zsh; then
+                                echo -e "${RED}Failed to install zsh${NC}"
+                                exit 1
+                            fi
+                        elif command -v dnf >/dev/null 2>&1; then
+                            echo -e "${YELLOW}Installing zsh using dnf...${NC}"
+                            if ! safe_sudo dnf install -y zsh; then
+                                echo -e "${RED}Failed to install zsh${NC}"
+                                exit 1
+                            fi
+                        else
+                            echo -e "${RED}Error: No supported package manager found${NC}"
+                            echo -e "${YELLOW}Please install zsh manually using your package manager${NC}"
+                            exit 1
+                        fi
+                        ;;
+                esac
+                ;;
+            windows)
+                # Windows doesn't need zsh shell change
+                echo -e "${YELLOW}Skipping zsh shell change on Windows${NC}"
+                ;;
+        esac
+        
+        # Verify zsh was installed and get its path
+        ZSH_PATH=$(which zsh)
+        if [ -z "$ZSH_PATH" ]; then
+            echo -e "${RED}Error: Failed to install zsh${NC}"
+            echo -e "${YELLOW}Please install zsh manually and run this script again${NC}"
+            exit 1
+        fi
+        
+        echo -e "${GREEN}✓ Zsh installed successfully${NC}"
+    fi
+    
+    # Now change the default shell
+    if [ "$PLATFORM" != "windows" ]; then
         if [ "$PLATFORM" = "macos" ]; then
             if ! safe_sudo chsh -s "$ZSH_PATH" $USER; then
                 echo -e "${YELLOW}Warning: Could not change default shell to zsh${NC}"

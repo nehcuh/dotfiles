@@ -45,6 +45,9 @@ All installation scripts now include comprehensive sudo permission management:
 **Linux & macOS:**
 ```bash
 curl -fsSL https://raw.githubusercontent.com/nehcuh/dotfiles/main/scripts/install-unified.sh | bash
+
+# Or use the POSIX-compatible version:
+curl -fsSL https://raw.githubusercontent.com/nehcuh/dotfiles/main/scripts/install-unified-posix.sh | sh
 ```
 
 **Windows:**
@@ -61,6 +64,9 @@ cd ~/.dotfiles
 git clone https://github.com/nehcuh/dotfiles.git ~/.dotfiles
 cd ~/.dotfiles
 ./scripts/install-unified.sh
+
+# Or use the POSIX-compatible version:
+./scripts/install-unified-posix.sh
 ```
 
 **Windows:**

@@ -1,0 +1,349 @@
+[
+    // General
+    {
+        "key": "cmd+p",
+        "command": "workbench.action.quickOpen"
+    },
+    {
+        "key": "cmd+shift+p",
+        "command": "workbench.action.showCommands"
+    },
+    
+    // Editor Navigation
+    {
+        "key": "ctrl+g",
+        "command": "workbench.action.gotoLine"
+    },
+    {
+        "key": "cmd+o",
+        "command": "workbench.action.files.openFile"
+    },
+    {
+        "key": "cmd+s",
+        "command": "workbench.action.files.save"
+    },
+    {
+        "key": "cmd+shift+s",
+        "command": "workbench.action.files.saveAs"
+    },
+    {
+        "key": "cmd+option+s",
+        "command": "workbench.action.files.saveAll"
+    },
+    
+    // Editor Management
+    {
+        "key": "cmd+w",
+        "command": "workbench.action.closeActiveEditor"
+    },
+    {
+        "key": "cmd+k cmd+w",
+        "command": "workbench.action.closeAllEditors"
+    },
+    {
+        "key": "cmd+\\",
+        "command": "workbench.action.splitEditor"
+    },
+    {
+        "key": "cmd+1",
+        "command": "workbench.action.focusFirstEditorGroup"
+    },
+    {
+        "key": "cmd+2",
+        "command": "workbench.action.focusSecondEditorGroup"
+    },
+    {
+        "key": "cmd+3",
+        "command": "workbench.action.focusThirdEditorGroup"
+    },
+    
+    // Search and Replace
+    {
+        "key": "cmd+f",
+        "command": "actions.find"
+    },
+    {
+        "key": "cmd+option+f",
+        "command": "editor.action.startFindReplaceAction"
+    },
+    {
+        "key": "cmd+shift+f",
+        "command": "workbench.view.search"
+    },
+    {
+        "key": "cmd+shift+h",
+        "command": "workbench.action.replaceInFiles"
+    },
+    
+    // Text Editing
+    {
+        "key": "cmd+a",
+        "command": "editor.action.selectAll"
+    },
+    {
+        "key": "cmd+c",
+        "command": "editor.action.clipboardCopyAction"
+    },
+    {
+        "key": "cmd+v",
+        "command": "editor.action.clipboardPasteAction"
+    },
+    {
+        "key": "cmd+x",
+        "command": "editor.action.clipboardCutAction"
+    },
+    {
+        "key": "cmd+z",
+        "command": "undo"
+    },
+    {
+        "key": "cmd+shift+z",
+        "command": "redo"
+    },
+    {
+        "key": "cmd+d",
+        "command": "editor.action.addSelectionToNextFindMatch"
+    },
+    {
+        "key": "cmd+shift+d",
+        "command": "editor.action.moveSelectionToNextFindMatch"
+    },
+    
+    // Line Operations
+    {
+        "key": "cmd+enter",
+        "command": "editor.action.insertLineAfter"
+    },
+    {
+        "key": "cmd+shift+enter",
+        "command": "editor.action.insertLineBefore"
+    },
+    {
+        "key": "shift+option+up",
+        "command": "editor.action.copyLinesUpAction"
+    },
+    {
+        "key": "shift+option+down",
+        "command": "editor.action.copyLinesDownAction"
+    },
+    {
+        "key": "option+up",
+        "command": "editor.action.moveLinesUpAction"
+    },
+    {
+        "key": "option+down",
+        "command": "editor.action.moveLinesDownAction"
+    },
+    {
+        "key": "cmd+/",
+        "command": "editor.action.commentLine"
+    },
+    {
+        "key": "shift+option+a",
+        "command": "editor.action.blockComment"
+    },
+    
+    // Code Navigation
+    {
+        "key": "f12",
+        "command": "editor.action.goToDeclaration"
+    },
+    {
+        "key": "shift+f12",
+        "command": "editor.action.goToReferences"
+    },
+    {
+        "key": "cmd+f12",
+        "command": "editor.action.peekDeclaration"
+    },
+    {
+        "key": "cmd+shift+f12",
+        "command": "editor.action.peekReferences"
+    },
+    {
+        "key": "cmd+.",
+        "command": "editor.action.quickFix"
+    },
+    {
+        "key": "f2",
+        "command": "editor.action.rename"
+    },
+    
+    // Terminal
+    {
+        "key": "cmd+`",
+        "command": "workbench.action.terminal.toggleTerminal"
+    },
+    {
+        "key": "cmd+shift+`",
+        "command": "workbench.action.terminal.splitTerminal"
+    },
+    {
+        "key": "cmd+shift+c",
+        "command": "workbench.action.terminal.openNativeConsole"
+    },
+    
+    // Zen Mode
+    {
+        "key": "cmd+k z",
+        "command": "workbench.action.toggleZenMode"
+    },
+    
+    // Toggle Sidebar
+    {
+        "key": "cmd+b",
+        "command": "workbench.action.toggleSidebarVisibility"
+    },
+    
+    // Toggle Panel
+    {
+        "key": "cmd+j",
+        "command": "workbench.action.togglePanel"
+    },
+    
+    // Format Document
+    {
+        "key": "shift+option+f",
+        "command": "editor.action.formatDocument"
+    },
+    
+    // Organize Imports
+    {
+        "key": "shift+option+o",
+        "command": "editor.action.organizeImports"
+    },
+    
+    // Quick Fixes and Refactoring
+    {
+        "key": "cmd+.",
+        "command": "editor.action.quickFix"
+    },
+    {
+        "key": "f2",
+        "command": "editor.action.rename"
+    },
+    
+    // Error Navigation
+    {
+        "key": "f8",
+        "command": "editor.action.marker.next"
+    },
+    {
+        "key": "shift+f8",
+        "command": "editor.action.marker.prev"
+    },
+    
+    // Multi-cursor
+    {
+        "key": "option+cmd+up",
+        "command": "editor.action.insertCursorAbove"
+    },
+    {
+        "key": "option+cmd+down",
+        "command": "editor.action.insertCursorBelow"
+    },
+    
+    // Word selection
+    {
+        "key": "cmd+d",
+        "command": "editor.action.addSelectionToNextFindMatch"
+    },
+    {
+        "key": "cmd+shift+l",
+        "command": "editor.action.selectHighlights"
+    },
+    
+    // Folding
+    {
+        "key": "cmd+option+[",
+        "command": "editor.fold"
+    },
+    {
+        "key": "cmd+option+]",
+        "command": "editor.unfold"
+    },
+    {
+        "key": "cmd+k cmd+0",
+        "command": "editor.foldAll"
+    },
+    {
+        "key": "cmd+k cmd+j",
+        "command": "editor.unfoldAll"
+    },
+    
+    // Indentation
+    {
+        "key": "cmd+]",
+        "command": "editor.action.indentLines"
+    },
+    {
+        "key": "cmd+[",
+        "command": "editor.action.outdentLines"
+    },
+    
+    // Toggle Line Comment
+    {
+        "key": "cmd+/",
+        "command": "editor.action.commentLine"
+    },
+    
+    // Toggle Block Comment
+    {
+        "key": "shift+option+a",
+        "command": "editor.action.blockComment"
+    },
+    
+    // Go to Symbol
+    {
+        "key": "cmd+shift+o",
+        "command": "workbench.action.gotoSymbol"
+    },
+    {
+        "key": "cmd+shift+o",
+        "command": "workbench.action.gotoSymbolInFile"
+    },
+    
+    // Go to Symbol in Workspace
+    {
+        "key": "cmd+t",
+        "command": "workbench.action.showAllSymbols"
+    },
+    
+    // Navigate Back/Forward
+    {
+        "key": "ctrl+-",
+        "command": "workbench.action.navigateBack"
+    },
+    {
+        "key": "ctrl+shift+-",
+        "command": "workbench.action.navigateForward"
+    },
+    
+    // File Navigation
+    {
+        "key": "cmd+shift+e",
+        "command": "workbench.view.explorer"
+    },
+    {
+        "key": "cmd+shift+f",
+        "command": "workbench.view.search"
+    },
+    {
+        "key": "cmd+shift+g",
+        "command": "workbench.view.scm"
+    },
+    {
+        "key": "cmd+shift+d",
+        "command": "workbench.view.debug"
+    },
+    {
+        "key": "cmd+shift+x",
+        "command": "workbench.view.extensions"
+    },
+    
+    // Toggle Full Screen
+    {
+        "key": "ctrl+cmd+f",
+        "command": "workbench.action.toggleFullScreen"
+    }
+]

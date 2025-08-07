@@ -320,6 +320,102 @@ check_config_conflicts() {
     fi
 }
 
+# Install zsh if not exists
+install_zsh_if_needed() {
+    if ! command_exists zsh; then
+        print_color "$YELLOW" "Zsh not found. Installing zsh..."
+        
+        case "$PLATFORM" in
+            macos)
+                if command_exists brew; then
+                    print_color "$YELLOW" "Installing zsh with Homebrew..."
+                    brew install zsh
+                else
+                    print_color "$YELLOW" "Installing zsh with Xcode Command Line Tools..."
+                    # On macOS, zsh is usually installed with Xcode CLT
+                    if ! command_exists xcode-select; then
+                        xcode-select --install
+                        print_color "$YELLOW" "Please press Enter when Xcode installation is complete"
+                        read -r dummy < /dev/tty
+                    fi
+                fi
+                ;;
+            linux)
+                case "$DISTRO" in
+                    ubuntu|debian|linuxmint)
+                        print_color "$YELLOW" "Installing zsh on Debian/Ubuntu..."
+                        if ! safe_sudo apt update; then
+                            print_color "$RED" "Failed to update package lists"
+                            return 1
+                        fi
+                        if ! safe_sudo apt install -y zsh; then
+                            print_color "$RED" "Failed to install zsh"
+                            return 1
+                        fi
+                        ;;
+                    arch|manjaro)
+                        print_color "$YELLOW" "Installing zsh on Arch/Manjaro..."
+                        if ! safe_sudo pacman -Syu --noconfirm zsh; then
+                            print_color "$RED" "Failed to install zsh"
+                            return 1
+                        fi
+                        ;;
+                    fedora|centos|rhel)
+                        print_color "$YELLOW" "Installing zsh on Fedora/CentOS..."
+                        if ! safe_sudo dnf install -y zsh; then
+                            print_color "$RED" "Failed to install zsh"
+                            return 1
+                        fi
+                        ;;
+                    *)
+                        if command_exists apt; then
+                            print_color "$YELLOW" "Installing zsh using apt..."
+                            if ! safe_sudo apt update; then
+                                print_color "$RED" "Failed to update package lists"
+                                return 1
+                            fi
+                            if ! safe_sudo apt install -y zsh; then
+                                print_color "$RED" "Failed to install zsh"
+                                return 1
+                            fi
+                        elif command_exists pacman; then
+                            print_color "$YELLOW" "Installing zsh using pacman..."
+                            if ! safe_sudo pacman -Syu --noconfirm zsh; then
+                                print_color "$RED" "Failed to install zsh"
+                                return 1
+                            fi
+                        elif command_exists dnf; then
+                            print_color "$YELLOW" "Installing zsh using dnf..."
+                            if ! safe_sudo dnf install -y zsh; then
+                                print_color "$RED" "Failed to install zsh"
+                                return 1
+                            fi
+                        else
+                            print_color "$RED" "Error: No supported package manager found"
+                            print_color "$YELLOW" "Please install zsh manually using your package manager"
+                            return 1
+                        fi
+                        ;;
+                esac
+                ;;
+            windows)
+                # Windows doesn't need zsh installation for universal installer
+                print_color "$YELLOW" "Skipping zsh installation on Windows"
+                return 0
+                ;;
+        esac
+        
+        # Verify zsh was installed
+        if ! command_exists zsh; then
+            print_color "$RED" "Error: Failed to install zsh"
+            print_color "$YELLOW" "Please install zsh manually and run this script again"
+            return 1
+        fi
+        
+        print_color "$GREEN" "✓ Zsh installed successfully"
+    fi
+}
+
 # Run the appropriate installer based on shell
 run_installer() {
     print_color "$YELLOW" "🚀 Starting installation..."
@@ -332,6 +428,15 @@ run_installer() {
     # Check if interactive installer exists
     if [ -f "scripts/interactive-install.sh" ]; then
         print_color "$BLUE" "Running interactive installer..."
+        
+        # Install zsh if needed and we want to use it
+        if [ "$SHELL_TYPE" = "zsh" ] && ! command_exists zsh; then
+            if ! install_zsh_if_needed; then
+                print_color "$YELLOW" "Warning: Could not install zsh, falling back to sh"
+                SHELL_TYPE="sh"
+            fi
+        fi
+        
         case "$SHELL_TYPE" in
             zsh)
                 if command_exists zsh; then
@@ -353,6 +458,15 @@ run_installer() {
         esac
     elif [ -f "scripts/install-unified.sh" ]; then
         print_color "$BLUE" "Running unified installer..."
+        
+        # Install zsh if needed and we want to use it
+        if [ "$SHELL_TYPE" = "zsh" ] && ! command_exists zsh; then
+            if ! install_zsh_if_needed; then
+                print_color "$YELLOW" "Warning: Could not install zsh, falling back to sh"
+                SHELL_TYPE="sh"
+            fi
+        fi
+        
         case "$SHELL_TYPE" in
             zsh)
                 if command_exists zsh; then
@@ -389,6 +503,155 @@ run_installer() {
             exit 1
         fi
     fi
+}
+
+# Install VS Code and Zed editors
+install_editors_universal() {
+    print_color "$YELLOW" "🚀 Installing editors (VS Code, Zed)..."
+    
+    case "$PLATFORM" in
+        macos)
+            install_macos_editors_universal
+            ;;
+        linux)
+            install_linux_editors_universal
+            ;;
+        windows)
+            install_windows_editors_universal
+            ;;
+    esac
+}
+
+install_macos_editors_universal() {
+    print_color "$YELLOW" "Installing macOS editors..."
+    
+    # Use Homebrew Cask for GUI applications
+    if command_exists brew; then
+        # Install Zed editor
+        if ! command_exists zed; then
+            print_color "$YELLOW" "Installing Zed editor..."
+            if ! brew install --cask zed 2>/dev/null; then
+                print_color "$RED" "Failed to install Zed via Homebrew Cask"
+                print_color "$YELLOW" "You can install it manually from: https://zed.dev"
+            else
+                print_color "$GREEN" "✓ Zed editor installed"
+            fi
+        else
+            print_color "$GREEN" "✓ Zed editor already installed"
+        fi
+        
+        # Install Visual Studio Code
+        if ! command_exists code; then
+            print_color "$YELLOW" "Installing Visual Studio Code..."
+            if ! brew install --cask visual-studio-code 2>/dev/null; then
+                print_color "$RED" "Failed to install VS Code via Homebrew Cask"
+                print_color "$YELLOW" "You can install it manually from: https://code.visualstudio.com"
+            else
+                print_color "$GREEN" "✓ Visual Studio Code installed"
+            fi
+        else
+            print_color "$GREEN" "✓ Visual Studio Code already installed"
+        fi
+    else
+        print_color "$RED" "Homebrew not available. Please install editors manually."
+        print_color "$YELLOW" "Zed: https://zed.dev"
+        print_color "$YELLOW" "VS Code: https://code.visualstudio.com"
+    fi
+}
+
+install_linux_editors_universal() {
+    print_color "$YELLOW" "Installing Linux editors..."
+    
+    # Try to install Zed editor
+    if ! command_exists zed; then
+        print_color "$YELLOW" "Installing Zed editor..."
+        
+        # Try official installation script
+        if curl -fsSL https://zed.dev/install.sh | sh; then
+            print_color "$GREEN" "✓ Zed editor installed"
+        else
+            print_color "$RED" "Failed to install Zed editor"
+            print_color "$YELLOW" "You can install it manually from: https://zed.dev"
+        fi
+    else
+        print_color "$GREEN" "✓ Zed editor already installed"
+    fi
+    
+    # Try to install VS Code
+    if ! command_exists code; then
+        print_color "$YELLOW" "Installing Visual Studio Code..."
+        
+        # Try different installation methods based on distribution
+        case "$DISTRO" in
+            ubuntu|debian|linuxmint)
+                if command_exists apt; then
+                    # Add Microsoft's GPG key and repository
+                    curl -fsSL https://packages.microsoft.com/keys/microsoft.asc | gpg --dearmor | safe_sudo tee /etc/apt/trusted.gpg.d/microsoft.gpg >/dev/null
+                    echo "deb [arch=amd64,arm64,armhf signed-by=/etc/apt/trusted.gpg.d/microsoft.gpg] https://packages.microsoft.com/repos/code stable main" | safe_sudo tee /etc/apt/sources.list.d/vscode.list >/dev/null
+                    
+                    if safe_sudo apt update && safe_sudo apt install -y code; then
+                        print_color "$GREEN" "✓ Visual Studio Code installed"
+                    else
+                        print_color "$RED" "Failed to install VS Code"
+                        print_color "$YELLOW" "You can install it manually from: https://code.visualstudio.com"
+                    fi
+                else
+                    print_color "$RED" "apt not available"
+                    print_color "$YELLOW" "You can install it manually from: https://code.visualstudio.com"
+                fi
+                ;;
+            arch|manjaro)
+                if command_exists yay; then
+                    if yay -S --noconfirm visual-studio-code-bin; then
+                        print_color "$GREEN" "✓ Visual Studio Code installed"
+                    else
+                        print_color "$RED" "Failed to install VS Code"
+                        print_color "$YELLOW" "You can install it manually from: https://code.visualstudio.com"
+                    fi
+                elif command_exists paru; then
+                    if paru -S --noconfirm visual-studio-code-bin; then
+                        print_color "$GREEN" "✓ Visual Studio Code installed"
+                    else
+                        print_color "$RED" "Failed to install VS Code"
+                        print_color "$YELLOW" "You can install it manually from: https://code.visualstudio.com"
+                    fi
+                else
+                    print_color "$RED" "AUR helper not available"
+                    print_color "$YELLOW" "You can install it manually from: https://code.visualstudio.com"
+                fi
+                ;;
+            fedora|centos|rhel)
+                if command_exists dnf; then
+                    safe_sudo rpm --import https://packages.microsoft.com/keys/microsoft.asc
+                    echo -e "[code]\nname=Visual Studio Code\nbaseurl=https://packages.microsoft.com/yumrepos/vscode\nenabled=1\ngpgcheck=1\ngpgkey=https://packages.microsoft.com/keys/microsoft.asc" | safe_sudo tee /etc/yum.repos.d/vscode.repo >/dev/null
+                    
+                    if safe_sudo dnf install -y code; then
+                        print_color "$GREEN" "✓ Visual Studio Code installed"
+                    else
+                        print_color "$RED" "Failed to install VS Code"
+                        print_color "$YELLOW" "You can install it manually from: https://code.visualstudio.com"
+                    fi
+                else
+                    print_color "$RED" "dnf not available"
+                    print_color "$YELLOW" "You can install it manually from: https://code.visualstudio.com"
+                fi
+                ;;
+            *)
+                print_color "$RED" "Unsupported Linux distribution"
+                print_color "$YELLOW" "You can install manually:"
+                print_color "$YELLOW" "VS Code: https://code.visualstudio.com"
+                print_color "$YELLOW" "Zed: https://zed.dev"
+                ;;
+        esac
+    else
+        print_color "$GREEN" "✓ Visual Studio Code already installed"
+    fi
+}
+
+install_windows_editors_universal() {
+    print_color "$YELLOW" "Windows editors should be installed via package managers like scoop or winget"
+    print_color "$YELLOW" "For scoop: scoop install vscode zed"
+    print_color "$YELLOW" "For winget: winget install Microsoft.VisualStudioCode Zed.Zed"
 }
 
 # Function to check and request sudo access
@@ -475,6 +738,10 @@ main() {
     
     # Check for configuration conflicts
     check_config_conflicts
+    
+    # Install VS Code and Zed editors
+    print_color "$YELLOW" "🚀 Installing editors (VS Code, Zed)..."
+    install_editors_universal
     
     # Run installer
     run_installer

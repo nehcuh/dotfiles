@@ -647,12 +647,179 @@ install_editors() {
         cp ~/.tmux/.tmux.conf.local ~/.tmux.conf.local
     fi
     
+    # Install VS Code and Zed editors
+    install_vs_code_and_zed
+    
     # Install Zed configuration if Zed is available
     if command -v zed >/dev/null 2>&1; then
+        # Handle Zed config conflicts
+        if [ -f "$HOME/.config/zed/settings.json" ] && [ ! -L "$HOME/.config/zed/settings.json" ]; then
+            echo -e "${YELLOW}备份现有的 Zed 设置...${NC}"
+            backup_dir="$HOME/.dotfiles-backup-$(date +%Y%m%d-%H%M%S)"
+            mkdir -p "$backup_dir/.config/zed"
+            cp "$HOME/.config/zed/settings.json" "$backup_dir/.config/zed/"
+            rm -f "$HOME/.config/zed/settings.json"
+        fi
         ./scripts/stow.sh install zed
     fi
     
+    # Install VS Code configuration if VS Code is available
+    if command -v code >/dev/null 2>&1; then
+        echo -e "${YELLOW}安装 VS Code 配置...${NC}"
+        # Create VS Code config directory if it doesn't exist
+        mkdir -p "$HOME/.config/Code/User"
+        # Stow VS Code configuration if available
+        if [ -d "stow-packs/vscode" ]; then
+            ./scripts/stow.sh install vscode
+        fi
+    fi
+    
     echo -e "${GREEN}✓ 编辑器安装完成${NC}"
+}
+
+# Install VS Code and Zed editors
+install_vs_code_and_zed() {
+    echo -e "${YELLOW}正在安装 VS Code 和 Zed 编辑器...${NC}"
+    
+    # Detect platform
+    if [ "$(uname)" = "Darwin" ]; then
+        install_macos_editors_interactive
+    elif [ "$(uname)" = "Linux" ]; then
+        install_linux_editors_interactive
+    else
+        echo -e "${RED}不支持的平台${NC}"
+    fi
+}
+
+install_macos_editors_interactive() {
+    # Use Homebrew Cask for GUI applications
+    if command -v brew >/dev/null 2>&1; then
+        # Install Zed editor
+        if ! command -v zed >/dev/null 2>&1; then
+            echo -e "${YELLOW}正在安装 Zed 编辑器...${NC}"
+            if ! brew install --cask zed 2>/dev/null; then
+                echo -e "${RED}通过 Homebrew Cask 安装 Zed 失败${NC}"
+                echo -e "${YELLOW}您可以手动安装：https://zed.dev${NC}"
+            else
+                echo -e "${GREEN}✓ Zed 编辑器安装完成${NC}"
+            fi
+        else
+            echo -e "${GREEN}✓ Zed 编辑器已安装${NC}"
+        fi
+        
+        # Install Visual Studio Code
+        if ! command -v code >/dev/null 2>&1; then
+            echo -e "${YELLOW}正在安装 Visual Studio Code...${NC}"
+            if ! brew install --cask visual-studio-code 2>/dev/null; then
+                echo -e "${RED}通过 Homebrew Cask 安装 VS Code 失败${NC}"
+                echo -e "${YELLOW}您可以手动安装：https://code.visualstudio.com${NC}"
+            else
+                echo -e "${GREEN}✓ Visual Studio Code 安装完成${NC}"
+            fi
+        else
+            echo -e "${GREEN}✓ Visual Studio Code 已安装${NC}"
+        fi
+    else
+        echo -e "${RED}Homebrew 不可用。请手动安装编辑器。${NC}"
+        echo -e "${YELLOW}Zed: https://zed.dev${NC}"
+        echo -e "${YELLOW}VS Code: https://code.visualstudio.com${NC}"
+    fi
+}
+
+install_linux_editors_interactive() {
+    # Detect Linux distribution
+    if [ -f /etc/os-release ]; then
+        DISTRO=$(grep '^ID=' /etc/os-release | cut -d'=' -f2 | tr -d '"')
+    elif command -v lsb_release >/dev/null 2>&1; then
+        DISTRO=$(lsb_release -si | tr '[:upper:]' '[:lower:]')
+    else
+        DISTRO="unknown"
+    fi
+    
+    # Try to install Zed editor
+    if ! command -v zed >/dev/null 2>&1; then
+        echo -e "${YELLOW}正在安装 Zed 编辑器...${NC}"
+        
+        # Try official installation script
+        if curl -fsSL https://zed.dev/install.sh | sh; then
+            echo -e "${GREEN}✓ Zed 编辑器安装完成${NC}"
+        else
+            echo -e "${RED}安装 Zed 编辑器失败${NC}"
+            echo -e "${YELLOW}您可以手动安装：https://zed.dev${NC}"
+        fi
+    else
+        echo -e "${GREEN}✓ Zed 编辑器已安装${NC}"
+    fi
+    
+    # Try to install VS Code
+    if ! command -v code >/dev/null 2>&1; then
+        echo -e "${YELLOW}正在安装 Visual Studio Code...${NC}"
+        
+        # Try different installation methods based on distribution
+        case "$DISTRO" in
+            ubuntu|debian|linuxmint)
+                if command -v apt >/dev/null 2>&1; then
+                    # Add Microsoft's GPG key and repository
+                    curl -fsSL https://packages.microsoft.com/keys/microsoft.asc | gpg --dearmor | sudo tee /etc/apt/trusted.gpg.d/microsoft.gpg >/dev/null
+                    echo "deb [arch=amd64,arm64,armhf signed-by=/etc/apt/trusted.gpg.d/microsoft.gpg] https://packages.microsoft.com/repos/code stable main" | sudo tee /etc/apt/sources.list.d/vscode.list >/dev/null
+                    
+                    if sudo apt update && sudo apt install -y code; then
+                        echo -e "${GREEN}✓ Visual Studio Code 安装完成${NC}"
+                    else
+                        echo -e "${RED}安装 VS Code 失败${NC}"
+                        echo -e "${YELLOW}您可以手动安装：https://code.visualstudio.com${NC}"
+                    fi
+                else
+                    echo -e "${RED}apt 不可用${NC}"
+                    echo -e "${YELLOW}您可以手动安装：https://code.visualstudio.com${NC}"
+                fi
+                ;;
+            arch|manjaro)
+                if command -v yay >/dev/null 2>&1; then
+                    if yay -S --noconfirm visual-studio-code-bin; then
+                        echo -e "${GREEN}✓ Visual Studio Code 安装完成${NC}"
+                    else
+                        echo -e "${RED}安装 VS Code 失败${NC}"
+                        echo -e "${YELLOW}您可以手动安装：https://code.visualstudio.com${NC}"
+                    fi
+                elif command -v paru >/dev/null 2>&1; then
+                    if paru -S --noconfirm visual-studio-code-bin; then
+                        echo -e "${GREEN}✓ Visual Studio Code 安装完成${NC}"
+                    else
+                        echo -e "${RED}安装 VS Code 失败${NC}"
+                        echo -e "${YELLOW}您可以手动安装：https://code.visualstudio.com${NC}"
+                    fi
+                else
+                    echo -e "${RED}AUR 助手不可用${NC}"
+                    echo -e "${YELLOW}您可以手动安装：https://code.visualstudio.com${NC}"
+                fi
+                ;;
+            fedora|centos|rhel)
+                if command -v dnf >/dev/null 2>&1; then
+                    sudo rpm --import https://packages.microsoft.com/keys/microsoft.asc
+                    echo -e "[code]\nname=Visual Studio Code\nbaseurl=https://packages.microsoft.com/yumrepos/vscode\nenabled=1\ngpgcheck=1\ngpgkey=https://packages.microsoft.com/keys/microsoft.asc" | sudo tee /etc/yum.repos.d/vscode.repo >/dev/null
+                    
+                    if sudo dnf install -y code; then
+                        echo -e "${GREEN}✓ Visual Studio Code 安装完成${NC}"
+                    else
+                        echo -e "${RED}安装 VS Code 失败${NC}"
+                        echo -e "${YELLOW}您可以手动安装：https://code.visualstudio.com${NC}"
+                    fi
+                else
+                    echo -e "${RED}dnf 不可用${NC}"
+                    echo -e "${YELLOW}您可以手动安装：https://code.visualstudio.com${NC}"
+                fi
+                ;;
+            *)
+                echo -e "${RED}不支持的 Linux 发行版${NC}"
+                echo -e "${YELLOW}您可以手动安装：${NC}"
+                echo -e "${YELLOW}VS Code: https://code.visualstudio.com${NC}"
+                echo -e "${YELLOW}Zed: https://zed.dev${NC}"
+                ;;
+        esac
+    else
+        echo -e "${GREEN}✓ Visual Studio Code 已安装${NC}"
+    fi
 }
 
 install_python_env() {
@@ -743,32 +910,123 @@ change_default_shell() {
         
         ZSH_PATH=$(which zsh)
         if [ -z "$ZSH_PATH" ]; then
-            echo -e "${RED}Error: zsh not found in PATH${NC}"
-            echo -e "${YELLOW}Please install zsh first${NC}"
-        else
-            if [ "$PLATFORM" = "macos" ]; then
-                if ! safe_sudo chsh -s "$ZSH_PATH" $USER; then
-                    echo -e "${YELLOW}Warning: Could not change default shell to zsh${NC}"
-                    echo -e "${YELLOW}You may need to run manually: sudo chsh -s $ZSH_PATH $USER${NC}"
-                else
-                    echo -e "${GREEN}✓ $(get_string "shell_changed")${NC}"
-                fi
-            else
-                # On Linux, we need to check if zsh is in /etc/shells
-                if ! grep -q "$ZSH_PATH" /etc/shells; then
-                    echo -e "${YELLOW}Adding zsh to /etc/shells...${NC}"
-                    if ! echo "$ZSH_PATH" | safe_sudo tee -a /etc/shells >/dev/null; then
-                        echo -e "${YELLOW}Warning: Could not add zsh to /etc/shells${NC}"
-                        echo -e "${YELLOW}You may need to run manually: echo '$ZSH_PATH' | sudo tee -a /etc/shells${NC}"
+            echo -e "${YELLOW}Zsh not found. Installing zsh...${NC}"
+            
+            # Install zsh based on platform
+            case "$PLATFORM" in
+                macos)
+                    if command -v brew >/dev/null 2>&1; then
+                        echo -e "${YELLOW}Installing zsh with Homebrew...${NC}"
+                        brew install zsh
+                    else
+                        echo -e "${YELLOW}Installing zsh with Xcode Command Line Tools...${NC}"
+                        # On macOS, zsh is usually installed with Xcode CLT
+                        if ! command -v xcode-select &> /dev/null; then
+                            xcode-select --install
+                            echo -e "${YELLOW}Please press Enter when Xcode installation is complete${NC}"
+                            read -r -p "$(get_string "press_enter")" dummy < /dev/tty
+                        fi
                     fi
+                    ;;
+                linux)
+                    case "$DISTRO" in
+                        ubuntu|debian|linuxmint)
+                            echo -e "${YELLOW}Installing zsh on Debian/Ubuntu...${NC}"
+                            if ! safe_sudo apt update; then
+                                echo -e "${RED}Failed to update package lists${NC}"
+                                return 1
+                            fi
+                            if ! safe_sudo apt install -y zsh; then
+                                echo -e "${RED}Failed to install zsh${NC}"
+                                return 1
+                            fi
+                            ;;
+                        arch|manjaro)
+                            echo -e "${YELLOW}Installing zsh on Arch/Manjaro...${NC}"
+                            if ! safe_sudo pacman -Syu --noconfirm zsh; then
+                                echo -e "${RED}Failed to install zsh${NC}"
+                                return 1
+                            fi
+                            ;;
+                        fedora|centos|rhel)
+                            echo -e "${YELLOW}Installing zsh on Fedora/CentOS...${NC}"
+                            if ! safe_sudo dnf install -y zsh; then
+                                echo -e "${RED}Failed to install zsh${NC}"
+                                return 1
+                            fi
+                            ;;
+                        *)
+                            if command -v apt >/dev/null 2>&1; then
+                                echo -e "${YELLOW}Installing zsh using apt...${NC}"
+                                if ! safe_sudo apt update; then
+                                    echo -e "${RED}Failed to update package lists${NC}"
+                                    return 1
+                                fi
+                                if ! safe_sudo apt install -y zsh; then
+                                    echo -e "${RED}Failed to install zsh${NC}"
+                                    return 1
+                                fi
+                            elif command -v pacman >/dev/null 2>&1; then
+                                echo -e "${YELLOW}Installing zsh using pacman...${NC}"
+                                if ! safe_sudo pacman -Syu --noconfirm zsh; then
+                                    echo -e "${RED}Failed to install zsh${NC}"
+                                    return 1
+                                fi
+                            elif command -v dnf >/dev/null 2>&1; then
+                                echo -e "${YELLOW}Installing zsh using dnf...${NC}"
+                                if ! safe_sudo dnf install -y zsh; then
+                                    echo -e "${RED}Failed to install zsh${NC}"
+                                    return 1
+                                fi
+                            else
+                                echo -e "${RED}Error: No supported package manager found${NC}"
+                                echo -e "${YELLOW}Please install zsh manually using your package manager${NC}"
+                                return 1
+                            fi
+                            ;;
+                    esac
+                    ;;
+                windows)
+                    # Windows doesn't need zsh shell change
+                    echo -e "${YELLOW}Skipping zsh shell change on Windows${NC}"
+                    return 0
+                    ;;
+            esac
+            
+            # Verify zsh was installed and get its path
+            ZSH_PATH=$(which zsh)
+            if [ -z "$ZSH_PATH" ]; then
+                echo -e "${RED}Error: Failed to install zsh${NC}"
+                echo -e "${YELLOW}Please install zsh manually and run this script again${NC}"
+                return 1
+            fi
+            
+            echo -e "${GREEN}✓ Zsh installed successfully${NC}"
+        fi
+        
+        # Now change the default shell
+        if [ "$PLATFORM" = "macos" ]; then
+            if ! safe_sudo chsh -s "$ZSH_PATH" $USER; then
+                echo -e "${YELLOW}Warning: Could not change default shell to zsh${NC}"
+                echo -e "${YELLOW}You may need to run manually: sudo chsh -s $ZSH_PATH $USER${NC}"
+            else
+                echo -e "${GREEN}✓ $(get_string "shell_changed")${NC}"
+            fi
+        else
+            # On Linux, we need to check if zsh is in /etc/shells
+            if ! grep -q "$ZSH_PATH" /etc/shells; then
+                echo -e "${YELLOW}Adding zsh to /etc/shells...${NC}"
+                if ! echo "$ZSH_PATH" | safe_sudo tee -a /etc/shells >/dev/null; then
+                    echo -e "${YELLOW}Warning: Could not add zsh to /etc/shells${NC}"
+                    echo -e "${YELLOW}You may need to run manually: echo '$ZSH_PATH' | sudo tee -a /etc/shells${NC}"
                 fi
-                
-                if ! safe_sudo chsh -s "$ZSH_PATH" $USER; then
-                    echo -e "${YELLOW}Warning: Could not change default shell to zsh${NC}"
-                    echo -e "${YELLOW}You may need to run manually: sudo chsh -s $ZSH_PATH $USER${NC}"
-                else
-                    echo -e "${GREEN}✓ $(get_string "shell_changed")${NC}"
-                fi
+            fi
+            
+            if ! safe_sudo chsh -s "$ZSH_PATH" $USER; then
+                echo -e "${YELLOW}Warning: Could not change default shell to zsh${NC}"
+                echo -e "${YELLOW}You may need to run manually: sudo chsh -s $ZSH_PATH $USER${NC}"
+            else
+                echo -e "${GREEN}✓ $(get_string "shell_changed")${NC}"
             fi
         fi
     fi
@@ -925,16 +1183,7 @@ run_installation() {
     
     # Change default shell to zsh if shell config was installed
     if [[ $INSTALL_SHELL_CONFIG == true ]] && [ "$PLATFORM" != "windows" ] && [ "$SHELL" != "$(which zsh)" ]; then
-        echo -e "${YELLOW}Changing default shell to zsh...${NC}"
-        if [ "$PLATFORM" = "macos" ]; then
-            sudo chsh -s $(which zsh) $USER
-        else
-            if ! grep -q "$(which zsh)" /etc/shells; then
-                echo "$(which zsh)" | sudo tee -a /etc/shells
-            fi
-            sudo chsh -s $(which zsh) $USER
-        fi
-        echo -e "${GREEN}✓ Default shell changed to zsh${NC}"
+        change_default_shell
     fi
     
     echo ""
