@@ -203,9 +203,18 @@ esac
 check_sudo_access() {
     echo -e "${YELLOW}Checking sudo access...${NC}"
     
+    # Check if sudo is available on the system
+    if ! command -v sudo >/dev/null 2>&1; then
+        echo -e "${YELLOW}Sudo command not found on this system.${NC}"
+        echo -e "${YELLOW}Running in non-privileged mode with limited functionality.${NC}"
+        export NO_SUDO=1
+        return 0
+    fi
+    
     # Check if we already have sudo access
     if sudo -n true 2>/dev/null; then
         echo -e "${GREEN}✓ Sudo access confirmed${NC}"
+        export NO_SUDO=0
         return 0
     fi
     
@@ -213,10 +222,15 @@ check_sudo_access() {
     echo -e "${YELLOW}This script requires sudo access for system-wide changes.${NC}"
     echo -e "${YELLOW}Please enter your password when prompted.${NC}"
     
-    if ! sudo -v; then
-        echo -e "${RED}Warning: Failed to obtain sudo access${NC}"
-        echo -e "${YELLOW}Some features that require sudo will not work.${NC}"
-        echo -e "${YELLOW}The installation will continue, but some components may not be installed correctly.${NC}"
+    # Try to get sudo access, but don't fail if we can't
+    if ! sudo -v 2>/dev/null; then
+        echo -e "${YELLOW}Unable to obtain sudo access.${NC}"
+        echo -e "${YELLOW}Running in non-privileged mode with limited functionality.${NC}"
+        echo -e ""
+        echo -e "${YELLOW}Some features that require sudo will not work, including:${NC}"
+        echo -e "${YELLOW}  - Installing system packages${NC}"
+        echo -e "${YELLOW}  - Changing default shell${NC}"
+        echo -e "${YELLOW}  - Some configuration tasks${NC}"
         echo -e ""
         echo -e "${YELLOW}If you want full functionality, you may need to:${NC}"
         echo -e "${YELLOW}1. Ensure your user has sudo privileges${NC}"
@@ -239,6 +253,11 @@ check_sudo_access() {
 
 # Function to keep sudo session alive
 keep_sudo_alive() {
+    # Skip if NO_SUDO is set
+    if [ "${NO_SUDO:-0}" -eq 1 ]; then
+        return 0
+    fi
+    
     echo -e "${BLUE}Maintaining sudo session...${NC}"
     # Keep-alive: update existing sudo time stamp until script has finished
     while true; do sudo -n true; sleep 60; kill -0 "$$" || exit; done 2>/dev/null &
@@ -246,6 +265,13 @@ keep_sudo_alive() {
 
 # Function to safely run sudo commands with error handling
 safe_sudo() {
+    # If NO_SUDO is set to 1, skip sudo commands entirely
+    if [ "${NO_SUDO:-0}" -eq 1 ]; then
+        echo -e "${YELLOW}Skipping sudo command: $*${NC}"
+        echo -e "${YELLOW}This feature requires sudo privileges.${NC}"
+        return 0  # Return success to allow script to continue
+    fi
+    
     # First try without redirecting stderr to see if we get a password prompt
     if ! sudo -v >/dev/null 2>&1; then
         echo -e "${YELLOW}Sudo requires a password. Please enter your password when prompted.${NC}"
@@ -263,8 +289,11 @@ safe_sudo() {
         echo -e "${YELLOW}sudo $*${NC}"
         echo -e ""
         echo -e "${YELLOW}Continuing with installation, but some components may not be installed correctly.${NC}"
-        sleep 2
-        return 1
+        
+        # Set NO_SUDO flag for future commands
+        export NO_SUDO=1
+        sleep 1
+        return 0  # Return success to allow script to continue
     fi
     return 0
 }
@@ -995,52 +1024,70 @@ change_default_shell() {
                     case "$DISTRO" in
                         ubuntu|debian|linuxmint)
                             echo -e "${YELLOW}Installing zsh on Debian/Ubuntu...${NC}"
-                            if ! safe_sudo apt update; then
-                                echo -e "${RED}Failed to update package lists${NC}"
-                                return 1
+                            if [ "${NO_SUDO:-0}" -eq 1 ]; then
+                                echo -e "${YELLOW}No sudo access. Cannot install zsh.${NC}"
+                                echo -e "${YELLOW}Please install zsh manually with: sudo apt install -y zsh${NC}"
+                                echo -e "${YELLOW}Then run this script again.${NC}"
+                                return 0
                             fi
-                            if ! safe_sudo apt install -y zsh; then
-                                echo -e "${RED}Failed to install zsh${NC}"
-                                return 1
-                            fi
+                            
+                            safe_sudo apt update
+                            safe_sudo apt install -y zsh
                             ;;
                         arch|manjaro)
                             echo -e "${YELLOW}Installing zsh on Arch/Manjaro...${NC}"
-                            if ! safe_sudo pacman -Syu --noconfirm zsh; then
-                                echo -e "${RED}Failed to install zsh${NC}"
-                                return 1
+                            if [ "${NO_SUDO:-0}" -eq 1 ]; then
+                                echo -e "${YELLOW}No sudo access. Cannot install zsh.${NC}"
+                                echo -e "${YELLOW}Please install zsh manually with: sudo pacman -Syu --noconfirm zsh${NC}"
+                                echo -e "${YELLOW}Then run this script again.${NC}"
+                                return 0
                             fi
+                            
+                            safe_sudo pacman -Syu --noconfirm zsh
                             ;;
                         fedora|centos|rhel)
                             echo -e "${YELLOW}Installing zsh on Fedora/CentOS...${NC}"
-                            if ! safe_sudo dnf install -y zsh; then
-                                echo -e "${RED}Failed to install zsh${NC}"
-                                return 1
+                            if [ "${NO_SUDO:-0}" -eq 1 ]; then
+                                echo -e "${YELLOW}No sudo access. Cannot install zsh.${NC}"
+                                echo -e "${YELLOW}Please install zsh manually with: sudo dnf install -y zsh${NC}"
+                                echo -e "${YELLOW}Then run this script again.${NC}"
+                                return 0
                             fi
+                            
+                            safe_sudo dnf install -y zsh
                             ;;
                         *)
                             if command -v apt >/dev/null 2>&1; then
                                 echo -e "${YELLOW}Installing zsh using apt...${NC}"
-                                if ! safe_sudo apt update; then
-                                    echo -e "${RED}Failed to update package lists${NC}"
-                                    return 1
+                                if [ "${NO_SUDO:-0}" -eq 1 ]; then
+                                    echo -e "${YELLOW}No sudo access. Cannot install zsh.${NC}"
+                                    echo -e "${YELLOW}Please install zsh manually with: sudo apt install -y zsh${NC}"
+                                    echo -e "${YELLOW}Then run this script again.${NC}"
+                                    return 0
                                 fi
-                                if ! safe_sudo apt install -y zsh; then
-                                    echo -e "${RED}Failed to install zsh${NC}"
-                                    return 1
-                                fi
+                                
+                                safe_sudo apt update
+                                safe_sudo apt install -y zsh
                             elif command -v pacman >/dev/null 2>&1; then
                                 echo -e "${YELLOW}Installing zsh using pacman...${NC}"
-                                if ! safe_sudo pacman -Syu --noconfirm zsh; then
-                                    echo -e "${RED}Failed to install zsh${NC}"
-                                    return 1
+                                if [ "${NO_SUDO:-0}" -eq 1 ]; then
+                                    echo -e "${YELLOW}No sudo access. Cannot install zsh.${NC}"
+                                    echo -e "${YELLOW}Please install zsh manually with: sudo pacman -Syu --noconfirm zsh${NC}"
+                                    echo -e "${YELLOW}Then run this script again.${NC}"
+                                    return 0
                                 fi
+                                
+                                safe_sudo pacman -Syu --noconfirm zsh
                             elif command -v dnf >/dev/null 2>&1; then
                                 echo -e "${YELLOW}Installing zsh using dnf...${NC}"
-                                if ! safe_sudo dnf install -y zsh; then
-                                    echo -e "${RED}Failed to install zsh${NC}"
-                                    return 1
+                                if [ "${NO_SUDO:-0}" -eq 1 ]; then
+                                    echo -e "${YELLOW}No sudo access. Cannot install zsh.${NC}"
+                                    echo -e "${YELLOW}Please install zsh manually with: sudo dnf install -y zsh${NC}"
+                                    echo -e "${YELLOW}Then run this script again.${NC}"
+                                    return 0
                                 fi
+                                
+                                safe_sudo dnf install -y zsh
                             else
                                 echo -e "${RED}Error: No supported package manager found${NC}"
                                 echo -e "${YELLOW}Please install zsh manually using your package manager${NC}"
@@ -1068,7 +1115,16 @@ change_default_shell() {
         fi
         
         # Now change the default shell
-        if [ "$PLATFORM" = "macos" ]; then
+        if [ "${NO_SUDO:-0}" -eq 1 ]; then
+            echo -e "${YELLOW}No sudo access. Cannot change default shell.${NC}"
+            echo -e "${YELLOW}You can change it manually with: sudo chsh -s $ZSH_PATH $USER${NC}"
+            
+            # Provide instructions for adding to /etc/shells if on Linux
+            if [ "$PLATFORM" = "linux" ] && ! grep -q "$ZSH_PATH" /etc/shells; then
+                echo -e "${YELLOW}You may also need to add zsh to /etc/shells with:${NC}"
+                echo -e "${YELLOW}echo $ZSH_PATH | sudo tee -a /etc/shells${NC}"
+            fi
+        elif [ "$PLATFORM" = "macos" ]; then
             if ! safe_sudo chsh -s "$ZSH_PATH" $USER; then
                 echo -e "${YELLOW}Warning: Could not change default shell to zsh${NC}"
                 echo -e "${YELLOW}You may need to run manually: sudo chsh -s $ZSH_PATH $USER${NC}"
@@ -1092,6 +1148,7 @@ change_default_shell() {
                 echo -e "${GREEN}✓ $(get_string "shell_changed")${NC}"
             fi
         fi
+        fi
     fi
 }
 
@@ -1102,13 +1159,19 @@ run_installation() {
     
     # Check for sudo access on Unix-like systems
     if [ "$PLATFORM" != "windows" ]; then
+        # Set NO_SUDO=0 by default (assume we have sudo)
+        export NO_SUDO=0
+        
+        # Check for sudo access
         check_sudo_access
+        
         # Only keep sudo alive if we have sudo access
         if [ "${NO_SUDO:-0}" -eq 0 ]; then
             keep_sudo_alive
         else
             echo -e "${YELLOW}Running with limited functionality (no sudo access)${NC}"
             echo -e "${YELLOW}Some components may not be installed correctly${NC}"
+            echo -e "${YELLOW}You can still use most dotfiles and configurations${NC}"
         fi
     fi
     
