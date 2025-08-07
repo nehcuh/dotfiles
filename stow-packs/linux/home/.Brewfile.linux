@@ -33,3 +33,6 @@ brew "zoxide"
 
 # Linux-specific packages
 brew "linux-headers" # if needed for compilation
+
+# Zed editor (Linux version)
+brew "zed"
