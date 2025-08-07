@@ -6,12 +6,19 @@
 
 ### 一键远程安装
 ```bash
-# 安装默认配置包
+# 安装默认配置包（交互式）
 curl -fsSL https://raw.githubusercontent.com/nehcuh/dotfiles/main/remote-install.sh | bash
 
-# 或者安装指定配置包
+# 安装指定配置包
 INSTALL_PACKAGES="git vim nvim zsh" curl -fsSL https://raw.githubusercontent.com/nehcuh/dotfiles/main/remote-install.sh | bash
+
+# 非交互式安装（用于自动化）
+NON_INTERACTIVE=true curl -fsSL https://raw.githubusercontent.com/nehcuh/dotfiles/main/remote-install.sh | bash
 ```
+
+**macOS 用户注意**：安装器会自动安装 Homebrew（如果不存在），这需要管理员权限。安装过程中可能会提示您输入密码。
+
+**Brewfile 集成**：在 macOS 上，安装器会自动检测并询问是否安装 `~/.Brewfile` 中的软件包。包括 CLI 工具、应用程序和字体。可以使用 `SKIP_BREWFILE=true` 跳过。
 
 ### 本地安装
 ```bash
@@ -48,6 +55,101 @@ make install
 - `zed` - Zed 编辑器配置
 - `linux` - Linux 特定配置
 - `macos` - macOS 特定配置
+
+## 开发环境设置
+
+dotfiles 包含可选的开发环境设置，可安装和配置多种编程语言和工具：
+
+### 支持的语言和工具
+- **Rust**: 最新稳定版 Rust 和 cargo
+- **Python**: pyenv + uv 快速 Python 包管理
+- **Go**: 最新 Go 版本，正确配置 GOPATH
+- **Java**: OpenJDK 和 JAVA_HOME 配置
+- **Node.js**: NVM 和最新 LTS Node.js
+- **C/C++**: 构建工具和常用开发工具
+
+### 安装方法
+```bash
+# 安装 dotfiles 和开发环境（交互式选择）
+./install.sh --dev-env
+
+# 自动安装所有开发环境
+./install.sh --dev-all
+
+# 一键远程安装包含开发环境
+DEV_ENV=true curl -fsSL https://raw.githubusercontent.com/nehcuh/dotfiles/main/remote-install.sh | bash
+
+# 单独运行开发环境设置
+./scripts/setup-dev-environment.sh
+```
+
+**📖 详细的开发环境文档，请查看 [DEVELOPMENT_ENVIRONMENTS.md](DEVELOPMENT_ENVIRONMENTS.md)**
+
+## 环境变量
+
+安装器支持多个环境变量用于自动化和定制：
+
+### 远程安装变量
+```bash
+# 跳过所有确认提示（自动安装所有内容）
+NON_INTERACTIVE=true curl -fsSL https://raw.githubusercontent.com/nehcuh/dotfiles/main/remote-install.sh | bash
+
+# 跳过 Brewfile 安装
+SKIP_BREWFILE=true curl -fsSL https://raw.githubusercontent.com/nehcuh/dotfiles/main/remote-install.sh | bash
+
+# 只安装指定配置包
+INSTALL_PACKAGES="git vim zsh" curl -fsSL https://raw.githubusercontent.com/nehcuh/dotfiles/main/remote-install.sh | bash
+
+# 设置开发环境
+DEV_ENV=true curl -fsSL https://raw.githubusercontent.com/nehcuh/dotfiles/main/remote-install.sh | bash
+DEV_ALL=true curl -fsSL https://raw.githubusercontent.com/nehcuh/dotfiles/main/remote-install.sh | bash
+
+# 组合多个选项
+NON_INTERACTIVE=true DEV_ALL=true curl -fsSL https://raw.githubusercontent.com/nehcuh/dotfiles/main/remote-install.sh | bash
+```
+
+### 本地安装变量
+```bash
+# 本地跳过 Brewfile 安装
+SKIP_BREWFILE=true ./install.sh
+
+# 非交互式本地安装
+NON_INTERACTIVE=true ./install.sh
+```
+
+### 可用变量
+- **`NON_INTERACTIVE`**: 设为 `true` 跳过所有确认提示
+- **`SKIP_BREWFILE`**: 设为 `true` 跳过 Homebrew 包安装
+- **`INSTALL_PACKAGES`**: 指定要安装的包（空格分隔）
+- **`DEV_ENV`**: 设为 `true` 设置开发环境（交互式）
+- **`DEV_ALL`**: 设为 `true` 安装所有开发环境
+- **`DOTFILES_REPO`**: 自定义仓库 URL（默认：`https://github.com/nehcuh/dotfiles.git`）
+- **`DOTFILES_DIR`**: 自定义安装目录（默认：`~/.dotfiles`）
+
+## Homebrew 包管理 (macOS)
+
+在 macOS 上，dotfiles 包含一个完整的 `Brewfile`，可安装重要的工具和应用：
+
+### Brewfile 包含的内容
+- **CLI 工具**: bat, eza, fzf, ripgrep, neovim, git-delta 等
+- **开发工具**: go, rust, pyenv, nvm, maven, gradle 等
+- **应用程序**: Zed 编辑器, Obsidian, Raycast, Rectangle 等
+- **字体**: Fira Code, Hack Nerd Font, SF Mono 等
+
+### Brewfile 安装
+```bash
+# dotfiles 设置时自动安装（需确认）
+./install.sh
+
+# 安装时跳过 Brewfile
+SKIP_BREWFILE=true ./install.sh
+
+# 稍后手动安装 Brewfile
+brew bundle --global
+
+# 非交互式远程安装（包括 Brewfile）
+NON_INTERACTIVE=true curl -fsSL https://raw.githubusercontent.com/nehcuh/dotfiles/main/remote-install.sh | bash
+```
 
 ## 使用方法
 
