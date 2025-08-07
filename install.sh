@@ -34,13 +34,44 @@ DOTFILES_DIR="$SCRIPT_DIR"
 log_info "Dotfiles directory: $DOTFILES_DIR"
 log_info "Operating system: $OS"
 
+# Check sudo access
+check_sudo() {
+    if [[ "$OS" == "macos" ]]; then
+        log_info "Checking sudo access for macOS package installation..."
+        if ! sudo -n true 2>/dev/null; then
+            log_warning "This installation requires administrator privileges"
+            log_info "You may be prompted for your password to install system dependencies"
+            
+            # Test sudo access
+            if ! sudo -v; then
+                log_error "Administrator access is required but not available"
+                log_error "Please ensure you have admin privileges on this macOS system"
+                exit 1
+            fi
+            
+            # Keep sudo alive during installation
+            log_info "Keeping administrator session active during installation..."
+            (while true; do sudo -n true; sleep 60; kill -0 "$$" || exit; done 2>/dev/null &)
+        fi
+    fi
+}
+
 # Check prerequisites
 check_prerequisites() {
     log_info "Checking prerequisites..."
     
     if ! command -v git &> /dev/null; then
         log_error "Git is not installed"
-        exit 1
+        if [[ "$OS" == "macos" ]]; then
+            log_info "Installing Xcode Command Line Tools (includes Git)..."
+            log_warning "This may take a few minutes and requires user interaction"
+            xcode-select --install
+            log_info "Please complete the Xcode Command Line Tools installation and run this script again"
+            exit 1
+        else
+            log_error "Please install Git first"
+            exit 1
+        fi
     fi
     
     if ! command -v stow &> /dev/null; then
@@ -216,6 +247,7 @@ main() {
     echo "========================================"
     echo
     
+    check_sudo
     check_prerequisites
     install_packages "$@"
     setup_shell

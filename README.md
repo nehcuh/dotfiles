@@ -6,12 +6,17 @@ A clean, minimal dotfiles setup for Linux and macOS.
 
 ### One-line remote installation
 ```bash
-# Install with default packages
+# Install with default packages (interactive)
 curl -fsSL https://raw.githubusercontent.com/nehcuh/dotfiles/main/remote-install.sh | bash
 
-# Or install specific packages
+# Install specific packages
 INSTALL_PACKAGES="git vim nvim zsh" curl -fsSL https://raw.githubusercontent.com/nehcuh/dotfiles/main/remote-install.sh | bash
+
+# Non-interactive installation (for automation)
+NON_INTERACTIVE=true curl -fsSL https://raw.githubusercontent.com/nehcuh/dotfiles/main/remote-install.sh | bash
 ```
+
+**Note for macOS users:** The installer will automatically install Homebrew if not present, which requires administrator privileges. You may be prompted for your password during installation.
 
 ### Local installation
 ```bash

@@ -21,6 +21,7 @@ log_error() { echo -e "${RED}[ERROR]${NC} $1"; }
 DOTFILES_REPO="${DOTFILES_REPO:-https://github.com/nehcuh/dotfiles.git}"
 DOTFILES_DIR="${DOTFILES_DIR:-$HOME/.dotfiles}"
 INSTALL_PACKAGES="${INSTALL_PACKAGES:-}"  # Empty means default packages
+NON_INTERACTIVE="${NON_INTERACTIVE:-false}"  # Set to true to skip confirmation prompts
 
 echo "========================================"
 echo "      Remote Dotfiles Installer        "
@@ -69,8 +70,22 @@ chmod +x install.sh
 
 # Run the installation
 log_info "Running installation..."
-log_warning "Note: On macOS, Homebrew will be automatically installed if not present"
-log_info "This may require user interaction and sudo privileges"
+
+# Show installation requirements
+log_warning "Installation Requirements:"
+log_info "• On macOS: Administrator privileges may be required"
+log_info "• Homebrew will be automatically installed if not present"
+log_info "• You may be prompted for your password during installation"
+log_info "• The installation is safe and will backup any conflicting files"
+echo
+
+if [ "$NON_INTERACTIVE" != "true" ]; then
+    log_info "Press Ctrl+C to cancel, or any key to continue..."
+    read -n 1 -s
+    echo
+else
+    log_info "Non-interactive mode: proceeding automatically..."
+fi
 
 if [ -n "$INSTALL_PACKAGES" ]; then
     log_info "Installing specific packages: $INSTALL_PACKAGES"
