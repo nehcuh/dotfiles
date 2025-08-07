@@ -1071,6 +1071,12 @@ run_installation() {
                 cp "$HOME/.config/starship.toml" "$backup_dir/.config/"
                 rm -f "$HOME/.config/starship.toml"
             fi
+            
+            # Check if system packages are already installed
+            if [ -L "$HOME/.config/starship.toml" ]; then
+                echo -e "${YELLOW}System packages appear to be already installed. Reinstalling...${NC}"
+            fi
+            
             ./scripts/stow.sh install system
         else
             echo -e "${RED}Error: stow.sh script not found${NC}"
@@ -1081,6 +1087,11 @@ run_installation() {
     if [[ $INSTALL_SHELL_CONFIG == true ]]; then
         echo -e "${BLUE}Installing shell configuration...${NC}"
         if [ -f "scripts/stow.sh" ]; then
+            # Check if zsh config is already installed
+            if [ -L "$HOME/.zshrc" ]; then
+                echo -e "${YELLOW}Shell configuration appears to be already installed. Reinstalling...${NC}"
+            fi
+            
             ./scripts/stow.sh install zsh
         fi
         
@@ -1088,6 +1099,8 @@ run_installation() {
         if [ ! -d "$HOME/.local/share/zinit" ]; then
             echo -e "${YELLOW}Installing Zinit...${NC}"
             sh -c "$(curl -fsSL https://git.io/zinit-install)"
+        else
+            echo -e "${YELLOW}Zinit already installed. Skipping...${NC}"
         fi
         echo -e "${GREEN}✓ Shell configuration installed${NC}"
     fi
@@ -1095,6 +1108,11 @@ run_installation() {
     if [[ $INSTALL_DEV_TOOLS == true ]]; then
         echo -e "${BLUE}Installing development tools...${NC}"
         if [ -f "scripts/stow.sh" ]; then
+            # Check if dev tools are already installed
+            if [ -L "$HOME/.gitconfig" ] || [ -d "$HOME/.config/bat" ]; then
+                echo -e "${YELLOW}Development tools appear to be already installed. Reinstalling...${NC}"
+            fi
+            
             ./scripts/stow.sh install git tools
         fi
         echo -e "${GREEN}✓ Development tools installed${NC}"
@@ -1103,6 +1121,11 @@ run_installation() {
     if [[ $INSTALL_EDITORS == true ]]; then
         echo -e "${BLUE}Installing editors...${NC}"
         if [ -f "scripts/stow.sh" ]; then
+            # Check if editors are already installed
+            if [ -L "$HOME/.vimrc" ] || [ -L "$HOME/.config/nvim/init.vim" ]; then
+                echo -e "${YELLOW}Editors appear to be already installed. Reinstalling...${NC}"
+            fi
+            
             ./scripts/stow.sh install vim nvim tmux
         fi
         
@@ -1112,17 +1135,24 @@ run_installation() {
             git clone https://github.com/gpakosz/.tmux.git ~/.tmux
             ln -sf ~/.tmux/.tmux.conf ~/.tmux.conf
             cp ~/.tmux/.tmux.conf.local ~/.tmux.conf.local
+        else
+            echo -e "${YELLOW}Oh My Tmux already installed. Skipping...${NC}"
         fi
         
         # Install Zed configuration if Zed is available
         if command -v zed >/dev/null 2>&1; then
-            # Handle Zed config conflicts
-            if [ -f "$HOME/.config/zed/settings.json" ] && [ ! -L "$HOME/.config/zed/settings.json" ]; then
-                echo -e "${YELLOW}Backing up existing Zed settings...${NC}"
-                backup_dir="$HOME/.dotfiles-backup-$(date +%Y%m%d-%H%M%S)"
-                mkdir -p "$backup_dir/.config/zed"
-                cp "$HOME/.config/zed/settings.json" "$backup_dir/.config/zed/"
-                rm -f "$HOME/.config/zed/settings.json"
+            # Check if Zed config is already installed
+            if [ -L "$HOME/.config/zed/settings.json" ]; then
+                echo -e "${YELLOW}Zed configuration appears to be already installed. Reinstalling...${NC}"
+            else
+                # Handle Zed config conflicts
+                if [ -f "$HOME/.config/zed/settings.json" ] && [ ! -L "$HOME/.config/zed/settings.json" ]; then
+                    echo -e "${YELLOW}Backing up existing Zed settings...${NC}"
+                    backup_dir="$HOME/.dotfiles-backup-$(date +%Y%m%d-%H%M%S)"
+                    mkdir -p "$backup_dir/.config/zed"
+                    cp "$HOME/.config/zed/settings.json" "$backup_dir/.config/zed/"
+                    rm -f "$HOME/.config/zed/settings.json"
+                fi
             fi
             ./scripts/stow.sh install zed
         fi
