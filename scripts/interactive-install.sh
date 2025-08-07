@@ -591,7 +591,68 @@ install_editors() {
     fi
     
     # Install VS Code and Zed editors
-    install_vs_code_and_zed
+    echo -e "${YELLOW}正在安装 VS Code 和 Zed 编辑器...${NC}"
+    
+    # Detect platform
+    if [ "$(uname)" = "Darwin" ]; then
+        # Use Homebrew Cask for GUI applications
+        if command -v brew >/dev/null 2>&1; then
+            # Install Zed editor
+            if ! command -v zed >/dev/null 2>&1; then
+                echo -e "${YELLOW}正在安装 Zed 编辑器...${NC}"
+                if ! brew install --cask zed 2>/dev/null; then
+                    echo -e "${RED}通过 Homebrew Cask 安装 Zed 失败${NC}"
+                    echo -e "${YELLOW}您可以手动安装：https://zed.dev${NC}"
+                else
+                    echo -e "${GREEN}✓ Zed 编辑器安装完成${NC}"
+                fi
+            else
+                echo -e "${GREEN}✓ Zed 编辑器已安装${NC}"
+            fi
+            
+            # Install Visual Studio Code
+            if ! command -v code >/dev/null 2>&1; then
+                echo -e "${YELLOW}正在安装 Visual Studio Code...${NC}"
+                if ! brew install --cask visual-studio-code 2>/dev/null; then
+                    echo -e "${RED}通过 Homebrew Cask 安装 VS Code 失败${NC}"
+                    echo -e "${YELLOW}您可以手动安装：https://code.visualstudio.com${NC}"
+                else
+                    echo -e "${GREEN}✓ Visual Studio Code 安装完成${NC}"
+                fi
+            else
+                echo -e "${GREEN}✓ Visual Studio Code 已安装${NC}"
+            fi
+        else
+            echo -e "${RED}Homebrew 不可用。请手动安装编辑器。${NC}"
+            echo -e "${YELLOW}Zed: https://zed.dev${NC}"
+            echo -e "${YELLOW}VS Code: https://code.visualstudio.com${NC}"
+        fi
+    elif [ "$(uname)" = "Linux" ]; then
+        # Install Zed editor
+        if ! command -v zed >/dev/null 2>&1; then
+            echo -e "${YELLOW}正在安装 Zed 编辑器...${NC}"
+            
+            # Try official installation script
+            if curl -fsSL https://zed.dev/install.sh | sh; then
+                echo -e "${GREEN}✓ Zed 编辑器安装完成${NC}"
+            else
+                echo -e "${RED}安装 Zed 编辑器失败${NC}"
+                echo -e "${YELLOW}您可以手动安装：https://zed.dev${NC}"
+            fi
+        else
+            echo -e "${GREEN}✓ Zed 编辑器已安装${NC}"
+        fi
+        
+        # Try to install VS Code
+        if ! command -v code >/dev/null 2>&1; then
+            echo -e "${YELLOW}正在安装 Visual Studio Code...${NC}"
+            echo -e "${YELLOW}请手动安装 VS Code: https://code.visualstudio.com${NC}"
+        else
+            echo -e "${GREEN}✓ Visual Studio Code 已安装${NC}"
+        fi
+    else
+        echo -e "${RED}不支持的平台${NC}"
+    fi
     
     # Install Zed configuration if Zed is available
     if command -v zed >/dev/null 2>&1; then
@@ -618,151 +679,6 @@ install_editors() {
     fi
     
     echo -e "${GREEN}✓ 编辑器安装完成${NC}"
-}
-
-# Install VS Code and Zed editors
-install_vs_code_and_zed() {
-    echo -e "${YELLOW}正在安装 VS Code 和 Zed 编辑器...${NC}"
-    
-    # Detect platform
-    if [ "$(uname)" = "Darwin" ]; then
-        install_macos_editors_interactive
-    elif [ "$(uname)" = "Linux" ]; then
-        install_linux_editors_interactive
-    else
-        echo -e "${RED}不支持的平台${NC}"
-    fi
-}
-
-install_macos_editors_interactive() {
-    # Use Homebrew Cask for GUI applications
-    if command -v brew >/dev/null 2>&1; then
-        # Install Zed editor
-        if ! command -v zed >/dev/null 2>&1; then
-            echo -e "${YELLOW}正在安装 Zed 编辑器...${NC}"
-            if ! brew install --cask zed 2>/dev/null; then
-                echo -e "${RED}通过 Homebrew Cask 安装 Zed 失败${NC}"
-                echo -e "${YELLOW}您可以手动安装：https://zed.dev${NC}"
-            else
-                echo -e "${GREEN}✓ Zed 编辑器安装完成${NC}"
-            fi
-        else
-            echo -e "${GREEN}✓ Zed 编辑器已安装${NC}"
-        fi
-        
-        # Install Visual Studio Code
-        if ! command -v code >/dev/null 2>&1; then
-            echo -e "${YELLOW}正在安装 Visual Studio Code...${NC}"
-            if ! brew install --cask visual-studio-code 2>/dev/null; then
-                echo -e "${RED}通过 Homebrew Cask 安装 VS Code 失败${NC}"
-                echo -e "${YELLOW}您可以手动安装：https://code.visualstudio.com${NC}"
-            else
-                echo -e "${GREEN}✓ Visual Studio Code 安装完成${NC}"
-            fi
-        else
-            echo -e "${GREEN}✓ Visual Studio Code 已安装${NC}"
-        fi
-    else
-        echo -e "${RED}Homebrew 不可用。请手动安装编辑器。${NC}"
-        echo -e "${YELLOW}Zed: https://zed.dev${NC}"
-        echo -e "${YELLOW}VS Code: https://code.visualstudio.com${NC}"
-    fi
-}
-
-install_linux_editors_interactive() {
-    # Detect Linux distribution
-    if [ -f /etc/os-release ]; then
-        DISTRO=$(grep '^ID=' /etc/os-release | cut -d'=' -f2 | tr -d '"')
-    elif command -v lsb_release >/dev/null 2>&1; then
-        DISTRO=$(lsb_release -si | tr '[:upper:]' '[:lower:]')
-    else
-        DISTRO="unknown"
-    fi
-    
-    # Try to install Zed editor
-    if ! command -v zed >/dev/null 2>&1; then
-        echo -e "${YELLOW}正在安装 Zed 编辑器...${NC}"
-        
-        # Try official installation script
-        if curl -fsSL https://zed.dev/install.sh | sh; then
-            echo -e "${GREEN}✓ Zed 编辑器安装完成${NC}"
-        else
-            echo -e "${RED}安装 Zed 编辑器失败${NC}"
-            echo -e "${YELLOW}您可以手动安装：https://zed.dev${NC}"
-        fi
-    else
-        echo -e "${GREEN}✓ Zed 编辑器已安装${NC}"
-    fi
-    
-    # Try to install VS Code
-    if ! command -v code >/dev/null 2>&1; then
-        echo -e "${YELLOW}正在安装 Visual Studio Code...${NC}"
-        
-        # Try different installation methods based on distribution
-        case "$DISTRO" in
-            ubuntu|debian|linuxmint)
-                if command -v apt >/dev/null 2>&1; then
-                    # Add Microsoft's GPG key and repository
-                    curl -fsSL https://packages.microsoft.com/keys/microsoft.asc | gpg --dearmor | sudo tee /etc/apt/trusted.gpg.d/microsoft.gpg >/dev/null
-                    echo "deb [arch=amd64,arm64,armhf signed-by=/etc/apt/trusted.gpg.d/microsoft.gpg] https://packages.microsoft.com/repos/code stable main" | sudo tee /etc/apt/sources.list.d/vscode.list >/dev/null
-                    
-                    if sudo apt update && sudo apt install -y code; then
-                        echo -e "${GREEN}✓ Visual Studio Code 安装完成${NC}"
-                    else
-                        echo -e "${RED}安装 VS Code 失败${NC}"
-                        echo -e "${YELLOW}您可以手动安装：https://code.visualstudio.com${NC}"
-                    fi
-                else
-                    echo -e "${RED}apt 不可用${NC}"
-                    echo -e "${YELLOW}您可以手动安装：https://code.visualstudio.com${NC}"
-                fi
-                ;;
-            arch|manjaro)
-                if command -v yay >/dev/null 2>&1; then
-                    if yay -S --noconfirm visual-studio-code-bin; then
-                        echo -e "${GREEN}✓ Visual Studio Code 安装完成${NC}"
-                    else
-                        echo -e "${RED}安装 VS Code 失败${NC}"
-                        echo -e "${YELLOW}您可以手动安装：https://code.visualstudio.com${NC}"
-                    fi
-                elif command -v paru >/dev/null 2>&1; then
-                    if paru -S --noconfirm visual-studio-code-bin; then
-                        echo -e "${GREEN}✓ Visual Studio Code 安装完成${NC}"
-                    else
-                        echo -e "${RED}安装 VS Code 失败${NC}"
-                        echo -e "${YELLOW}您可以手动安装：https://code.visualstudio.com${NC}"
-                    fi
-                else
-                    echo -e "${RED}AUR 助手不可用${NC}"
-                    echo -e "${YELLOW}您可以手动安装：https://code.visualstudio.com${NC}"
-                fi
-                ;;
-            fedora|centos|rhel)
-                if command -v dnf >/dev/null 2>&1; then
-                    sudo rpm --import https://packages.microsoft.com/keys/microsoft.asc
-                    echo -e "[code]\nname=Visual Studio Code\nbaseurl=https://packages.microsoft.com/yumrepos/vscode\nenabled=1\ngpgcheck=1\ngpgkey=https://packages.microsoft.com/keys/microsoft.asc" | sudo tee /etc/yum.repos.d/vscode.repo >/dev/null
-                    
-                    if sudo dnf install -y code; then
-                        echo -e "${GREEN}✓ Visual Studio Code 安装完成${NC}"
-                    else
-                        echo -e "${RED}安装 VS Code 失败${NC}"
-                        echo -e "${YELLOW}您可以手动安装：https://code.visualstudio.com${NC}"
-                    fi
-                else
-                    echo -e "${RED}dnf 不可用${NC}"
-                    echo -e "${YELLOW}您可以手动安装：https://code.visualstudio.com${NC}"
-                fi
-                ;;
-            *)
-                echo -e "${RED}不支持的 Linux 发行版${NC}"
-                echo -e "${YELLOW}您可以手动安装：${NC}"
-                echo -e "${YELLOW}VS Code: https://code.visualstudio.com${NC}"
-                echo -e "${YELLOW}Zed: https://zed.dev${NC}"
-                ;;
-        esac
-    else
-        echo -e "${GREEN}✓ Visual Studio Code 已安装${NC}"
-    fi
 }
 
 install_python_env() {
