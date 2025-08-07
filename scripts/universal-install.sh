@@ -48,7 +48,7 @@ smart_shell_detection() {
     # If we're running with sh but have a better shell available, re-exec
     if [ "$CURRENT_SHELL" = "sh" ] && [ -n "$SHELL_PATH" ] && [ "$SHELL_PATH" != "$(command -v sh)" ]; then
         echo "Re-executing with $CURRENT_SHELL for better compatibility..."
-        exec "$SHELL_PATH" "$DOTFILES_DIR/scripts/interactive-install.sh" "$@"
+        exec "$SHELL_PATH" "$0" "$@"
     fi
     
     echo "Using shell: $CURRENT_SHELL"
