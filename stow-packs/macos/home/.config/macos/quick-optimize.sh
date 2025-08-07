@@ -55,6 +55,11 @@ defaults write com.apple.driver.AppleBluetoothMultitouch.mouse MouseButtonMode -
 defaults write com.apple.universalaccess mouseDriverTracking -bool true
 defaults write com.apple.universalaccess mouseDriverHIDClickAssist -bool true
 
+# Enable tap to click for trackpad
+defaults write com.apple.driver.AppleBluetoothMultitouch.trackpad Clicking -bool true
+defaults write com.apple.AppleMultitouchTrackpad Clicking -bool true
+defaults -currentHost write NSGlobalDomain com.apple.mouse.tapBehavior -int 1
+
 # Finder: show all filename extensions
 defaults write NSGlobalDomain AppleShowAllExtensions -bool true
 
