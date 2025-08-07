@@ -766,17 +766,19 @@ check_sudo_access() {
         return 0
     fi
     
-    # Request sudo access
+    # Request sudo access interactively
     print_color "$YELLOW" "This script requires sudo access for system-wide changes."
     print_color "$YELLOW" "Please enter your password when prompted."
     
+    # Try to get sudo access with a user-friendly prompt
     if ! sudo -v; then
         print_color "$RED" "Error: Failed to obtain sudo access"
-        print_color "$RED" "Please ensure your user has administrative privileges."
-        print_color "$YELLOW" "On macOS, you may need to:"
-        print_color "$YELLOW" "1. Add your user to the admin group"
-        print_color "$YELLOW" "2. Enable 'Administrator' privileges in System Preferences > Users & Groups"
-        print_color "$YELLOW" "3. Or run this script with a user that has admin rights"
+        print_color "$YELLOW" "Possible solutions:"
+        print_color "$YELLOW" "1. Ensure your user has sudo/administrator privileges"
+        print_color "$YELLOW" "2. Enter the correct password when prompted"
+        print_color "$YELLOW" "3. On macOS: Check System Preferences > Users & Groups"
+        print_color "$YELLOW" "4. On Linux: Ensure you're in the sudo group"
+        print_color "$YELLOW" "5. Try running: sudo -v to test your sudo access"
         return 1
     fi
     
@@ -793,10 +795,20 @@ keep_sudo_alive() {
 
 # Function to safely run sudo commands with error handling
 safe_sudo() {
-    if ! sudo "$@" 2>/dev/null; then
+    # First try to run with sudo -n to check if we have cached credentials
+    if ! sudo -n true 2>/dev/null; then
+        print_color "$YELLOW" "Sudo access required for: $*"
+        print_color "$YELLOW" "Please enter your password when prompted."
+    fi
+    
+    # Try to run the sudo command
+    if ! sudo "$@"; then
         print_color "$RED" "Error: Failed to run command with sudo: $*"
-        print_color "$YELLOW" "You may need to run this command manually:"
-        print_color "$YELLOW" "sudo $*"
+        print_color "$YELLOW" "This command requires administrative privileges."
+        print_color "$YELLOW" "You may need to:"
+        print_color "$YELLOW" "1. Ensure your user has sudo rights"
+        print_color "$YELLOW" "2. Enter the correct password when prompted"
+        print_color "$YELLOW" "3. Or run this command manually: sudo $*"
         return 1
     fi
     return 0
