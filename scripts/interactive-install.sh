@@ -476,6 +476,17 @@ show_selections() {
 
 # Function to handle user input
 handle_input() {
+    # Check for interactive terminal before showing menu
+    if ! [ -t 0 ]; then
+        # Try to test /dev/tty accessibility
+        if ! [ -c /dev/tty ] || ! read -t 0 < /dev/tty 2>/dev/null; then
+            printf "${RED}Error: This script requires an interactive terminal.${NC}\n"
+            printf "${YELLOW}Please run this script directly in your terminal, not through a pipe.${NC}\n"
+            printf "${YELLOW}Or try: bash -i $(basename "$0")${NC}\n"
+            exit 1
+        fi
+    fi
+    
     while true; do
         show_main_menu
         printf "%s:\n" "$(get_string "enter_choice")"
