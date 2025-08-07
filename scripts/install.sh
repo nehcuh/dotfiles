@@ -461,26 +461,70 @@ setup_node_env() {
 setup_docker_env() {
   log_info "Setting up Docker environment..."
   
-  if [ -f "$DOTFILES_DIR/docker/docker-compose.ubuntu-dev.yml" ]; then
-    log_info "Building Docker development environment..."
-    
-    if command_exists docker && command_exists docker-compose; then
-      cd "$DOTFILES_DIR" || exit 1
-      if ! docker-compose -f docker/docker-compose.ubuntu-dev.yml build; then
-        log_error "Failed to build Docker environment"
-        return 1
-      fi
-      
-      log_success "Docker environment built successfully"
-      log_info "To start the environment: docker-compose -f docker/docker-compose.ubuntu-dev.yml up -d"
-      log_info "To access the environment: docker-compose -f docker/docker-compose.ubuntu-dev.yml exec ubuntu-dev zsh"
-    else
-      log_error "Docker or docker-compose not found"
-      log_warning "Please install Docker and docker-compose first"
+  # Install Docker if not already installed
+  if ! command_exists docker; then
+    log_warning "Docker not found. Installing Docker..."
+    if ! install_docker; then
+      log_error "Failed to install Docker"
+      log_warning "You may need to install Docker manually: https://docs.docker.com/engine/install/"
       return 1
     fi
+  fi
+  
+  # Install Docker Compose if not already installed
+  if ! command_exists docker-compose; then
+    log_warning "Docker Compose not found. Installing Docker Compose..."
+    if ! install_docker_compose; then
+      log_error "Failed to install Docker Compose"
+      log_warning "You may need to install Docker Compose manually: https://docs.docker.com/compose/install/"
+      return 1
+    fi
+  fi
+  
+  # Check if Docker is running
+  if ! docker info >/dev/null 2>&1; then
+    log_warning "Docker daemon is not running"
+    
+    case "$PLATFORM" in
+      linux)
+        log_info "Attempting to start Docker service..."
+        if ! safe_sudo systemctl start docker; then
+          log_error "Failed to start Docker service"
+          log_warning "Please start Docker manually: sudo systemctl start docker"
+          return 1
+        fi
+        ;;
+      macos|windows)
+        log_warning "Please start Docker Desktop manually"
+        log_warning "After starting Docker Desktop, run this script again"
+        return 1
+        ;;
+    esac
+  fi
+  
+  # Build Docker development environment
+  if [ -f "$DOTFILES_DIR/docker/docker-compose.template.yml" ]; then
+    log_info "Creating docker-compose.yml from template..."
+    
+    # Create docker-compose.yml from template if it doesn't exist
+    if [ ! -f "$DOTFILES_DIR/docker/docker-compose.yml" ]; then
+      cp "$DOTFILES_DIR/docker/docker-compose.template.yml" "$DOTFILES_DIR/docker/docker-compose.yml"
+      log_success "Created docker-compose.yml from template"
+    fi
+    
+    log_info "Building Docker development environment..."
+    
+    cd "$DOTFILES_DIR" || exit 1
+    if ! docker-compose -f docker/docker-compose.yml build; then
+      log_error "Failed to build Docker environment"
+      return 1
+    fi
+    
+    log_success "Docker environment built successfully"
+    log_info "To start the environment: docker-compose -f docker/docker-compose.yml up -d"
+    log_info "To access the environment: docker-compose -f docker/docker-compose.yml exec dev zsh"
   else
-    log_error "Docker compose file not found"
+    log_error "Docker compose template file not found"
     return 1
   fi
   

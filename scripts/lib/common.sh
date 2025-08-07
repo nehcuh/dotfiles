@@ -368,9 +368,9 @@ install_homebrew() {
   
   # Install Homebrew using the official script
   if command_exists curl; then
-    /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
+    /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/master/install.sh)"
   else
-    /bin/bash -c "$(wget -qO- https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
+    /bin/bash -c "$(wget -qO- https://raw.githubusercontent.com/Homebrew/install/master/install.sh)"
   fi
   
   # Check if Homebrew was installed successfully
@@ -495,6 +495,201 @@ detect_package_manager() {
   
   export PACKAGE_MANAGER
   log_info "Package manager detected: $PACKAGE_MANAGER"
+  return 0
+}
+
+# Install Docker
+install_docker() {
+  log_info "Installing Docker..."
+  
+  # Check if Docker is already installed
+  if command_exists docker; then
+    log_success "Docker is already installed"
+    return 0
+  fi
+  
+  case "$PLATFORM" in
+    linux)
+      case "$DISTRO" in
+        ubuntu|debian|linuxmint)
+          # Update package index
+          if ! safe_sudo apt-get update; then
+            log_error "Failed to update package lists"
+            return 1
+          fi
+          
+          # Install prerequisites
+          if ! safe_sudo apt-get install -y apt-transport-https ca-certificates curl gnupg lsb-release; then
+            log_error "Failed to install Docker prerequisites"
+            return 1
+          fi
+          
+          # Add Docker's official GPG key
+          if ! curl -fsSL https://download.docker.com/linux/$DISTRO/gpg | safe_sudo gpg --dearmor -o /usr/share/keyrings/docker-archive-keyring.gpg; then
+            log_error "Failed to add Docker GPG key"
+            return 1
+          fi
+          
+          # Set up the stable repository
+          if ! echo "deb [arch=$(dpkg --print-architecture) signed-by=/usr/share/keyrings/docker-archive-keyring.gpg] https://download.docker.com/linux/$DISTRO $(lsb_release -cs) stable" | safe_sudo tee /etc/apt/sources.list.d/docker.list > /dev/null; then
+            log_error "Failed to add Docker repository"
+            return 1
+          fi
+          
+          # Update package index again
+          if ! safe_sudo apt-get update; then
+            log_error "Failed to update package lists after adding Docker repository"
+            return 1
+          fi
+          
+          # Install Docker Engine
+          if ! safe_sudo apt-get install -y docker-ce docker-ce-cli containerd.io; then
+            log_error "Failed to install Docker"
+            return 1
+          fi
+          ;;
+        fedora|centos|rhel)
+          # Install prerequisites
+          if ! safe_sudo dnf install -y dnf-plugins-core; then
+            log_error "Failed to install Docker prerequisites"
+            return 1
+          fi
+          
+          # Add Docker repository
+          if ! safe_sudo dnf config-manager --add-repo https://download.docker.com/linux/fedora/docker-ce.repo; then
+            log_error "Failed to add Docker repository"
+            return 1
+          fi
+          
+          # Install Docker Engine
+          if ! safe_sudo dnf install -y docker-ce docker-ce-cli containerd.io; then
+            log_error "Failed to install Docker"
+            return 1
+          fi
+          ;;
+        arch|manjaro)
+          # Install Docker
+          if ! safe_sudo pacman -Syu --noconfirm docker; then
+            log_error "Failed to install Docker"
+            return 1
+          fi
+          ;;
+        *)
+          log_error "Unsupported Linux distribution for Docker installation: $DISTRO"
+          log_warning "Please install Docker manually: https://docs.docker.com/engine/install/"
+          return 1
+          ;;
+      esac
+      
+      # Start and enable Docker service
+      if ! safe_sudo systemctl start docker; then
+        log_error "Failed to start Docker service"
+        return 1
+      fi
+      
+      if ! safe_sudo systemctl enable docker; then
+        log_error "Failed to enable Docker service"
+        return 1
+      fi
+      
+      # Add current user to docker group to avoid using sudo
+      if ! safe_sudo usermod -aG docker "$USER"; then
+        log_warning "Failed to add user to docker group"
+        log_warning "You may need to use sudo with docker commands"
+      else
+        log_warning "You need to log out and log back in for docker group changes to take effect"
+        log_warning "Alternatively, run: newgrp docker"
+      fi
+      ;;
+    macos)
+      log_warning "Docker installation on macOS requires Docker Desktop"
+      log_warning "Please download and install Docker Desktop from: https://www.docker.com/products/docker-desktop"
+      return 1
+      ;;
+    windows)
+      if [ "$IS_WSL" = true ]; then
+        log_warning "Docker installation in WSL requires Docker Desktop for Windows"
+        log_warning "Please install Docker Desktop for Windows and enable WSL integration"
+        log_warning "See: https://docs.docker.com/desktop/windows/wsl/"
+        return 1
+      else
+        log_warning "Docker installation on Windows requires Docker Desktop"
+        log_warning "Please download and install Docker Desktop from: https://www.docker.com/products/docker-desktop"
+        return 1
+      fi
+      ;;
+    *)
+      log_error "Unsupported platform for Docker installation: $PLATFORM"
+      return 1
+      ;;
+  esac
+  
+  log_success "Docker installed successfully"
+  return 0
+}
+
+# Install Docker Compose
+install_docker_compose() {
+  log_info "Installing Docker Compose..."
+  
+  # Check if Docker Compose is already installed
+  if command_exists docker-compose; then
+    log_success "Docker Compose is already installed"
+    return 0
+  fi
+  
+  case "$PLATFORM" in
+    linux)
+      # Get latest Docker Compose version
+      COMPOSE_VERSION=$(curl -s https://api.github.com/repos/docker/compose/releases/latest | grep 'tag_name' | cut -d\" -f4)
+      
+      if [ -z "$COMPOSE_VERSION" ]; then
+        COMPOSE_VERSION="v2.20.3"  # Fallback to a known version if API call fails
+        log_warning "Could not determine latest Docker Compose version, using $COMPOSE_VERSION"
+      fi
+      
+      # Download and install Docker Compose
+      if ! safe_sudo curl -L "https://github.com/docker/compose/releases/download/${COMPOSE_VERSION}/docker-compose-$(uname -s)-$(uname -m)" -o /usr/local/bin/docker-compose; then
+        log_error "Failed to download Docker Compose"
+        return 1
+      fi
+      
+      # Apply executable permissions
+      if ! safe_sudo chmod +x /usr/local/bin/docker-compose; then
+        log_error "Failed to set executable permissions on Docker Compose"
+        return 1
+      fi
+      
+      # Create symlink if needed
+      if [ ! -e /usr/bin/docker-compose ]; then
+        if ! safe_sudo ln -s /usr/local/bin/docker-compose /usr/bin/docker-compose; then
+          log_warning "Failed to create Docker Compose symlink"
+        fi
+      fi
+      ;;
+    macos)
+      if command_exists brew; then
+        if ! brew install docker-compose; then
+          log_error "Failed to install Docker Compose with Homebrew"
+          return 1
+        fi
+      else
+        log_warning "Homebrew not found, please install Docker Desktop which includes Docker Compose"
+        return 1
+      fi
+      ;;
+    windows)
+      log_warning "Docker Compose is included with Docker Desktop for Windows"
+      log_warning "Please install Docker Desktop from: https://www.docker.com/products/docker-desktop"
+      return 1
+      ;;
+    *)
+      log_error "Unsupported platform for Docker Compose installation: $PLATFORM"
+      return 1
+      ;;
+  esac
+  
+  log_success "Docker Compose installed successfully"
   return 0
 }
 
