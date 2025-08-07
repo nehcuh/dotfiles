@@ -206,15 +206,13 @@ check_sudo_access() {
     # Check if sudo is available on the system
     if ! command -v sudo >/dev/null 2>&1; then
         echo -e "${YELLOW}Sudo command not found on this system.${NC}"
-        echo -e "${YELLOW}Running in non-privileged mode with limited functionality.${NC}"
-        export NO_SUDO=1
+        echo -e "${YELLOW}Some features may not work correctly.${NC}"
         return 0
     fi
     
     # Check if we already have sudo access
     if sudo -n true 2>/dev/null; then
         echo -e "${GREEN}✓ Sudo access confirmed${NC}"
-        export NO_SUDO=0
         return 0
     fi
     
@@ -222,42 +220,25 @@ check_sudo_access() {
     echo -e "${YELLOW}This script requires sudo access for system-wide changes.${NC}"
     echo -e "${YELLOW}Please enter your password when prompted.${NC}"
     
-    # Try to get sudo access, but don't fail if we can't
-    if ! sudo -v 2>/dev/null; then
-        echo -e "${YELLOW}Unable to obtain sudo access.${NC}"
-        echo -e "${YELLOW}Running in non-privileged mode with limited functionality.${NC}"
-        echo -e ""
-        echo -e "${YELLOW}Some features that require sudo will not work, including:${NC}"
-        echo -e "${YELLOW}  - Installing system packages${NC}"
-        echo -e "${YELLOW}  - Changing default shell${NC}"
-        echo -e "${YELLOW}  - Some configuration tasks${NC}"
-        echo -e ""
-        echo -e "${YELLOW}If you want full functionality, you may need to:${NC}"
-        echo -e "${YELLOW}1. Ensure your user has sudo privileges${NC}"
-        echo -e "${YELLOW}2. On macOS: Add your user to the admin group${NC}"
-        echo -e "${YELLOW}3. On Linux: Add your user to the sudo group${NC}"
-        echo -e "${YELLOW}4. Or run this script with a user that has admin rights${NC}"
-        echo -e ""
-        echo -e "${YELLOW}Press Enter to continue with limited functionality, or Ctrl+C to exit${NC}"
-        read -r dummy < /dev/tty
-        
-        # Set a flag to indicate we don't have sudo access
-        export NO_SUDO=1
-        return 0  # Return success to continue installation with limited functionality
+    # Try to get sudo access
+    if ! sudo -v; then
+        echo -e "${RED}Failed to obtain sudo access.${NC}"
+        echo -e "${YELLOW}Would you like to continue anyway? Some features may not work correctly. (y/n)${NC}"
+        read -r continue_anyway < /dev/tty
+        if [[ ! $continue_anyway =~ ^[Yy]$ ]]; then
+            echo -e "${RED}Installation aborted.${NC}"
+            exit 1
+        fi
+        echo -e "${YELLOW}Continuing with limited functionality...${NC}"
+    else
+        echo -e "${GREEN}✓ Sudo access obtained${NC}"
     fi
     
-    echo -e "${GREEN}✓ Sudo access obtained${NC}"
-    export NO_SUDO=0
     return 0
 }
 
 # Function to keep sudo session alive
 keep_sudo_alive() {
-    # Skip if NO_SUDO is set
-    if [ "${NO_SUDO:-0}" -eq 1 ]; then
-        return 0
-    fi
-    
     echo -e "${BLUE}Maintaining sudo session...${NC}"
     # Keep-alive: update existing sudo time stamp until script has finished
     while true; do sudo -n true; sleep 60; kill -0 "$$" || exit; done 2>/dev/null &
@@ -265,13 +246,6 @@ keep_sudo_alive() {
 
 # Function to safely run sudo commands with error handling
 safe_sudo() {
-    # If NO_SUDO is set to 1, skip sudo commands entirely
-    if [ "${NO_SUDO:-0}" -eq 1 ]; then
-        echo -e "${YELLOW}Skipping sudo command: $*${NC}"
-        echo -e "${YELLOW}This feature requires sudo privileges.${NC}"
-        return 0  # Return success to allow script to continue
-    fi
-    
     # First try without redirecting stderr to see if we get a password prompt
     if ! sudo -v >/dev/null 2>&1; then
         echo -e "${YELLOW}Sudo requires a password. Please enter your password when prompted.${NC}"
@@ -285,15 +259,21 @@ safe_sudo() {
         echo -e "${YELLOW}2. The command itself failed${NC}"
         echo -e "${YELLOW}3. Your system doesn't have the required package manager${NC}"
         echo -e ""
-        echo -e "${YELLOW}You may need to run this command manually:${NC}"
-        echo -e "${YELLOW}sudo $*${NC}"
-        echo -e ""
-        echo -e "${YELLOW}Continuing with installation, but some components may not be installed correctly.${NC}"
-        
-        # Set NO_SUDO flag for future commands
-        export NO_SUDO=1
-        sleep 1
-        return 0  # Return success to allow script to continue
+        echo -e "${YELLOW}Would you like to try again? (y/n)${NC}"
+        read -r try_again < /dev/tty
+        if [[ $try_again =~ ^[Yy]$ ]]; then
+            echo -e "${YELLOW}Trying again...${NC}"
+            if sudo "$@"; then
+                return 0
+            else
+                echo -e "${RED}Command failed again. Continuing with installation.${NC}"
+                echo -e "${YELLOW}Some components may not be installed correctly.${NC}"
+                return 1
+            fi
+        else
+            echo -e "${YELLOW}Continuing with installation, but some components may not be installed correctly.${NC}"
+            return 1
+        fi
     fi
     return 0
 }
@@ -630,34 +610,13 @@ install_prerequisites() {
             ;;
         windows)
             if grep -q Microsoft /proc/version 2>/dev/null; then
-                # Check if we have sudo access in WSL
-                if [ "${NO_SUDO:-0}" -eq 1 ]; then
-                    echo -e "${YELLOW}No sudo access detected in WSL. Checking for required packages...${NC}"
-                    missing_packages=""
-                    
-                    # Check for required packages
-                    for pkg in git stow curl; do
-                        if ! command -v $pkg >/dev/null 2>&1; then
-                            missing_packages="$missing_packages $pkg"
-                        fi
-                    done
-                    
-                    if [ -n "$missing_packages" ]; then
-                        echo -e "${YELLOW}The following packages are missing and cannot be installed without sudo:${NC}"
-                        echo -e "${YELLOW}$missing_packages${NC}"
-                        echo -e "${YELLOW}Please install them manually and run this script again.${NC}"
-                        echo -e "${YELLOW}Continuing with limited functionality...${NC}"
-                    else
-                        echo -e "${GREEN}Required packages are already installed.${NC}"
-                    fi
-                else
-                    # Normal installation with sudo
-                    if ! safe_sudo apt update; then
-                        echo -e "${YELLOW}Failed to update package lists in WSL. Continuing anyway...${NC}"
-                    fi
-                    if ! safe_sudo apt install -y git stow curl; then
-                        echo -e "${YELLOW}Failed to install some required packages in WSL. Continuing with limited functionality...${NC}"
-                    fi
+                # WSL environment
+                echo -e "${YELLOW}Installing required packages in WSL...${NC}"
+                if ! safe_sudo apt update; then
+                    echo -e "${YELLOW}Failed to update package lists in WSL. Continuing anyway...${NC}"
+                fi
+                if ! safe_sudo apt install -y git stow curl; then
+                    echo -e "${YELLOW}Failed to install some required packages in WSL. Continuing with limited functionality...${NC}"
                 fi
             elif command -v pacman &> /dev/null; then
                 # MSYS2 environment
@@ -1024,69 +983,27 @@ change_default_shell() {
                     case "$DISTRO" in
                         ubuntu|debian|linuxmint)
                             echo -e "${YELLOW}Installing zsh on Debian/Ubuntu...${NC}"
-                            if [ "${NO_SUDO:-0}" -eq 1 ]; then
-                                echo -e "${YELLOW}No sudo access. Cannot install zsh.${NC}"
-                                echo -e "${YELLOW}Please install zsh manually with: sudo apt install -y zsh${NC}"
-                                echo -e "${YELLOW}Then run this script again.${NC}"
-                                return 0
-                            fi
-                            
                             safe_sudo apt update
                             safe_sudo apt install -y zsh
                             ;;
                         arch|manjaro)
                             echo -e "${YELLOW}Installing zsh on Arch/Manjaro...${NC}"
-                            if [ "${NO_SUDO:-0}" -eq 1 ]; then
-                                echo -e "${YELLOW}No sudo access. Cannot install zsh.${NC}"
-                                echo -e "${YELLOW}Please install zsh manually with: sudo pacman -Syu --noconfirm zsh${NC}"
-                                echo -e "${YELLOW}Then run this script again.${NC}"
-                                return 0
-                            fi
-                            
                             safe_sudo pacman -Syu --noconfirm zsh
                             ;;
                         fedora|centos|rhel)
                             echo -e "${YELLOW}Installing zsh on Fedora/CentOS...${NC}"
-                            if [ "${NO_SUDO:-0}" -eq 1 ]; then
-                                echo -e "${YELLOW}No sudo access. Cannot install zsh.${NC}"
-                                echo -e "${YELLOW}Please install zsh manually with: sudo dnf install -y zsh${NC}"
-                                echo -e "${YELLOW}Then run this script again.${NC}"
-                                return 0
-                            fi
-                            
                             safe_sudo dnf install -y zsh
                             ;;
                         *)
                             if command -v apt >/dev/null 2>&1; then
                                 echo -e "${YELLOW}Installing zsh using apt...${NC}"
-                                if [ "${NO_SUDO:-0}" -eq 1 ]; then
-                                    echo -e "${YELLOW}No sudo access. Cannot install zsh.${NC}"
-                                    echo -e "${YELLOW}Please install zsh manually with: sudo apt install -y zsh${NC}"
-                                    echo -e "${YELLOW}Then run this script again.${NC}"
-                                    return 0
-                                fi
-                                
                                 safe_sudo apt update
                                 safe_sudo apt install -y zsh
                             elif command -v pacman >/dev/null 2>&1; then
                                 echo -e "${YELLOW}Installing zsh using pacman...${NC}"
-                                if [ "${NO_SUDO:-0}" -eq 1 ]; then
-                                    echo -e "${YELLOW}No sudo access. Cannot install zsh.${NC}"
-                                    echo -e "${YELLOW}Please install zsh manually with: sudo pacman -Syu --noconfirm zsh${NC}"
-                                    echo -e "${YELLOW}Then run this script again.${NC}"
-                                    return 0
-                                fi
-                                
                                 safe_sudo pacman -Syu --noconfirm zsh
                             elif command -v dnf >/dev/null 2>&1; then
                                 echo -e "${YELLOW}Installing zsh using dnf...${NC}"
-                                if [ "${NO_SUDO:-0}" -eq 1 ]; then
-                                    echo -e "${YELLOW}No sudo access. Cannot install zsh.${NC}"
-                                    echo -e "${YELLOW}Please install zsh manually with: sudo dnf install -y zsh${NC}"
-                                    echo -e "${YELLOW}Then run this script again.${NC}"
-                                    return 0
-                                fi
-                                
                                 safe_sudo dnf install -y zsh
                             else
                                 echo -e "${RED}Error: No supported package manager found${NC}"
@@ -1115,16 +1032,7 @@ change_default_shell() {
         fi
         
         # Now change the default shell
-        if [ "${NO_SUDO:-0}" -eq 1 ]; then
-            echo -e "${YELLOW}No sudo access. Cannot change default shell.${NC}"
-            echo -e "${YELLOW}You can change it manually with: sudo chsh -s $ZSH_PATH $USER${NC}"
-            
-            # Provide instructions for adding to /etc/shells if on Linux
-            if [ "$PLATFORM" = "linux" ] && ! grep -q "$ZSH_PATH" /etc/shells; then
-                echo -e "${YELLOW}You may also need to add zsh to /etc/shells with:${NC}"
-                echo -e "${YELLOW}echo $ZSH_PATH | sudo tee -a /etc/shells${NC}"
-            fi
-        elif [ "$PLATFORM" = "macos" ]; then
+        if [ "$PLATFORM" = "macos" ]; then
             if ! safe_sudo chsh -s "$ZSH_PATH" $USER; then
                 echo -e "${YELLOW}Warning: Could not change default shell to zsh${NC}"
                 echo -e "${YELLOW}You may need to run manually: sudo chsh -s $ZSH_PATH $USER${NC}"
@@ -1159,20 +1067,11 @@ run_installation() {
     
     # Check for sudo access on Unix-like systems
     if [ "$PLATFORM" != "windows" ]; then
-        # Set NO_SUDO=0 by default (assume we have sudo)
-        export NO_SUDO=0
-        
         # Check for sudo access
         check_sudo_access
         
-        # Only keep sudo alive if we have sudo access
-        if [ "${NO_SUDO:-0}" -eq 0 ]; then
-            keep_sudo_alive
-        else
-            echo -e "${YELLOW}Running with limited functionality (no sudo access)${NC}"
-            echo -e "${YELLOW}Some components may not be installed correctly${NC}"
-            echo -e "${YELLOW}You can still use most dotfiles and configurations${NC}"
-        fi
+        # Keep sudo alive
+        keep_sudo_alive
     fi
     
     # Handle conflicts first
