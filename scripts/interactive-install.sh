@@ -214,16 +214,26 @@ check_sudo_access() {
     echo -e "${YELLOW}Please enter your password when prompted.${NC}"
     
     if ! sudo -v; then
-        echo -e "${RED}Error: Failed to obtain sudo access${NC}"
-        echo -e "${RED}Please ensure your user has administrative privileges.${NC}"
-        echo -e "${YELLOW}On macOS, you may need to:${NC}"
-        echo -e "${YELLOW}1. Add your user to the admin group${NC}"
-        echo -e "${YELLOW}2. Enable 'Administrator' privileges in System Preferences > Users & Groups${NC}"
-        echo -e "${YELLOW}3. Or run this script with a user that has admin rights${NC}"
-        return 1
+        echo -e "${RED}Warning: Failed to obtain sudo access${NC}"
+        echo -e "${YELLOW}Some features that require sudo will not work.${NC}"
+        echo -e "${YELLOW}The installation will continue, but some components may not be installed correctly.${NC}"
+        echo -e ""
+        echo -e "${YELLOW}If you want full functionality, you may need to:${NC}"
+        echo -e "${YELLOW}1. Ensure your user has sudo privileges${NC}"
+        echo -e "${YELLOW}2. On macOS: Add your user to the admin group${NC}"
+        echo -e "${YELLOW}3. On Linux: Add your user to the sudo group${NC}"
+        echo -e "${YELLOW}4. Or run this script with a user that has admin rights${NC}"
+        echo -e ""
+        echo -e "${YELLOW}Press Enter to continue with limited functionality, or Ctrl+C to exit${NC}"
+        read -r dummy < /dev/tty
+        
+        # Set a flag to indicate we don't have sudo access
+        export NO_SUDO=1
+        return 0  # Return success to continue installation with limited functionality
     fi
     
     echo -e "${GREEN}✓ Sudo access obtained${NC}"
+    export NO_SUDO=0
     return 0
 }
 
@@ -236,10 +246,24 @@ keep_sudo_alive() {
 
 # Function to safely run sudo commands with error handling
 safe_sudo() {
-    if ! sudo "$@" 2>/dev/null; then
+    # First try without redirecting stderr to see if we get a password prompt
+    if ! sudo -v >/dev/null 2>&1; then
+        echo -e "${YELLOW}Sudo requires a password. Please enter your password when prompted.${NC}"
+    fi
+    
+    # Try the command with proper error output
+    if ! sudo "$@"; then
         echo -e "${RED}Error: Failed to run command with sudo: $*${NC}"
+        echo -e "${YELLOW}This could be due to:${NC}"
+        echo -e "${YELLOW}1. You don't have sudo privileges${NC}"
+        echo -e "${YELLOW}2. The command itself failed${NC}"
+        echo -e "${YELLOW}3. Your system doesn't have the required package manager${NC}"
+        echo -e ""
         echo -e "${YELLOW}You may need to run this command manually:${NC}"
         echo -e "${YELLOW}sudo $*${NC}"
+        echo -e ""
+        echo -e "${YELLOW}Continuing with installation, but some components may not be installed correctly.${NC}"
+        sleep 2
         return 1
     fi
     return 0
@@ -511,71 +535,110 @@ install_prerequisites() {
             fi
             ;;
         linux)
-            case "$DISTRO" in
-                ubuntu|debian|linuxmint)
-                    if ! safe_sudo apt update; then
-                        echo -e "${RED}Failed to update package lists${NC}"
-                        return 1
+            # Check if we have sudo access
+            if [ "${NO_SUDO:-0}" -eq 1 ]; then
+                echo -e "${YELLOW}No sudo access detected. Checking for required packages...${NC}"
+                missing_packages=""
+                
+                # Check for required packages
+                for pkg in git stow curl; do
+                    if ! command -v $pkg >/dev/null 2>&1; then
+                        missing_packages="$missing_packages $pkg"
                     fi
-                    if ! safe_sudo apt install -y git stow curl build-essential; then
-                        echo -e "${RED}Failed to install required packages${NC}"
-                        return 1
-                    fi
-                    ;;
-                arch|manjaro)
-                    if ! safe_sudo pacman -Syu --noconfirm git stow curl base-devel; then
-                        echo -e "${RED}Failed to install required packages${NC}"
-                        return 1
-                    fi
-                    ;;
-                fedora|centos|rhel)
-                    if ! safe_sudo dnf install -y git stow curl @development-tools; then
-                        echo -e "${RED}Failed to install required packages${NC}"
-                        return 1
-                    fi
-                    ;;
-                *)
-                    if command -v apt >/dev/null 2>&1; then
+                done
+                
+                if [ -n "$missing_packages" ]; then
+                    echo -e "${YELLOW}The following packages are missing and cannot be installed without sudo:${NC}"
+                    echo -e "${YELLOW}$missing_packages${NC}"
+                    echo -e "${YELLOW}Please install them manually and run this script again.${NC}"
+                    echo -e "${YELLOW}Continuing with limited functionality...${NC}"
+                else
+                    echo -e "${GREEN}Required packages are already installed.${NC}"
+                fi
+            else
+                # Normal installation with sudo
+                case "$DISTRO" in
+                    ubuntu|debian|linuxmint)
                         if ! safe_sudo apt update; then
-                            echo -e "${RED}Failed to update package lists${NC}"
-                            return 1
+                            echo -e "${YELLOW}Failed to update package lists. Continuing anyway...${NC}"
                         fi
                         if ! safe_sudo apt install -y git stow curl build-essential; then
-                            echo -e "${RED}Failed to install required packages${NC}"
-                            return 1
+                            echo -e "${YELLOW}Failed to install some required packages. Continuing with limited functionality...${NC}"
                         fi
-                    elif command -v pacman >/dev/null 2>&1; then
+                        ;;
+                    arch|manjaro)
                         if ! safe_sudo pacman -Syu --noconfirm git stow curl base-devel; then
-                            echo -e "${RED}Failed to install required packages${NC}"
-                            return 1
+                            echo -e "${YELLOW}Failed to install some required packages. Continuing with limited functionality...${NC}"
                         fi
-                    elif command -v dnf >/dev/null 2>&1; then
+                        ;;
+                    fedora|centos|rhel)
                         if ! safe_sudo dnf install -y git stow curl @development-tools; then
-                            echo -e "${RED}Failed to install required packages${NC}"
-                            return 1
+                            echo -e "${YELLOW}Failed to install some required packages. Continuing with limited functionality...${NC}"
                         fi
-                    else
-                        echo -e "${RED}Please install git, stow, curl, and build tools manually${NC}"
-                        return 1
-                    fi
+                        ;;
+                    *)
+                        if command -v apt >/dev/null 2>&1; then
+                            if ! safe_sudo apt update; then
+                                echo -e "${YELLOW}Failed to update package lists. Continuing anyway...${NC}"
+                            fi
+                            if ! safe_sudo apt install -y git stow curl build-essential; then
+                                echo -e "${YELLOW}Failed to install some required packages. Continuing with limited functionality...${NC}"
+                            fi
+                        elif command -v pacman >/dev/null 2>&1; then
+                            if ! safe_sudo pacman -Syu --noconfirm git stow curl base-devel; then
+                                echo -e "${YELLOW}Failed to install some required packages. Continuing with limited functionality...${NC}"
+                            fi
+                        elif command -v dnf >/dev/null 2>&1; then
+                            if ! safe_sudo dnf install -y git stow curl @development-tools; then
+                                echo -e "${YELLOW}Failed to install some required packages. Continuing with limited functionality...${NC}"
+                            fi
+                        else
+                            echo -e "${YELLOW}Please install git, stow, curl, and build tools manually${NC}"
+                            echo -e "${YELLOW}Continuing with limited functionality...${NC}"
+                        fi
                     ;;
             esac
             ;;
         windows)
             if grep -q Microsoft /proc/version 2>/dev/null; then
-                if ! safe_sudo apt update; then
-                    echo -e "${RED}Failed to update package lists in WSL${NC}"
-                    return 1
-                fi
-                if ! safe_sudo apt install -y git stow curl; then
-                    echo -e "${RED}Failed to install packages in WSL${NC}"
-                    return 1
+                # Check if we have sudo access in WSL
+                if [ "${NO_SUDO:-0}" -eq 1 ]; then
+                    echo -e "${YELLOW}No sudo access detected in WSL. Checking for required packages...${NC}"
+                    missing_packages=""
+                    
+                    # Check for required packages
+                    for pkg in git stow curl; do
+                        if ! command -v $pkg >/dev/null 2>&1; then
+                            missing_packages="$missing_packages $pkg"
+                        fi
+                    done
+                    
+                    if [ -n "$missing_packages" ]; then
+                        echo -e "${YELLOW}The following packages are missing and cannot be installed without sudo:${NC}"
+                        echo -e "${YELLOW}$missing_packages${NC}"
+                        echo -e "${YELLOW}Please install them manually and run this script again.${NC}"
+                        echo -e "${YELLOW}Continuing with limited functionality...${NC}"
+                    else
+                        echo -e "${GREEN}Required packages are already installed.${NC}"
+                    fi
+                else
+                    # Normal installation with sudo
+                    if ! safe_sudo apt update; then
+                        echo -e "${YELLOW}Failed to update package lists in WSL. Continuing anyway...${NC}"
+                    fi
+                    if ! safe_sudo apt install -y git stow curl; then
+                        echo -e "${YELLOW}Failed to install some required packages in WSL. Continuing with limited functionality...${NC}"
+                    fi
                 fi
             elif command -v pacman &> /dev/null; then
+                # MSYS2 environment
                 if ! pacman -Syu --noconfirm git stow curl; then
-                    echo -e "${RED}Failed to install packages in MSYS2${NC}"
-                    return 1
+                    echo -e "${YELLOW}Failed to install some packages in MSYS2. Continuing with limited functionality...${NC}"
                 fi
+            else
+                echo -e "${YELLOW}On Windows, please install Git for Windows and other tools manually${NC}"
+                echo -e "${YELLOW}Visit https://gitforwindows.org/ to download Git for Windows${NC}"
+                echo -e "${YELLOW}Continuing with limited functionality...${NC}"
             fi
             ;;
     esac
@@ -1039,11 +1102,14 @@ run_installation() {
     
     # Check for sudo access on Unix-like systems
     if [ "$PLATFORM" != "windows" ]; then
-        if ! check_sudo_access; then
-            echo -e "${RED}Error: Sudo access required for installation${NC}"
-            return 1
+        check_sudo_access
+        # Only keep sudo alive if we have sudo access
+        if [ "${NO_SUDO:-0}" -eq 0 ]; then
+            keep_sudo_alive
+        else
+            echo -e "${YELLOW}Running with limited functionality (no sudo access)${NC}"
+            echo -e "${YELLOW}Some components may not be installed correctly${NC}"
         fi
-        keep_sudo_alive
     fi
     
     # Handle conflicts first
