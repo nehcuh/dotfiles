@@ -87,13 +87,30 @@ main() {
     
     # Check if we're in an interactive environment
     if ! [ -t 0 ]; then
-        log_error "This installer requires an interactive terminal."
-        log_warning "Please run this installer directly in your terminal."
-        log_info "Alternative: curl -fsSL https://raw.githubusercontent.com/nehcuh/dotfiles/main/install.sh | sh"
-        exit 1
+        # If we're in a pipe, try to re-exec in a new terminal session
+        if [ -t 1 ] || [ -t 2 ]; then
+            # We have some terminal access, try to re-exec with proper terminal
+            log_warning "Running from pipe, attempting to start interactive session..."
+            
+            # Try to start a new interactive session
+            if command -v bash >/dev/null 2>&1; then
+                exec bash -c "exec bash '$INTERACTIVE_SCRIPT' '$@'"
+            elif command -v zsh >/dev/null 2>&1; then
+                exec zsh -c "exec zsh '$INTERACTIVE_SCRIPT' '$@'"
+            else
+                exec sh -c "exec sh '$INTERACTIVE_SCRIPT' '$@'"
+            fi
+        else
+            # No terminal access at all
+            log_error "This installer requires an interactive terminal."
+            log_warning "Please run this installer directly in your terminal."
+            log_info "Alternative: curl -fsSL https://raw.githubusercontent.com/nehcuh/dotfiles/main/install.sh | sh"
+            log_info "Or download and run: curl -fsSL https://raw.githubusercontent.com/nehcuh/dotfiles/main/scripts/universal-install.sh -o install.sh && chmod +x install.sh && ./install.sh"
+            exit 1
+        fi
     fi
     
-    # Try to use the best available shell
+    # We have interactive terminal, proceed with execution
     if command -v bash >/dev/null 2>&1; then
         exec bash "$INTERACTIVE_SCRIPT" "$@"
     elif command -v zsh >/dev/null 2>&1; then
