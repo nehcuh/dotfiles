@@ -44,16 +44,18 @@ defaults write NSGlobalDomain ApplePressAndHoldEnabled -bool false
 # Enable full keyboard access
 defaults write NSGlobalDomain AppleKeyboardUIMode -int 3
 
-# Trackpad: enable tap to click
-defaults write com.apple.driver.AppleBluetoothMultitouch.trackpad Clicking -bool true
-defaults -currentHost write NSGlobalDomain com.apple.mouse.tapBehavior -int 1
-defaults write NSGlobalDomain com.apple.mouse.tapBehavior -int 1
+# Trackpad: enable right-click
+defaults write com.apple.driver.AppleBluetoothMultitouch.trackpad TrackpadCornerSecondaryClick -int 2
+defaults write com.apple.driver.AppleBluetoothMultitouch.trackpad TrackpadRightClick -bool true
 
-# Disable natural scrolling
-defaults write NSGlobalDomain com.apple.swipescrolldirection -bool false
+# Mouse: enable secondary click (right-click)
+defaults write com.apple.driver.AppleBluetoothMultitouch.mouse MouseButtonMode -string "TwoButton"
 
-# Finder: show hidden files and extensions
-defaults write com.apple.finder AppleShowAllFiles -bool true
+# Enable mouse button assistive features
+defaults write com.apple.universalaccess mouseDriverTracking -bool true
+defaults write com.apple.universalaccess mouseDriverHIDClickAssist -bool true
+
+# Finder: show all filename extensions
 defaults write NSGlobalDomain AppleShowAllExtensions -bool true
 
 # Finder: show path bar and status bar

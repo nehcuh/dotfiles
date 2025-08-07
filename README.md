@@ -261,6 +261,15 @@ make update           # Update repository
 - Requires Xcode Command Line Tools
 - Uses Homebrew for package management
 - Apple Silicon Mac support included
+- **macOS Optimization Package**: Comprehensive system optimization scripts including:
+  - Keyboard optimization (faster repeat rate, disable press-and-hold)
+  - Mouse/Trackpad optimization (right-click configuration, assistive features)
+  - Finder optimization (show file extensions, path bar, status bar)
+  - Dock optimization (auto-hide, icon size, minimize effects)
+  - Safari optimization (full URL, disable search suggestions)
+  - Quick optimization script for common settings
+  - Reset script to restore defaults
+  - Customizable configuration file
 
 ## Setup & Security
 
