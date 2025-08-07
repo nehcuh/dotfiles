@@ -663,41 +663,34 @@ install_linux_editors_universal() {
         case "$DISTRO" in
             ubuntu|debian|linuxmint)
                 if command_exists apt; then
-                    # Add Microsoft's GPG key and repository
+                    # Add Microsoft's GPG key and repository using modern method
                     print_color "$YELLOW" "Adding Microsoft GPG key for VS Code..."
-                    # Download GPG key
-                    curl -fsSL https://packages.microsoft.com/keys/microsoft.asc > /tmp/microsoft.asc
                     
-                    # Try to import GPG key using apt-key first (preferred method)
-                    if command_exists apt-key && safe_sudo apt-key add /tmp/microsoft.asc; then
-                        print_color "$GREEN" "✓ GPG key imported using apt-key"
-                    else
-                        # Fallback to manual GPG key installation
-                        print_color "$YELLOW" "Trying alternative GPG key import method..."
-                        if ! curl -fsSL https://packages.microsoft.com/keys/microsoft.asc | gpg --dearmor | safe_sudo tee /etc/apt/trusted.gpg.d/microsoft.gpg >/dev/null; then
-                            print_color "$RED" "Failed to import Microsoft GPG key"
-                            print_color "$YELLOW" "You can install VS Code manually from: https://code.visualstudio.com"
-                            rm -f /tmp/microsoft.asc
-                            return 1
-                        fi
-                        print_color "$GREEN" "✓ GPG key imported using manual method"
+                    # Remove old repository file if it exists to avoid conflicts
+                    if [ -f "/etc/apt/sources.list.d/vscode.list" ]; then
+                        safe_sudo rm /etc/apt/sources.list.d/vscode.list
                     fi
-                    rm -f /tmp/microsoft.asc
                     
-                    print_color "$YELLOW" "Adding VS Code repository..."
-                    # Check if we need to use signed-by parameter (for manual GPG method)
-                    if [ -f "/etc/apt/trusted.gpg.d/microsoft.gpg" ]; then
-                        echo "deb [arch=amd64,arm64,armhf signed-by=/etc/apt/trusted.gpg.d/microsoft.gpg] https://packages.microsoft.com/repos/code stable main" > /tmp/vscode.list
-                    else
-                        echo "deb [arch=amd64,arm64,armhf] https://packages.microsoft.com/repos/code stable main" > /tmp/vscode.list
-                    fi
-                    if ! safe_sudo cp /tmp/vscode.list /etc/apt/sources.list.d/vscode.list; then
-                        print_color "$RED" "Failed to add VS Code repository"
+                    # Create keyrings directory if it doesn't exist
+                    safe_sudo mkdir -p /usr/share/keyrings
+                    
+                    # Download and install Microsoft GPG key using modern method
+                    if ! curl -fsSL https://packages.microsoft.com/keys/microsoft.asc | safe_sudo gpg --dearmor -o /usr/share/keyrings/microsoft.gpg; then
+                        print_color "$RED" "Failed to import Microsoft GPG key"
                         print_color "$YELLOW" "You can install VS Code manually from: https://code.visualstudio.com"
-                        rm -f /tmp/vscode.list
                         return 1
                     fi
-                    rm -f /tmp/vscode.list
+                    print_color "$GREEN" "✓ GPG key imported successfully"
+                    
+                    # Add VS Code repository with signed-by parameter
+                    print_color "$YELLOW" "Adding VS Code repository..."
+                    echo "deb [arch=amd64,arm64,armhf signed-by=/usr/share/keyrings/microsoft.gpg] https://packages.microsoft.com/repos/code stable main" | safe_sudo tee /etc/apt/sources.list.d/vscode.list
+                    
+                    # Update package lists after adding repository
+                    if ! update_package_lists; then
+                        print_color "$RED" "Failed to update package lists after adding VS Code repository"
+                        return 1
+                    fi
                     
                     if safe_sudo apt install -y code; then
                         print_color "$GREEN" "✓ Visual Studio Code installed"
