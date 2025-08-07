@@ -81,6 +81,8 @@ DEV_ENV=true curl -fsSL https://raw.githubusercontent.com/nehcuh/dotfiles/main/r
 ./scripts/setup-dev-environment.sh
 ```
 
+**📖 For detailed development environment documentation, see [DEVELOPMENT_ENVIRONMENTS.md](DEVELOPMENT_ENVIRONMENTS.md)**
+
 ## Usage
 
 ### Install specific packages
