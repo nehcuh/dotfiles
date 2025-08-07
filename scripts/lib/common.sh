@@ -347,11 +347,116 @@ handle_conflicts() {
   return 0
 }
 
+# Install Homebrew
+install_homebrew() {
+  log_info "Installing Homebrew..."
+  
+  # Check if Homebrew is already installed
+  if command_exists brew; then
+    log_success "Homebrew is already installed"
+    return 0
+  fi
+  
+  # Install Homebrew
+  log_info "Installing Homebrew..."
+  
+  # Check for curl or wget
+  if ! command_exists curl && ! command_exists wget; then
+    log_error "Neither curl nor wget is available. Please install one of them first."
+    return 1
+  fi
+  
+  # Install Homebrew using the official script
+  if command_exists curl; then
+    /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
+  else
+    /bin/bash -c "$(wget -qO- https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
+  fi
+  
+  # Check if Homebrew was installed successfully
+  if [ $? -ne 0 ]; then
+    log_error "Failed to install Homebrew"
+    return 1
+  fi
+  
+  # Add Homebrew to PATH based on platform and architecture
+  case "$PLATFORM" in
+    macos)
+      if [ "$ARCH" = "arm64" ]; then
+        # For Apple Silicon Macs
+        if [ -d "/opt/homebrew/bin" ]; then
+          log_info "Adding Homebrew to PATH for Apple Silicon Mac..."
+          if [ "$SHELL_TYPE" = "zsh" ]; then
+            echo 'eval "$(/opt/homebrew/bin/brew shellenv)"' >> "$HOME/.zprofile"
+            eval "$(/opt/homebrew/bin/brew shellenv)"
+          elif [ "$SHELL_TYPE" = "bash" ]; then
+            echo 'eval "$(/opt/homebrew/bin/brew shellenv)"' >> "$HOME/.bash_profile"
+            eval "$(/opt/homebrew/bin/brew shellenv)"
+          fi
+        fi
+      else
+        # For Intel Macs
+        if [ -d "/usr/local/bin" ]; then
+          log_info "Adding Homebrew to PATH for Intel Mac..."
+          if [ "$SHELL_TYPE" = "zsh" ]; then
+            echo 'eval "$(/usr/local/bin/brew shellenv)"' >> "$HOME/.zprofile"
+            eval "$(/usr/local/bin/brew shellenv)"
+          elif [ "$SHELL_TYPE" = "bash" ]; then
+            echo 'eval "$(/usr/local/bin/brew shellenv)"' >> "$HOME/.bash_profile"
+            eval "$(/usr/local/bin/brew shellenv)"
+          fi
+        fi
+      fi
+      ;;
+    linux)
+      # For Linux
+      if [ -d "/home/linuxbrew/.linuxbrew/bin" ]; then
+        log_info "Adding Homebrew to PATH for Linux..."
+        if [ "$SHELL_TYPE" = "zsh" ]; then
+          echo 'eval "$(/home/linuxbrew/.linuxbrew/bin/brew shellenv)"' >> "$HOME/.zprofile"
+          echo 'eval "$(/home/linuxbrew/.linuxbrew/bin/brew shellenv)"' >> "$HOME/.profile"
+          eval "$(/home/linuxbrew/.linuxbrew/bin/brew shellenv)"
+        elif [ "$SHELL_TYPE" = "bash" ]; then
+          echo 'eval "$(/home/linuxbrew/.linuxbrew/bin/brew shellenv)"' >> "$HOME/.bash_profile"
+          echo 'eval "$(/home/linuxbrew/.linuxbrew/bin/brew shellenv)"' >> "$HOME/.profile"
+          eval "$(/home/linuxbrew/.linuxbrew/bin/brew shellenv)"
+        fi
+      fi
+      ;;
+  esac
+  
+  # Verify Homebrew is now in PATH
+  if ! command_exists brew; then
+    log_warning "Homebrew installed but not in PATH. You may need to restart your shell or source your profile."
+    log_warning "Try running: source ~/.profile"
+    
+    # Try to add to PATH directly for this session
+    if [ -d "/home/linuxbrew/.linuxbrew/bin" ]; then
+      export PATH="/home/linuxbrew/.linuxbrew/bin:$PATH"
+    elif [ -d "/opt/homebrew/bin" ]; then
+      export PATH="/opt/homebrew/bin:$PATH"
+    elif [ -d "/usr/local/bin" ]; then
+      export PATH="/usr/local/bin:$PATH"
+    fi
+    
+    # Check again
+    if ! command_exists brew; then
+      log_error "Failed to add Homebrew to PATH"
+      return 1
+    fi
+  fi
+  
+  log_success "Homebrew installed and configured successfully"
+  return 0
+}
+
 # Detect package manager
 detect_package_manager() {
   case "$PLATFORM" in
     linux)
-      if command_exists apt; then
+      if command_exists brew; then
+        PACKAGE_MANAGER="brew"
+      elif command_exists apt; then
         PACKAGE_MANAGER="apt"
       elif command_exists pacman; then
         PACKAGE_MANAGER="pacman"
@@ -361,11 +466,9 @@ detect_package_manager() {
         PACKAGE_MANAGER="yum"
       elif command_exists zypper; then
         PACKAGE_MANAGER="zypper"
-      elif command_exists brew; then
-        PACKAGE_MANAGER="brew"
       else
-        log_error "No supported package manager found"
-        return 1
+        log_warning "No preferred package manager found, will attempt to install Homebrew"
+        PACKAGE_MANAGER="brew"
       fi
       ;;
     macos)
