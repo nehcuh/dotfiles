@@ -28,6 +28,18 @@ curl -fsSL https://raw.githubusercontent.com/nehcuh/dotfiles/main/scripts/intera
 
 This will launch an interactive wizard that automatically detects your shell and lets you choose exactly what to install.
 
+### 🔐 Sudo Permission Handling
+
+All installation scripts now include comprehensive sudo permission management:
+
+- **Automatic Detection**: Scripts check for sudo access before requiring it
+- **User-Friendly Prompts**: Clear instructions when password entry is needed
+- **Session Management**: Sudo sessions are kept alive to prevent timeout during long installations
+- **Graceful Error Handling**: Detailed error messages and manual execution suggestions if sudo fails
+- **Cross-Platform Support**: Works seamlessly on Linux, macOS, and Windows (WSL/MSYS2)
+
+**macOS Users**: If you encounter permission issues, ensure your user has administrator privileges in System Preferences > Users & Groups.
+
 ### One-Command Installation (Recommended)
 
 **Linux & macOS:**
@@ -261,6 +273,7 @@ make update           # Update repository
 - Requires Xcode Command Line Tools
 - Uses Homebrew for package management
 - Apple Silicon Mac support included
+- **Sudo Permission Handling**: Automatic sudo access detection and management with detailed error messages for administrator privileges
 - **macOS Optimization Package**: Comprehensive system optimization scripts including:
   - Keyboard optimization (faster repeat rate, disable press-and-hold)
   - Mouse/Trackpad optimization (right-click configuration, assistive features, tap-to-click)
@@ -270,6 +283,11 @@ make update           # Update repository
   - Quick optimization script for common settings
   - Reset script to restore defaults
   - Customizable configuration file
+
+**Troubleshooting macOS Permissions**:
+- If you see "Need sudo access on macOS" errors, ensure your user is in the admin group
+- Check System Preferences > Users & Groups > unlock and ensure "Allow user to administer this computer" is enabled
+- The installer will guide you through obtaining the necessary permissions
 
 ## Setup & Security
 

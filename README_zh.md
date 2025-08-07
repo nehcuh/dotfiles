@@ -27,6 +27,18 @@ curl -fsSL https://raw.githubusercontent.com/nehcuh/dotfiles/main/scripts/intera
 
 这将启动一个交互式向导，自动检测你的 shell 并让你选择需要安装的组件。
 
+### 🔐 Sudo 权限处理
+
+所有安装脚本现在都包含完整的 sudo 权限管理：
+
+- **自动检测**: 脚本在需要权限前会检查 sudo 访问权限
+- **用户友好提示**: 需要输入密码时提供清晰的说明
+- **会话管理**: 保持 sudo 会话活跃，防止长时间安装时超时
+- **优雅的错误处理**: 如果 sudo 失败，提供详细的错误信息和手动执行建议
+- **跨平台支持**: 在 Linux、macOS 和 Windows (WSL/MSYS2) 上无缝工作
+
+**macOS 用户**: 如果遇到权限问题，请确保你的用户在系统偏好设置 > 用户与群组中具有管理员权限。
+
 ### 一键安装（推荐）
 
 **Linux & macOS:**
@@ -327,6 +339,7 @@ docker-compose -f docker/docker-compose.ubuntu-dev.yml down
 - 需要 Xcode Command Line Tools
 - 使用 Homebrew 进行包管理
 - 包含 Apple Silicon Mac 支持
+- **Sudo 权限处理**: 自动 sudo 访问检测和管理，为管理员权限提供详细的错误信息
 - **macOS 优化包**: 全面的系统优化脚本，包括：
   - 键盘优化（加快重复速度、禁用长按选择）
   - 鼠标/触控板优化（右键配置、辅助功能、轻点点击）
@@ -336,6 +349,11 @@ docker-compose -f docker/docker-compose.ubuntu-dev.yml down
   - 快速优化脚本（常用设置）
   - 重置脚本（恢复默认设置）
   - 可自定义配置文件
+
+**macOS 权限问题排除**：
+- 如果看到 "Need sudo access on macOS" 错误，请确保你的用户在管理员组中
+- 检查系统偏好设置 > 用户与群组 > 解锁并确保 "允许用户管理这台电脑" 已启用
+- 安装程序会引导你获取所需的权限
 
 ## 设置与安全
 
