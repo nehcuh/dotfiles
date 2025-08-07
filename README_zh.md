@@ -1,346 +1,147 @@
-# 跨平台 Dotfiles
+# Simple Dotfiles
 
-![跨平台](logo.png)
-
-适用于 Linux、macOS 和 Windows 的完整开发环境配置。
-
-## 特性
-
-### 跨平台支持
-- **Linux**: Ubuntu、Debian、Arch、Fedora 等
-- **macOS**: 所有最新版本（使用 Homebrew）
-- **Windows**: WSL、MSYS2、原生 PowerShell
-
-### 包管理
-- **Linux**: apt、pacman、dnf、Homebrew
-- **macOS**: Homebrew
-- **Windows**: Scoop、Winget
-
-### 包含工具
-- **Shell**: 带有 Zinit 插件管理器的 Zsh
-- **终端**: 带有 Oh My Tmux 的 tmux
-- **编辑器**: Neovim、Vim
-- **实用工具**: fzf、ripgrep、eza、bat、starship、zoxide
-- **Git**: 增强配置和别名
-
-## 前提条件
-
-- Linux、macOS、Windows (WSL/MSYS2)
-- Git、Zsh/PowerShell、curl/wget
-- 推荐: Neovim、tmux
-- 可选: Vim
+一个简洁、轻量的 Linux 和 macOS dotfiles 配置。
 
 ## 快速开始
 
-### 交互式安装（推荐）
-
-**所有平台:**
+### 一键远程安装
 ```bash
-# 通用安装程序（自动检测您的 shell）
-curl -fsSL https://raw.githubusercontent.com/nehcuh/dotfiles/main/scripts/universal-install.sh | sh
+# 安装默认配置包
+curl -fsSL https://raw.githubusercontent.com/nehcuh/dotfiles/main/remote-install.sh | bash
 
-# 或使用特定 shell
-curl -fsSL https://raw.githubusercontent.com/nehcuh/dotfiles/main/scripts/interactive-install.sh | bash
-curl -fsSL https://raw.githubusercontent.com/nehcuh/dotfiles/main/scripts/interactive-install.sh | zsh
+# 或者安装指定配置包
+INSTALL_PACKAGES="git vim nvim zsh" curl -fsSL https://raw.githubusercontent.com/nehcuh/dotfiles/main/remote-install.sh | bash
 ```
 
-这将启动一个交互式向导，自动检测您的 shell 并让您选择要安装的内容。
-
-### 🔐 Sudo 权限处理
-
-所有安装脚本都包含全面的 sudo 权限管理：
-
-- **自动检测**: 脚本在需要之前检查 sudo 访问权限
-- **用户友好提示**: 需要密码输入时提供清晰指示
-- **会话管理**: 保持 sudo 会话活跃，防止长时间安装过程中超时
-- **优雅的错误处理**: 如果 sudo 失败，提供详细的错误消息和手动执行建议
-- **跨平台支持**: 在 Linux、macOS 和 Windows (WSL/MSYS2) 上无缝工作
-
-**macOS 用户**: 如果遇到权限问题，请确保您的用户在系统偏好设置 > 用户与群组中拥有管理员权限。
-
-### 一键安装
-
-**Linux 和 macOS:**
+### 本地安装
 ```bash
-curl -fsSL https://raw.githubusercontent.com/nehcuh/dotfiles/main/scripts/install.sh | bash
+# 克隆并一键安装
+git clone https://github.com/nehcuh/dotfiles.git ~/.dotfiles && cd ~/.dotfiles && ./install.sh
 
-# 或使用 POSIX 兼容版本:
-curl -fsSL https://raw.githubusercontent.com/nehcuh/dotfiles/main/scripts/install.sh | sh
-```
-
-**Windows:**
-```powershell
-# 在 PowerShell 中运行
-iwr -useb https://raw.githubusercontent.com/nehcuh/dotfiles/main/scripts/install-windows-improved.ps1 | iex
-```
-
-### 手动安装
-
-**Linux 和 macOS:**
-```bash
+# 或者分步安装
 git clone https://github.com/nehcuh/dotfiles.git ~/.dotfiles
 cd ~/.dotfiles
-./scripts/install.sh
-```
+./install.sh
 
-**Windows:**
-```powershell
-git clone https://github.com/nehcuh/dotfiles.git ~/.dotfiles
-cd ~/.dotfiles
-./scripts/install-windows-improved.ps1
-```
-
-### 使用 Make
-
-```bash
-git clone https://github.com/nehcuh/dotfiles.git ~/.dotfiles
-cd ~/.dotfiles
+# 或者使用 make
 make install
 ```
 
-## 详细配置
+## 包含的配置
 
-### 🖥️ 系统包
-**核心开发工具:**
-- **Neovim**: 具有 LSP 支持的现代、可扩展文本编辑器
-- **Zed**: 快速、协作的代码编辑器
-- **Tmux**: 用于会话管理的终端复用器
-- **Git**: 带有增强配置的版本控制
-- **Zsh**: 强大的 shell，带有 Zinit 插件管理器
-- **Starship**: 极简、快速、可定制的提示符
+- **Shell**: Zsh 配置，包含现代化提示符
+- **Git**: 增强的 git 别名和设置
+- **编辑器**: Vim 和 Neovim 配置
+- **终端**: Tmux 配置
+- **工具**: 现代化命令行工具和实用程序
 
-**现代命令行工具:**
-- **eza**: 现代 `ls` 替代品，带有图标和 Git 集成
-- **bat**: 带有语法高亮和 Git 集成的 cat 克隆
-- **ripgrep**: 快速递归搜索，替代 `grep`
-- **fd**: 简单、快速且用户友好的 `find` 替代品
-- **fzf**: 命令行模糊查找器
-- **zoxide**: 更智能的 `cd` 命令，学习您的习惯
-- **delta**: 语法高亮的 Git 分页器
-- **yazi**: 极速终端文件管理器
+## 可用配置包
 
-**开发工具:**
-- **Go**: Go 编程语言及 gopls
-- **Rust**: Rust 编程语言及 rust-analyzer
-- **Python**: Python 语言服务器 (basedpyright, pyrefly for Zed)
-- **Node.js**: TypeScript 和 JavaScript 语言服务器
-- **OrbStack**: macOS 上的现代 Docker 替代品
-- **Java**: OpenJDK 及 Maven 和 Gradle
-- **C/C++**: GCC、Clang、CMake 和调试工具
+- `system` - 系统全局配置
+- `zsh` - Zsh shell 配置
+- `git` - Git 配置和别名
+- `vim` - Vim 配置
+- `nvim` - Neovim 配置
+- `tmux` - 终端复用器配置
+- `tools` - 命令行工具配置
+- `vscode` - Visual Studio Code 设置
+- `zed` - Zed 编辑器配置
+- `linux` - Linux 特定配置
+- `macos` - macOS 特定配置
 
-**容器开发:**
-- **Dev Containers**: VS Code 开发容器支持
-- **Docker Compose**: 多容器开发环境
-- **Ubuntu 开发环境**: 完整的 Ubuntu 24.04.2 LTS 开发容器
+## 使用方法
 
-**系统监控:**
-- **bottom**: 更好的 `top`，带有图表和 GPU 监控
-- **procs**: 现代 `ps` 替代品
-- **duf**: 更好的 `df`，带有彩色输出
-- **dust**: 更直观的 `du` 版本
-- **hyperfine**: 命令行基准测试工具
-- **gping**: 带图形的 ping
-
-## 管理
-
-### 交互式管理
+### 安装指定配置包
 ```bash
-cd ~/.dotfiles
-./scripts/interactive-install.sh  # 交互式安装向导
+./install.sh git vim nvim  # 只安装 git、vim 和 nvim
 ```
 
-### 使用 stow.sh
+### 列出可用配置包
 ```bash
-cd ~/.dotfiles
-./scripts/stow.sh install system zsh git tools vim nvim tmux
-./scripts/stow.sh remove system zsh git tools vim nvim tmux
-./scripts/stow.sh status
-./scripts/stow.sh list
+make list
+# 或者
+./uninstall.sh list
 ```
 
-### 使用 Make
+### 移除配置
 ```bash
-cd ~/.dotfiles
-make setup-python        # 设置 Python 环境
-make setup-node          # 设置 Node.js 环境
-make setup-dev           # 设置 Python 和 Node.js
-make install             # 安装所有 dotfiles
-make remove              # 移除所有 dotfiles
-make status              # 检查当前状态
-make clean               # 清理过时文件
-make update              # 更新仓库
+./uninstall.sh           # 移除所有配置包
+./uninstall.sh vim nvim   # 移除指定配置包
+make uninstall           # 移除所有配置包
 ```
 
-## 平台特定说明
-
-### Docker 开发环境
-- **Ubuntu 24.04.2 LTS**: 容器中的完整开发环境
-- **用户**: "huchen"，具有 sudo 权限
-- **同步配置**: 您的 dotfiles 在容器内自动可用
-- **持久存储**: 主目录在容器重启之间保持不变
-- **端口映射**: 常见开发端口 (3000, 8000, 8080 等) 已映射
-- **使用方法**: `docker-compose -f docker/docker-compose.ubuntu-dev.yml up -d`
-
-### Windows
-- 需要 Windows 10/11 和 PowerShell 5.1+
-- 与 Windows Terminal 配合最佳
-- 同时支持 WSL 和原生 Windows 环境
-- 使用连接点作为符号链接
-
-### Linux
-- 支持所有主要发行版
-- 自动包管理器检测
-- 可选 Linux Homebrew 支持
-
-### macOS
-- 需要 Xcode 命令行工具
-- 使用 Homebrew 进行包管理
-- 包含 Apple Silicon Mac 支持
-
-## 设置与安全
-
-### 发布到 GitHub 前
-
-1. **替换所有文件中的 `nehcuh`** 为您的实际 GitHub 用户名
-2. **更新 `dotfiles.conf`** 中的 GitHub 用户名
-3. **创建个人配置文件**:
-   ```bash
-   cp stow-packs/git/.gitconfig_local.template ~/.gitconfig_local
-   # 编辑 ~/.gitconfig_local 添加您的姓名和邮箱
-   ```
-
-### 首次设置
-
-#### 快速交互式设置（推荐）
+### 更新仓库
 ```bash
-curl -fsSL https://raw.githubusercontent.com/nehcuh/dotfiles/main/scripts/interactive-install.sh | bash
+make update
 ```
 
-#### 手动设置
-1. **克隆仓库**
-   ```bash
-   git clone https://github.com/nehcuh/dotfiles.git ~/.dotfiles
-   cd ~/.dotfiles
-   ```
+## 个性化定制
 
-2. **运行安装程序**
-   ```bash
-   # Linux 和 macOS
-   ./scripts/install.sh
-   
-   # Windows
-   ./scripts/install-windows-improved.ps1
-   ```
+### 本地配置文件
+创建这些文件来进行个人设置（这些文件不会被 git 跟踪）：
 
-3. **配置个人信息**
-   ```bash
-   # 编辑 git 配置模板
-   nano ~/.gitconfig_local
-   ```
+- `~/.gitconfig.local` - 个人 git 设置
+- `~/.zshrc.local` - 额外的 zsh 配置
+- `~/.tmux.conf.local` - 个人 tmux 设置
 
-4. **重启终端** 应用所有更改
-
-### 安全最佳实践
-
-- **模板文件** 用于需要个人信息的配置
-- **`.local` 文件** 包含在 `.gitignore` 中，防止意外提交
-- **个人配置** 应保存在 `~/.gitconfig_local`、`~/.zshrc.local`、`~/.tmux.conf.local`
-- **API 密钥和令牌** 永远不应提交到仓库
-
-## 自定义
-
-### 环境变量
-
-在 `~/.zshenv`（ZSH 推荐）中添加环境变量：
-
-```bash
-export PATH=/usr/local/sbin:$PATH
-export PATH=$HOME/.rbenv/shims:$PATH
-export PYTHONPATH=/usr/local/lib/python2.7/site-packages
-```
-
-### 本地配置
-
-在这些本地文件中设置个人配置：
-
-**Zsh:** `~/.zshrc.local`
-```bash
-# 额外的 zsh 插件
-zinit snippet OMZP::golang
-zinit snippet OMZP::python
-zinit snippet OMZP::ruby
-zinit light ptavares/zsh-direnv
-```
-
-**Git:** `~/.gitconfig.local`
-```bash
-[commit]
-    # 使用 GPG 签名提交
-    gpgsign = true
-
+### ~/.gitconfig.local 示例
+```ini
 [user]
-    name = 您的姓名
+    name = 你的名字
     email = your.email@example.com
-    signingkey = XXXXXXXX
+[commit]
+    gpgsign = true
+[user]
+    signingkey = YOUR_GPG_KEY
 ```
 
-**tmux:** `~/.tmux.conf.local`
+## 系统要求
+
+- Git
+- GNU Stow（如果没有会自动安装）
+- Zsh（可选，但推荐）
+
+## 支持的系统
+
+- **macOS**: 所有近期版本
+- **Linux**: Ubuntu、Debian、Arch、Fedora 及其衍生版本
+
+## 文件结构
+
+```
+~/.dotfiles/
+├── install.sh          # 主安装脚本
+├── uninstall.sh        # 卸载脚本
+├── Makefile            # Make 任务
+├── stow-packs/         # 配置包
+│   ├── git/           # Git 配置
+│   ├── zsh/           # Zsh 配置
+│   ├── vim/           # Vim 配置
+│   ├── nvim/          # Neovim 配置
+│   ├── tmux/          # Tmux 配置
+│   └── ...
+└── scripts/            # 辅助脚本
+```
+
+## 故障排除
+
+### 与现有文件冲突
+安装器会自动将冲突的文件备份到 `~/.dotfiles-backup-TIMESTAMP/`。
+
+### 从备份恢复
 ```bash
-# 个人 tmux 设置
-set -g mouse on
-set -g status-interval 5
+# 列出可用备份
+ls -la ~/.dotfiles-backup-*
+
+# 手动恢复
+cp ~/.dotfiles-backup-TIMESTAMP/.vimrc ~/.vimrc
 ```
 
-### 开发环境使用
-
-**Python 开发:**
+### 清理旧备份
 ```bash
-# 使用 pyenv 管理 Python 版本
-pyenv versions                    # 列出已安装版本
-pyenv install 3.11.0             # 安装特定版本
-pyenv local 3.11.0               # 为当前目录设置版本
-
-# 使用 direnv 管理项目特定环境
-echo 'layout python' > .envrc    # 创建 Python 环境
-direnv allow                      # 允许当前目录的 direnv
-
-# 使用 uv 快速包管理
-uv pip install package-name      # 快速安装包
+make clean  # 删除 30 天前的备份
 ```
-
-**Node.js 开发:**
-```bash
-# 使用 nvm 管理 Node.js 版本
-nvm list                          # 列出已安装版本
-nvm install 18.17.0              # 安装特定版本
-nvm use 18.17.0                  # 使用特定版本
-echo '18.17.0' > .nvmrc          # 为项目设置版本
-nvm use                          # 使用 .nvmrc 中的版本
-```
-
-**Docker 开发:**
-```bash
-# 启动开发环境
-docker-compose -f docker/docker-compose.ubuntu-dev.yml up -d
-
-# 访问环境
-docker-compose -f docker/docker-compose.ubuntu-dev.yml exec ubuntu-dev zsh
-
-# 停止环境
-docker-compose -f docker/docker-compose.ubuntu-dev.yml down
-```
-
-## 致谢
-
-本项目受到各种 dotfiles 仓库和社区的启发。
-特别感谢：
-- [GNU Stow](https://www.gnu.org/software/stow/) 提供符号链接管理
-- 开源社区提供的优秀工具和配置
-
-## 贡献
-
-欢迎贡献！请随时提交问题和拉取请求。
 
 ## 许可证
 
-本项目采用 MIT 许可证 - 详见 [LICENSE](LICENSE) 文件
+MIT 许可证 - 查看 [LICENSE](LICENSE) 文件获取详细信息。
