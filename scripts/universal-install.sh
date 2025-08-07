@@ -32,7 +32,17 @@ fi
 # Detect current shell
 detect_shell() {
     if [ -n "$BASH_VERSION" ]; then
-        echo "bash"
+        # Check if bash version supports associative arrays (4.0+)
+        if [[ "${BASH_VERSINFO[0]}" -ge 4 ]]; then
+            echo "bash"
+        else
+            # Use modern bash if available
+            if command -v bash >/dev/null 2>&1 && bash -c '[[ "${BASH_VERSINFO[0]}" -ge 4 ]]' 2>/dev/null; then
+                echo "bash4"
+            else
+                echo "bash"
+            fi
+        fi
     elif [ -n "$ZSH_VERSION" ]; then
         echo "zsh"
     else
@@ -107,9 +117,18 @@ main() {
     # Make sure it's executable
     chmod +x "$INTERACTIVE_SCRIPT"
     
-    # Execute the interactive installer
+    # Execute the interactive installer with appropriate shell
     log_info "Starting interactive installer..."
-    exec "$INTERACTIVE_SCRIPT" "$@"
+    
+    # Always try to use modern bash if available for associative array support
+    if command -v bash >/dev/null 2>&1 && bash -c '[[ "${BASH_VERSINFO[0]}" -ge 4 ]]' 2>/dev/null; then
+        exec bash "$INTERACTIVE_SCRIPT" "$@"
+    elif command -v zsh >/dev/null 2>&1; then
+        exec zsh "$INTERACTIVE_SCRIPT" "$@"
+    else
+        log_error "No suitable shell found. Please install bash 4+ or zsh."
+        exit 1
+    fi
 }
 
 # Run main function
