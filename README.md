@@ -18,6 +18,8 @@ NON_INTERACTIVE=true curl -fsSL https://raw.githubusercontent.com/nehcuh/dotfile
 
 **Note for macOS users:** The installer will automatically install Homebrew if not present, which requires administrator privileges. You may be prompted for your password during installation.
 
+**Brewfile Integration:** On macOS, the installer will automatically detect and offer to install packages from your `~/.Brewfile`. This includes CLI tools, applications, and fonts. You can skip this with `SKIP_BREWFILE=true`.
+
 ### Local installation
 ```bash
 # Clone and install in one line
@@ -82,6 +84,31 @@ DEV_ENV=true curl -fsSL https://raw.githubusercontent.com/nehcuh/dotfiles/main/r
 ```
 
 **📖 For detailed development environment documentation, see [DEVELOPMENT_ENVIRONMENTS.md](DEVELOPMENT_ENVIRONMENTS.md)**
+
+## Homebrew Package Management (macOS)
+
+On macOS, the dotfiles include a comprehensive `Brewfile` that installs essential tools and applications:
+
+### What's included in the Brewfile
+- **CLI Tools**: bat, eza, fzf, ripgrep, neovim, git-delta, etc.
+- **Development Tools**: go, rust, pyenv, nvm, maven, gradle, etc.
+- **Applications**: Zed editor, Obsidian, Raycast, Rectangle, etc.
+- **Fonts**: Fira Code, Hack Nerd Font, SF Mono, etc.
+
+### Brewfile Installation
+```bash
+# Automatic installation during dotfiles setup (with confirmation)
+./install.sh
+
+# Skip Brewfile during installation
+SKIP_BREWFILE=true ./install.sh
+
+# Install Brewfile manually later
+brew bundle --global
+
+# Non-interactive remote installation (includes Brewfile)
+NON_INTERACTIVE=true curl -fsSL https://raw.githubusercontent.com/nehcuh/dotfiles/main/remote-install.sh | bash
+```
 
 ## Usage
 

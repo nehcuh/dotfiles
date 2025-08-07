@@ -24,6 +24,7 @@ INSTALL_PACKAGES="${INSTALL_PACKAGES:-}"  # Empty means default packages
 NON_INTERACTIVE="${NON_INTERACTIVE:-false}"  # Set to true to skip confirmation prompts
 DEV_ENV="${DEV_ENV:-false}"  # Set to true to setup development environments
 DEV_ALL="${DEV_ALL:-false}"  # Set to true to setup all development environments
+SKIP_BREWFILE="${SKIP_BREWFILE:-false}"  # Set to true to skip Brewfile installation
 
 echo "========================================"
 echo "      Remote Dotfiles Installer        "
@@ -103,6 +104,10 @@ if [ "$DEV_ALL" = "true" ]; then
 elif [ "$DEV_ENV" = "true" ]; then
     install_cmd="$install_cmd --dev-env"
 fi
+
+# Set environment variables for the install script
+export NON_INTERACTIVE="$NON_INTERACTIVE"
+export SKIP_BREWFILE="$SKIP_BREWFILE"
 
 # Run installation
 log_info "Running installation command: $install_cmd"
