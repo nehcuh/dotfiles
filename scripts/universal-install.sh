@@ -85,6 +85,14 @@ main() {
     # Execute the interactive installer with appropriate shell
     log_info "Starting interactive installer..."
     
+    # Check if we're in an interactive environment
+    if ! [ -t 0 ]; then
+        log_error "This installer requires an interactive terminal."
+        log_warning "Please run this installer directly in your terminal."
+        log_info "Alternative: curl -fsSL https://raw.githubusercontent.com/nehcuh/dotfiles/main/install.sh | sh"
+        exit 1
+    fi
+    
     # Try to use the best available shell
     if command -v bash >/dev/null 2>&1; then
         exec bash "$INTERACTIVE_SCRIPT" "$@"
