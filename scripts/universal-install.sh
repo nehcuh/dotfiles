@@ -132,12 +132,98 @@ install_prerequisites() {
             # Install Homebrew if not exists
             if ! command_exists brew; then
                 print_color "$YELLOW" "Installing Homebrew..."
-                /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
                 
-                # Add Homebrew to PATH for Apple Silicon Macs
-                if [ -d "/opt/homebrew/bin" ]; then
-                    echo 'eval "$(/opt/homebrew/bin/brew shellenv)"' >> ~/.zprofile
-                    eval "$(/opt/homebrew/bin/brew shellenv)"
+                # Create a temporary directory for installation
+                local temp_dir
+                temp_dir=$(mktemp -d)
+                
+                # Download the installation script from GitHub
+                print_color "$YELLOW" "Downloading Homebrew installation script from GitHub..."
+                if command_exists curl; then
+                    if ! curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh -o "${temp_dir}/install.sh"; then
+                        print_color "$RED" "Failed to download Homebrew installation script from GitHub"
+                        rm -rf "${temp_dir}"
+                        return 1
+                    fi
+                else
+                    if ! wget -q https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh -O "${temp_dir}/install.sh"; then
+                        print_color "$RED" "Failed to download Homebrew installation script from GitHub"
+                        rm -rf "${temp_dir}"
+                        return 1
+                    fi
+                fi
+                
+                # Run the installation script
+                if ! /bin/bash "${temp_dir}/install.sh"; then
+                    print_color "$RED" "Failed to install Homebrew"
+                    rm -rf "${temp_dir}"
+                    return 1
+                fi
+                
+                # Clean up
+                rm -rf "${temp_dir}"
+                
+                # Add Homebrew to PATH based on architecture
+                if [ "$(uname -m)" = "arm64" ]; then
+                    # For Apple Silicon Macs
+                    if [ -d "/opt/homebrew/bin" ]; then
+                        print_color "$YELLOW" "Adding Homebrew to PATH for Apple Silicon Mac..."
+                        if [ "$SHELL_TYPE" = "zsh" ]; then
+                            echo 'eval "$(/opt/homebrew/bin/brew shellenv)"' >> ~/.zprofile
+                            echo 'eval "$(/opt/homebrew/bin/brew shellenv)"' >> ~/.zshrc
+                            # Apply immediately
+                            export PATH="/opt/homebrew/bin:$PATH"
+                            export HOMEBREW_REPOSITORY="/opt/homebrew"
+                            export HOMEBREW_CELLAR="/opt/homebrew/Cellar"
+                            export HOMEBREW_PREFIX="/opt/homebrew"
+                            # Also try to run the shellenv command if possible
+                            if [ -x "/opt/homebrew/bin/brew" ]; then
+                                eval "$(/opt/homebrew/bin/brew shellenv)" || true
+                            fi
+                        elif [ "$SHELL_TYPE" = "bash" ]; then
+                            echo 'eval "$(/opt/homebrew/bin/brew shellenv)"' >> ~/.bash_profile
+                            echo 'eval "$(/opt/homebrew/bin/brew shellenv)"' >> ~/.bashrc
+                            # Apply immediately
+                            export PATH="/opt/homebrew/bin:$PATH"
+                            export HOMEBREW_REPOSITORY="/opt/homebrew"
+                            export HOMEBREW_CELLAR="/opt/homebrew/Cellar"
+                            export HOMEBREW_PREFIX="/opt/homebrew"
+                            # Also try to run the shellenv command if possible
+                            if [ -x "/opt/homebrew/bin/brew" ]; then
+                                eval "$(/opt/homebrew/bin/brew shellenv)" || true
+                            fi
+                        fi
+                    fi
+                else
+                    # For Intel Macs
+                    if [ -d "/usr/local/bin" ]; then
+                        print_color "$YELLOW" "Adding Homebrew to PATH for Intel Mac..."
+                        if [ "$SHELL_TYPE" = "zsh" ]; then
+                            echo 'eval "$(/usr/local/bin/brew shellenv)"' >> ~/.zprofile
+                            echo 'eval "$(/usr/local/bin/brew shellenv)"' >> ~/.zshrc
+                            # Apply immediately
+                            export PATH="/usr/local/bin:$PATH"
+                            export HOMEBREW_REPOSITORY="/usr/local/Homebrew"
+                            export HOMEBREW_CELLAR="/usr/local/Cellar"
+                            export HOMEBREW_PREFIX="/usr/local"
+                            # Also try to run the shellenv command if possible
+                            if [ -x "/usr/local/bin/brew" ]; then
+                                eval "$(/usr/local/bin/brew shellenv)" || true
+                            fi
+                        elif [ "$SHELL_TYPE" = "bash" ]; then
+                            echo 'eval "$(/usr/local/bin/brew shellenv)"' >> ~/.bash_profile
+                            echo 'eval "$(/usr/local/bin/brew shellenv)"' >> ~/.bashrc
+                            # Apply immediately
+                            export PATH="/usr/local/bin:$PATH"
+                            export HOMEBREW_REPOSITORY="/usr/local/Homebrew"
+                            export HOMEBREW_CELLAR="/usr/local/Cellar"
+                            export HOMEBREW_PREFIX="/usr/local"
+                            # Also try to run the shellenv command if possible
+                            if [ -x "/usr/local/bin/brew" ]; then
+                                eval "$(/usr/local/bin/brew shellenv)" || true
+                            fi
+                        fi
+                    fi
                 fi
             fi
 
