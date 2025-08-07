@@ -1,0 +1,20 @@
+# Shell History Configuration
+# This file contains settings for shell history management
+
+# Common history settings that can be safely committed
+export HISTSIZE=10000
+export HISTFILESIZE=20000
+export HISTCONTROL=ignoredups:erasedups
+export HISTIGNORE="ls:cd:cd ..:clear:pwd:exit:date:* --help"
+export HISTTIMEFORMAT="%Y-%m-%d %H:%M:%S "
+
+# History file locations (these files will be created automatically)
+export HISTFILE="$HOME/.zsh_history"
+export BASH_HISTFILE="$HOME/.bash_history"
+
+# Enable history sharing between sessions
+setopt share_history 2>/dev/null || true
+shopt -s histappend 2>/dev/null || true
+
+# Save history immediately
+export PROMPT_COMMAND="history -a; history -c; history -r; $PROMPT_COMMAND" 2>/dev/null || true
