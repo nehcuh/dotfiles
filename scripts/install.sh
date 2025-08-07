@@ -51,14 +51,7 @@ install_prerequisites() {
 
       # Install Homebrew if not exists
       if ! command_exists brew; then
-        log_warning "Installing Homebrew..."
-        /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
-        
-        # Add Homebrew to PATH for Apple Silicon Macs
-        if [ -d "/opt/homebrew/bin" ]; then
-          echo 'eval "$(/opt/homebrew/bin/brew shellenv)"' >> ~/.zprofile
-          eval "$(/opt/homebrew/bin/brew shellenv)"
-        fi
+        install_homebrew
       fi
 
       # Install GNU Stow
@@ -67,25 +60,26 @@ install_prerequisites() {
       fi
       ;;
     linux)
+      # Install basic dependencies first
       case "$DISTRO" in
         ubuntu|debian|linuxmint)
           if ! safe_sudo apt update; then
             log_error "Failed to update package lists"
             return 1
           fi
-          if ! safe_sudo apt install -y git stow curl build-essential; then
+          if ! safe_sudo apt install -y git curl build-essential; then
             log_error "Failed to install required packages"
             return 1
           fi
           ;;
         arch|manjaro)
-          if ! safe_sudo pacman -Syu --noconfirm git stow curl base-devel; then
+          if ! safe_sudo pacman -Syu --noconfirm git curl base-devel; then
             log_error "Failed to install required packages"
             return 1
           fi
           ;;
         fedora|centos|rhel)
-          if ! safe_sudo dnf install -y git stow curl @development-tools; then
+          if ! safe_sudo dnf install -y git curl @development-tools; then
             log_error "Failed to install required packages"
             return 1
           fi
@@ -96,23 +90,50 @@ install_prerequisites() {
               log_error "Failed to update package lists"
               return 1
             fi
-            if ! safe_sudo apt install -y git stow curl build-essential; then
+            if ! safe_sudo apt install -y git curl build-essential; then
               log_error "Failed to install required packages"
               return 1
             fi
           elif command_exists pacman; then
-            if ! safe_sudo pacman -Syu --noconfirm git stow curl base-devel; then
+            if ! safe_sudo pacman -Syu --noconfirm git curl base-devel; then
               log_error "Failed to install required packages"
               return 1
             fi
           elif command_exists dnf; then
-            if ! safe_sudo dnf install -y git stow curl @development-tools; then
+            if ! safe_sudo dnf install -y git curl @development-tools; then
               log_error "Failed to install required packages"
               return 1
             fi
           else
-            log_error "Please install git, stow, curl, and build tools manually"
+            log_error "Please install git, curl, and build tools manually"
             return 1
+          fi
+          ;;
+      esac
+      
+      # Ask if user wants to install Homebrew
+      printf "Do you want to install Homebrew? (recommended) [Y/n]: "
+      read -r install_brew_response
+      case "$install_brew_response" in
+        [nN][oO]|[nN])
+          log_info "Skipping Homebrew installation"
+          
+          # Install stow using native package manager
+          if ! command_exists stow; then
+            log_info "Installing GNU Stow using native package manager..."
+            install_package stow
+          fi
+          ;;
+        *)
+          # Install Homebrew
+          if ! command_exists brew; then
+            install_homebrew
+          fi
+          
+          # Install GNU Stow using Homebrew
+          if ! command_exists stow; then
+            log_info "Installing GNU Stow using Homebrew..."
+            brew install stow
           fi
           ;;
       esac
@@ -123,14 +144,49 @@ install_prerequisites() {
           log_error "Failed to update package lists in WSL"
           return 1
         fi
-        if ! safe_sudo apt install -y git stow curl; then
+        if ! safe_sudo apt install -y git curl; then
           log_error "Failed to install packages in WSL"
           return 1
         fi
+        
+        # Ask if user wants to install Homebrew in WSL
+        printf "Do you want to install Homebrew in WSL? (recommended) [Y/n]: "
+        read -r install_brew_wsl_response
+        case "$install_brew_wsl_response" in
+          [nN][oO]|[nN])
+            log_info "Skipping Homebrew installation in WSL"
+            
+            # Install stow using apt
+            if ! command_exists stow; then
+              log_info "Installing GNU Stow using apt..."
+              safe_sudo apt install -y stow
+            fi
+            ;;
+          *)
+            # Install Homebrew in WSL
+            if ! command_exists brew; then
+              install_homebrew
+            fi
+            
+            # Install GNU Stow using Homebrew
+            if ! command_exists stow; then
+              log_info "Installing GNU Stow using Homebrew..."
+              brew install stow
+            fi
+            ;;
+        esac
       elif command_exists pacman; then
-        if ! pacman -Syu --noconfirm git stow curl; then
+        if ! pacman -Syu --noconfirm git curl; then
           log_error "Failed to install packages in MSYS2"
           return 1
+        fi
+        
+        # Install stow in MSYS2
+        if ! command_exists stow; then
+          if ! pacman -Syu --noconfirm stow; then
+            log_error "Failed to install stow in MSYS2"
+            return 1
+          fi
         fi
       else
         # Native Windows - try to use PowerShell to install Scoop
