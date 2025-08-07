@@ -672,16 +672,25 @@ install_linux_editors_universal() {
             ubuntu|debian|linuxmint)
                 if command_exists apt; then
                     # Add Microsoft's GPG key and repository
-                    if ! curl -fsSL https://packages.microsoft.com/keys/microsoft.asc | gpg --dearmor | safe_sudo tee /etc/apt/trusted.gpg.d/microsoft.gpg >/dev/null; then
+                    print_color "$YELLOW" "Adding Microsoft GPG key for VS Code..."
+                    curl -fsSL https://packages.microsoft.com/keys/microsoft.asc | gpg --dearmor > /tmp/microsoft.gpg
+                    if ! safe_sudo cp /tmp/microsoft.gpg /etc/apt/trusted.gpg.d/microsoft.gpg; then
                         print_color "$RED" "Failed to add Microsoft GPG key"
                         print_color "$YELLOW" "You can install VS Code manually from: https://code.visualstudio.com"
+                        rm -f /tmp/microsoft.gpg
                         return 1
                     fi
-                    if ! echo "deb [arch=amd64,arm64,armhf signed-by=/etc/apt/trusted.gpg.d/microsoft.gpg] https://packages.microsoft.com/repos/code stable main" | safe_sudo tee /etc/apt/sources.list.d/vscode.list >/dev/null; then
+                    rm -f /tmp/microsoft.gpg
+                    
+                    print_color "$YELLOW" "Adding VS Code repository..."
+                    echo "deb [arch=amd64,arm64,armhf signed-by=/etc/apt/trusted.gpg.d/microsoft.gpg] https://packages.microsoft.com/repos/code stable main" > /tmp/vscode.list
+                    if ! safe_sudo cp /tmp/vscode.list /etc/apt/sources.list.d/vscode.list; then
                         print_color "$RED" "Failed to add VS Code repository"
                         print_color "$YELLOW" "You can install VS Code manually from: https://code.visualstudio.com"
+                        rm -f /tmp/vscode.list
                         return 1
                     fi
+                    rm -f /tmp/vscode.list
                     
                     if safe_sudo apt update && safe_sudo apt install -y code; then
                         print_color "$GREEN" "✓ Visual Studio Code installed"
@@ -716,16 +725,22 @@ install_linux_editors_universal() {
                 ;;
             fedora|centos|rhel)
                 if command_exists dnf; then
+                    print_color "$YELLOW" "Importing Microsoft GPG key for VS Code..."
                     if ! safe_sudo rpm --import https://packages.microsoft.com/keys/microsoft.asc; then
                         print_color "$RED" "Failed to import Microsoft GPG key"
                         print_color "$YELLOW" "You can install VS Code manually from: https://code.visualstudio.com"
                         return 1
                     fi
-                    if ! echo -e "[code]\nname=Visual Studio Code\nbaseurl=https://packages.microsoft.com/yumrepos/vscode\nenabled=1\ngpgcheck=1\ngpgkey=https://packages.microsoft.com/keys/microsoft.asc" | safe_sudo tee /etc/yum.repos.d/vscode.repo >/dev/null; then
+                    
+                    print_color "$YELLOW" "Adding VS Code repository..."
+                    echo -e "[code]\nname=Visual Studio Code\nbaseurl=https://packages.microsoft.com/yumrepos/vscode\nenabled=1\ngpgcheck=1\ngpgkey=https://packages.microsoft.com/keys/microsoft.asc" > /tmp/vscode.repo
+                    if ! safe_sudo cp /tmp/vscode.repo /etc/yum.repos.d/vscode.repo; then
                         print_color "$RED" "Failed to add VS Code repository"
                         print_color "$YELLOW" "You can install VS Code manually from: https://code.visualstudio.com"
+                        rm -f /tmp/vscode.repo
                         return 1
                     fi
+                    rm -f /tmp/vscode.repo
                     
                     if safe_sudo dnf install -y code; then
                         print_color "$GREEN" "✓ Visual Studio Code installed"
