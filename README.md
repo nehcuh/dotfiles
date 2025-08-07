@@ -85,6 +85,47 @@ DEV_ENV=true curl -fsSL https://raw.githubusercontent.com/nehcuh/dotfiles/main/r
 
 **📖 For detailed development environment documentation, see [DEVELOPMENT_ENVIRONMENTS.md](DEVELOPMENT_ENVIRONMENTS.md)**
 
+## Environment Variables
+
+The installer supports several environment variables for automation and customization:
+
+### Remote Installation Variables
+```bash
+# Skip all confirmation prompts (auto-install everything)
+NON_INTERACTIVE=true curl -fsSL https://raw.githubusercontent.com/nehcuh/dotfiles/main/remote-install.sh | bash
+
+# Skip Brewfile installation
+SKIP_BREWFILE=true curl -fsSL https://raw.githubusercontent.com/nehcuh/dotfiles/main/remote-install.sh | bash
+
+# Install specific packages only
+INSTALL_PACKAGES="git vim zsh" curl -fsSL https://raw.githubusercontent.com/nehcuh/dotfiles/main/remote-install.sh | bash
+
+# Setup development environments
+DEV_ENV=true curl -fsSL https://raw.githubusercontent.com/nehcuh/dotfiles/main/remote-install.sh | bash
+DEV_ALL=true curl -fsSL https://raw.githubusercontent.com/nehcuh/dotfiles/main/remote-install.sh | bash
+
+# Combine multiple options
+NON_INTERACTIVE=true DEV_ALL=true curl -fsSL https://raw.githubusercontent.com/nehcuh/dotfiles/main/remote-install.sh | bash
+```
+
+### Local Installation Variables
+```bash
+# Skip Brewfile installation locally
+SKIP_BREWFILE=true ./install.sh
+
+# Non-interactive local installation
+NON_INTERACTIVE=true ./install.sh
+```
+
+### Available Variables
+- **`NON_INTERACTIVE`**: Set to `true` to skip all confirmation prompts
+- **`SKIP_BREWFILE`**: Set to `true` to skip Homebrew package installation
+- **`INSTALL_PACKAGES`**: Specify packages to install (space-separated)
+- **`DEV_ENV`**: Set to `true` to setup development environments (interactive)
+- **`DEV_ALL`**: Set to `true` to install all development environments
+- **`DOTFILES_REPO`**: Custom repository URL (default: `https://github.com/nehcuh/dotfiles.git`)
+- **`DOTFILES_DIR`**: Custom installation directory (default: `~/.dotfiles`)
+
 ## Homebrew Package Management (macOS)
 
 On macOS, the dotfiles include a comprehensive `Brewfile` that installs essential tools and applications:
