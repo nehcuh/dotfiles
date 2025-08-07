@@ -366,17 +366,90 @@ install_homebrew() {
     return 1
   fi
   
-  # Install Homebrew using the official script
-  if command_exists curl; then
-    /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
-  else
-    /bin/bash -c "$(wget -qO- https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
+  # Check for git
+  if ! command_exists git; then
+    log_error "Git is required to install Homebrew"
+    return 1
   fi
   
-  # Check if Homebrew was installed successfully
-  if [ $? -ne 0 ]; then
-    log_error "Failed to install Homebrew"
-    return 1
+  # Ask user if they want to use Tsinghua mirror (for users in China)
+  log_info "Do you want to use Tsinghua mirror for faster installation in China? (y/n)"
+  read -r use_tsinghua_mirror
+  
+  if [ "${use_tsinghua_mirror}" = "y" ] || [ "${use_tsinghua_mirror}" = "Y" ]; then
+    log_info "Using Tsinghua mirror for Homebrew installation..."
+    
+    # Set environment variables for Tsinghua mirror
+    export HOMEBREW_BREW_GIT_REMOTE="https://mirrors.tuna.tsinghua.edu.cn/git/homebrew/brew.git"
+    export HOMEBREW_CORE_GIT_REMOTE="https://mirrors.tuna.tsinghua.edu.cn/git/homebrew/homebrew-core.git"
+    export HOMEBREW_INSTALL_FROM_API=1
+    
+    # Create a temporary directory for installation
+    local temp_dir
+    temp_dir=$(mktemp -d)
+    
+    # Clone the installation repository from Tsinghua mirror
+    if ! git clone --depth=1 https://mirrors.tuna.tsinghua.edu.cn/git/homebrew/install.git "${temp_dir}/brew-install"; then
+      log_error "Failed to clone Homebrew installation repository from Tsinghua mirror"
+      rm -rf "${temp_dir}"
+      return 1
+    fi
+    
+    # Run the installation script
+    if ! /bin/bash "${temp_dir}/brew-install/install.sh"; then
+      log_error "Failed to install Homebrew using Tsinghua mirror"
+      rm -rf "${temp_dir}"
+      return 1
+    fi
+    
+    # Clean up
+    rm -rf "${temp_dir}"
+    
+    # Add Tsinghua mirror configuration to shell configuration files
+    if [ "$SHELL_TYPE" = "zsh" ]; then
+      if ! grep -q "HOMEBREW_BREW_GIT_REMOTE" "$HOME/.zshrc"; then
+        {
+          echo '# Homebrew Tsinghua mirror configuration'
+          echo 'export HOMEBREW_BREW_GIT_REMOTE="https://mirrors.tuna.tsinghua.edu.cn/git/homebrew/brew.git"'
+          echo 'export HOMEBREW_CORE_GIT_REMOTE="https://mirrors.tuna.tsinghua.edu.cn/git/homebrew/homebrew-core.git"'
+          echo 'export HOMEBREW_INSTALL_FROM_API=1'
+          echo 'export HOMEBREW_API_DOMAIN="https://mirrors.tuna.tsinghua.edu.cn/homebrew-bottles/api"'
+          echo 'export HOMEBREW_BOTTLE_DOMAIN="https://mirrors.tuna.tsinghua.edu.cn/homebrew-bottles"'
+          echo 'export HOMEBREW_PIP_INDEX_URL="https://pypi.tuna.tsinghua.edu.cn/simple"'
+        } >> "$HOME/.zshrc"
+      fi
+    elif [ "$SHELL_TYPE" = "bash" ]; then
+      if ! grep -q "HOMEBREW_BREW_GIT_REMOTE" "$HOME/.bashrc"; then
+        {
+          echo '# Homebrew Tsinghua mirror configuration'
+          echo 'export HOMEBREW_BREW_GIT_REMOTE="https://mirrors.tuna.tsinghua.edu.cn/git/homebrew/brew.git"'
+          echo 'export HOMEBREW_CORE_GIT_REMOTE="https://mirrors.tuna.tsinghua.edu.cn/git/homebrew/homebrew-core.git"'
+          echo 'export HOMEBREW_INSTALL_FROM_API=1'
+          echo 'export HOMEBREW_API_DOMAIN="https://mirrors.tuna.tsinghua.edu.cn/homebrew-bottles/api"'
+          echo 'export HOMEBREW_BOTTLE_DOMAIN="https://mirrors.tuna.tsinghua.edu.cn/homebrew-bottles"'
+          echo 'export HOMEBREW_PIP_INDEX_URL="https://pypi.tuna.tsinghua.edu.cn/simple"'
+        } >> "$HOME/.bashrc"
+      fi
+    fi
+    
+    log_success "Homebrew installed successfully using Tsinghua mirror"
+    log_info "Tsinghua mirror configuration has been added to your shell configuration file"
+    log_info "Please restart your shell or source your configuration file to apply the changes"
+  else
+    log_info "Using official Homebrew installation method..."
+    
+    # Install Homebrew using the official script
+    if command_exists curl; then
+      /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
+    else
+      /bin/bash -c "$(wget -qO- https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
+    fi
+    
+    # Check if Homebrew was installed successfully
+    if [ $? -ne 0 ]; then
+      log_error "Failed to install Homebrew"
+      return 1
+    fi
   fi
   
   # Add Homebrew to PATH based on platform and architecture
