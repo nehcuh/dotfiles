@@ -329,7 +329,7 @@ docker-compose -f docker/docker-compose.ubuntu-dev.yml down
 - 包含 Apple Silicon Mac 支持
 - **macOS 优化包**: 全面的系统优化脚本，包括：
   - 键盘优化（加快重复速度、禁用长按选择）
-  - 鼠标/触控板优化（右键配置、辅助功能）
+  - 鼠标/触控板优化（右键配置、辅助功能、轻点点击）
   - Finder 优化（显示文件扩展名、路径栏、状态栏）
   - Dock 优化（自动隐藏、图标大小、最小化效果）
   - Safari 优化（显示完整 URL、禁用搜索建议）

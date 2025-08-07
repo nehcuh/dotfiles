@@ -263,7 +263,7 @@ make update           # Update repository
 - Apple Silicon Mac support included
 - **macOS Optimization Package**: Comprehensive system optimization scripts including:
   - Keyboard optimization (faster repeat rate, disable press-and-hold)
-  - Mouse/Trackpad optimization (right-click configuration, assistive features)
+  - Mouse/Trackpad optimization (right-click configuration, assistive features, tap-to-click)
   - Finder optimization (show file extensions, path bar, status bar)
   - Dock optimization (auto-hide, icon size, minimize effects)
   - Safari optimization (full URL, disable search suggestions)
