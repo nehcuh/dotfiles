@@ -724,16 +724,56 @@ install_linux_homebrew_universal() {
         return 1
     fi
     
-    # Add Homebrew to PATH
-    echo 'eval "$(/home/linuxbrew/.linuxbrew/bin/brew shellenv)"' >> ~/.zprofile
-    eval "$(/home/linuxbrew/.linuxbrew/bin/brew shellenv)"
+    # Add Homebrew to PATH and apply immediately
+    if [ -d "/home/linuxbrew/.linuxbrew/bin" ]; then
+        # Add to shell config files
+        if [ "$SHELL_TYPE" = "zsh" ]; then
+            echo 'eval "$(/home/linuxbrew/.linuxbrew/bin/brew shellenv)"' >> ~/.zprofile
+            echo 'eval "$(/home/linuxbrew/.linuxbrew/bin/brew shellenv)"' >> ~/.zshrc
+        elif [ "$SHELL_TYPE" = "bash" ]; then
+            echo 'eval "$(/home/linuxbrew/.linuxbrew/bin/brew shellenv)"' >> ~/.bash_profile
+            echo 'eval "$(/home/linuxbrew/.linuxbrew/bin/brew shellenv)"' >> ~/.bashrc
+        else
+            echo 'eval "$(/home/linuxbrew/.linuxbrew/bin/brew shellenv)"' >> ~/.profile
+        fi
+        
+        # Apply immediately to current shell
+        export PATH="/home/linuxbrew/.linuxbrew/bin:$PATH"
+        export HOMEBREW_REPOSITORY="/home/linuxbrew/.linuxbrew/Homebrew"
+        export HOMEBREW_CELLAR="/home/linuxbrew/.linuxbrew/Cellar"
+        export HOMEBREW_PREFIX="/home/linuxbrew/.linuxbrew"
+        
+        # Also try to run the shellenv command if possible
+        if [ -x "/home/linuxbrew/.linuxbrew/bin/brew" ]; then
+            eval "$(/home/linuxbrew/.linuxbrew/bin/brew shellenv)" || true
+        fi
+    fi
     
     # Configure Tsinghua mirror for existing Homebrew installation
-    brew git -C "$(brew --repo)" remote set-url origin https://mirrors.tuna.tsinghua.edu.cn/git/homebrew/brew.git
-    brew git -C "$(brew --repo homebrew/core)" remote set-url origin https://mirrors.tuna.tsinghua.edu.cn/git/homebrew/homebrew-core.git
+    # First check if brew command is available
+    if command_exists brew; then
+        # Try to configure Tsinghua mirror, but don't fail if it doesn't work
+        brew git -C "$(brew --repo)" remote set-url origin https://mirrors.tuna.tsinghua.edu.cn/git/homebrew/brew.git 2>/dev/null || true
+        
+        # Only try to configure homebrew/core if it exists
+        if [ -d "$(brew --repo homebrew/core 2>/dev/null)" ]; then
+            brew git -C "$(brew --repo homebrew/core)" remote set-url origin https://mirrors.tuna.tsinghua.edu.cn/git/homebrew/homebrew-core.git 2>/dev/null || true
+        fi
+    fi
     
-    # Configure bottle domain
-    echo 'export HOMEBREW_BOTTLE_DOMAIN="https://mirrors.tuna.tsinghua.edu.cn/homebrew-bottles"' >> ~/.zprofile
+    # Configure bottle domain in all relevant shell config files
+    if [ "$SHELL_TYPE" = "zsh" ]; then
+        echo 'export HOMEBREW_BOTTLE_DOMAIN="https://mirrors.tuna.tsinghua.edu.cn/homebrew-bottles"' >> ~/.zprofile
+        echo 'export HOMEBREW_BOTTLE_DOMAIN="https://mirrors.tuna.tsinghua.edu.cn/homebrew-bottles"' >> ~/.zshrc
+    elif [ "$SHELL_TYPE" = "bash" ]; then
+        echo 'export HOMEBREW_BOTTLE_DOMAIN="https://mirrors.tuna.tsinghua.edu.cn/homebrew-bottles"' >> ~/.bash_profile
+        echo 'export HOMEBREW_BOTTLE_DOMAIN="https://mirrors.tuna.tsinghua.edu.cn/homebrew-bottles"' >> ~/.bashrc
+    else
+        echo 'export HOMEBREW_BOTTLE_DOMAIN="https://mirrors.tuna.tsinghua.edu.cn/homebrew-bottles"' >> ~/.profile
+    fi
+    
+    # Apply immediately to current shell
+    export HOMEBREW_BOTTLE_DOMAIN="https://mirrors.tuna.tsinghua.edu.cn/homebrew-bottles"
     
     print_color "$GREEN" "✓ Linux Homebrew installed with Tsinghua mirror"
     return 0
