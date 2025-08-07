@@ -466,18 +466,35 @@ install_homebrew() {
   else
     log_info "Using official Homebrew installation method..."
     
-    # Install Homebrew using the official script
+    # Create a temporary directory for installation
+    local temp_dir
+    temp_dir=$(mktemp -d)
+    
+    # Download the installation script from GitHub
+    log_info "Downloading Homebrew installation script from GitHub..."
     if command_exists curl; then
-      /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
+      if ! curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh -o "${temp_dir}/install.sh"; then
+        log_error "Failed to download Homebrew installation script from GitHub"
+        rm -rf "${temp_dir}"
+        return 1
+      fi
     else
-      /bin/bash -c "$(wget -qO- https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
+      if ! wget -q https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh -O "${temp_dir}/install.sh"; then
+        log_error "Failed to download Homebrew installation script from GitHub"
+        rm -rf "${temp_dir}"
+        return 1
+      fi
     fi
     
-    # Check if Homebrew was installed successfully
-    if [ $? -ne 0 ]; then
+    # Run the installation script
+    if ! /bin/bash "${temp_dir}/install.sh"; then
       log_error "Failed to install Homebrew"
+      rm -rf "${temp_dir}"
       return 1
     fi
+    
+    # Clean up
+    rm -rf "${temp_dir}"
   fi
   
   # Add Homebrew to PATH based on platform and architecture
