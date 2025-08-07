@@ -718,8 +718,8 @@ install_linux_homebrew_universal() {
     export HOMEBREW_CORE_GIT_REMOTE="https://mirrors.tuna.tsinghua.edu.cn/git/homebrew/homebrew-core.git"
     export HOMEBREW_BOTTLE_DOMAIN="https://mirrors.tuna.tsinghua.edu.cn/homebrew-bottles"
     
-    # Install Homebrew
-    if ! /bin/bash -c "$(curl -fsSL https://mirrors.tuna.tsinghua.edu.cn/git/homebrew/install.git/raw/master/install.sh)"; then
+    # Install Homebrew using the official script
+    if ! /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"; then
         print_color "$RED" "Failed to install Homebrew with Tsinghua mirror"
         return 1
     fi
