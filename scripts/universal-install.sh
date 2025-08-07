@@ -4,52 +4,6 @@
 
 set -e
 
-# Get script directory - handle piped execution
-if [ -n "$0" ] && [ "$0" != "sh" ] && [ "$0" != "-sh" ]; then
-    SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
-    DOTFILES_DIR="$(dirname "$SCRIPT_DIR")"
-else
-    # Script is being piped, use current directory and assume we're in a temp location
-    SCRIPT_DIR="$(pwd)"
-    # Create a temporary script file
-    TEMP_SCRIPT="/tmp/universal-install.sh"
-    if [ ! -f "$TEMP_SCRIPT" ]; then
-        # Download the script to temp location
-        if command -v curl >/dev/null 2>&1; then
-            curl -fsSL "https://raw.githubusercontent.com/nehcuh/dotfiles/main/scripts/universal-install.sh" -o "$TEMP_SCRIPT"
-        elif command -v wget >/dev/null 2>&1; then
-            wget -q "https://raw.githubusercontent.com/nehcuh/dotfiles/main/scripts/universal-install.sh" -O "$TEMP_SCRIPT"
-        else
-            echo "Error: Cannot download script - no curl or wget available"
-            exit 1
-        fi
-        chmod +x "$TEMP_SCRIPT"
-    fi
-    # Re-execute the downloaded script
-    exec "$TEMP_SCRIPT" "$@"
-fi
-
-# Detect current shell
-detect_shell() {
-    if [ -n "$BASH_VERSION" ]; then
-        # Check if bash version supports associative arrays (4.0+)
-        if [[ "${BASH_VERSINFO[0]}" -ge 4 ]]; then
-            echo "bash"
-        else
-            # Use modern bash if available
-            if command -v bash >/dev/null 2>&1 && bash -c '[[ "${BASH_VERSINFO[0]}" -ge 4 ]]' 2>/dev/null; then
-                echo "bash4"
-            else
-                echo "bash"
-            fi
-        fi
-    elif [ -n "$ZSH_VERSION" ]; then
-        echo "zsh"
-    else
-        ps -p $$ -o comm= 2>/dev/null | tail -1 | grep -E "(bash|zsh)" || echo "sh"
-    fi
-}
-
 # Colors (compatible with all shells)
 if [ -t 1 ]; then
     RED='\033[0;31m'
@@ -90,28 +44,39 @@ main() {
     echo "=========================="
     echo ""
     
-    CURRENT_SHELL=$(detect_shell)
-    echo "Using shell: $CURRENT_SHELL"
-    
     # Set up dotfiles directory
-    if [ "$SCRIPT_DIR" = "/tmp" ]; then
-        # We're running from temp location, set up in user's home
-        DOTFILES_DIR="$HOME/.dotfiles"
-        mkdir -p "$DOTFILES_DIR/scripts"
-    fi
+    DOTFILES_DIR="$HOME/.dotfiles"
+    mkdir -p "$DOTFILES_DIR/scripts"
     
     # Download interactive install script
     INTERACTIVE_SCRIPT="$DOTFILES_DIR/scripts/interactive-install.sh"
     if [ ! -f "$INTERACTIVE_SCRIPT" ]; then
         log_info "Downloading interactive install script..."
+        
+        # Try different methods to download
         if command -v curl >/dev/null 2>&1; then
-            curl -fsSL "https://raw.githubusercontent.com/nehcuh/dotfiles/main/scripts/interactive-install.sh" -o "$INTERACTIVE_SCRIPT"
+            # Try with different curl options
+            if curl -fsSL "https://raw.githubusercontent.com/nehcuh/dotfiles/main/scripts/interactive-install.sh" -o "$INTERACTIVE_SCRIPT" 2>/dev/null; then
+                log_success "Download completed"
+            elif curl -L "https://raw.githubusercontent.com/nehcuh/dotfiles/main/scripts/interactive-install.sh" -o "$INTERACTIVE_SCRIPT" 2>/dev/null; then
+                log_success "Download completed (fallback method)"
+            else
+                log_error "Failed to download script with curl"
+                exit 1
+            fi
         elif command -v wget >/dev/null 2>&1; then
-            wget -q "https://raw.githubusercontent.com/nehcuh/dotfiles/main/scripts/interactive-install.sh" -O "$INTERACTIVE_SCRIPT"
+            if wget -q "https://raw.githubusercontent.com/nehcuh/dotfiles/main/scripts/interactive-install.sh" -O "$INTERACTIVE_SCRIPT"; then
+                log_success "Download completed"
+            else
+                log_error "Failed to download script with wget"
+                exit 1
+            fi
         else
-            log_error "Cannot download interactive install script - no curl or wget available"
+            log_error "Cannot download script - no curl or wget available"
             exit 1
         fi
+    else
+        log_info "Using existing interactive install script"
     fi
     
     # Make sure it's executable
@@ -120,14 +85,14 @@ main() {
     # Execute the interactive installer with appropriate shell
     log_info "Starting interactive installer..."
     
-    # Always try to use modern bash if available for associative array support
-    if command -v bash >/dev/null 2>&1 && bash -c '[[ "${BASH_VERSINFO[0]}" -ge 4 ]]' 2>/dev/null; then
+    # Try to use the best available shell
+    if command -v bash >/dev/null 2>&1; then
         exec bash "$INTERACTIVE_SCRIPT" "$@"
     elif command -v zsh >/dev/null 2>&1; then
         exec zsh "$INTERACTIVE_SCRIPT" "$@"
     else
-        log_error "No suitable shell found. Please install bash 4+ or zsh."
-        exit 1
+        # Fallback to sh
+        exec sh "$INTERACTIVE_SCRIPT" "$@"
     fi
 }
 
