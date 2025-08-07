@@ -52,7 +52,7 @@ smart_shell_detection() {
     # If we're not running with the optimal shell, re-exec
     if [ "$CURRENT_SHELL" != "sh" ] && [ "$(basename "$0")" = "sh" ]; then
         echo "Re-executing with $CURRENT_SHELL for better compatibility..."
-        exec "$SHELL_PATH" "$DOTFILES_DIR/scripts/interactive-install.sh" "$@"
+        exec "$SHELL_PATH" "$DOTFILES_DIR/scripts/smart-universal-install.sh" "$@"
     fi
 }
 
