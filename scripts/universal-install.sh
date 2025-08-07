@@ -4,6 +4,9 @@
 
 set -e
 
+# Global variables
+PACKAGES_UPDATED=false
+
 # Detect current shell
 detect_shell() {
     # Get the actual shell being used (not just $SHELL variable)
@@ -233,19 +236,20 @@ install_prerequisites() {
             fi
             ;;
         linux)
+            if ! update_package_lists; then
+                return 1
+            fi
+            
             case "$DISTRO" in
                 ubuntu|debian|linuxmint)
-                    if ! safe_sudo apt update; then
-                        print_color "$RED" "Failed to update package lists"
-                        return 1
-                    fi
                     if ! safe_sudo apt install -y git stow curl build-essential; then
                         print_color "$RED" "Failed to install required packages"
                         return 1
                     fi
                     ;;
                 arch|manjaro)
-                    if ! safe_sudo pacman -Syu --noconfirm git stow curl base-devel; then
+                    # Already updated in update_package_lists
+                    if ! safe_sudo pacman -S --noconfirm git stow curl base-devel; then
                         print_color "$RED" "Failed to install required packages"
                         return 1
                     fi
@@ -258,16 +262,12 @@ install_prerequisites() {
                     ;;
                 *)
                     if command_exists apt; then
-                        if ! safe_sudo apt update; then
-                            print_color "$RED" "Failed to update package lists"
-                            return 1
-                        fi
                         if ! safe_sudo apt install -y git stow curl build-essential; then
                             print_color "$RED" "Failed to install required packages"
                             return 1
                         fi
                     elif command_exists pacman; then
-                        if ! safe_sudo pacman -Syu --noconfirm git stow curl base-devel; then
+                        if ! safe_sudo pacman -S --noconfirm git stow curl base-devel; then
                             print_color "$RED" "Failed to install required packages"
                             return 1
                         fi
@@ -285,7 +285,7 @@ install_prerequisites() {
             ;;
         windows)
             if grep -q Microsoft /proc/version 2>/dev/null; then
-                if ! safe_sudo apt update; then
+                if ! update_package_lists; then
                     print_color "$RED" "Failed to update package lists in WSL"
                     return 1
                 fi
@@ -430,10 +430,6 @@ install_zsh_if_needed() {
                 case "$DISTRO" in
                     ubuntu|debian|linuxmint)
                         print_color "$YELLOW" "Installing zsh on Debian/Ubuntu..."
-                        if ! safe_sudo apt update; then
-                            print_color "$RED" "Failed to update package lists"
-                            return 1
-                        fi
                         if ! safe_sudo apt install -y zsh; then
                             print_color "$RED" "Failed to install zsh"
                             return 1
@@ -441,7 +437,7 @@ install_zsh_if_needed() {
                         ;;
                     arch|manjaro)
                         print_color "$YELLOW" "Installing zsh on Arch/Manjaro..."
-                        if ! safe_sudo pacman -Syu --noconfirm zsh; then
+                        if ! safe_sudo pacman -S --noconfirm zsh; then
                             print_color "$RED" "Failed to install zsh"
                             return 1
                         fi
@@ -456,17 +452,13 @@ install_zsh_if_needed() {
                     *)
                         if command_exists apt; then
                             print_color "$YELLOW" "Installing zsh using apt..."
-                            if ! safe_sudo apt update; then
-                                print_color "$RED" "Failed to update package lists"
-                                return 1
-                            fi
                             if ! safe_sudo apt install -y zsh; then
                                 print_color "$RED" "Failed to install zsh"
                                 return 1
                             fi
                         elif command_exists pacman; then
                             print_color "$YELLOW" "Installing zsh using pacman..."
-                            if ! safe_sudo pacman -Syu --noconfirm zsh; then
+                            if ! safe_sudo pacman -S --noconfirm zsh; then
                                 print_color "$RED" "Failed to install zsh"
                                 return 1
                             fi
@@ -707,7 +699,7 @@ install_linux_editors_universal() {
                     fi
                     rm -f /tmp/vscode.list
                     
-                    if safe_sudo apt update && safe_sudo apt install -y code; then
+                    if safe_sudo apt install -y code; then
                         print_color "$GREEN" "✓ Visual Studio Code installed"
                     else
                         print_color "$RED" "Failed to install VS Code"
@@ -818,17 +810,56 @@ check_sudo_access() {
 
 # Function to keep sudo session alive
 keep_sudo_alive() {
-    print_color "$BLUE" "Maintaining sudo session..."
     # Keep-alive: update existing sudo time stamp until script has finished
     while true; do sudo -n true; sleep 60; kill -0 "$$" || exit; done 2>/dev/null &
 }
 
+# Function to update package lists (only once)
+update_package_lists() {
+    if [ "$PACKAGES_UPDATED" = "true" ]; then
+        return 0
+    fi
+    
+    print_color "$YELLOW" "🔄 Updating package lists..."
+    
+    case "$PLATFORM" in
+        linux)
+            case "$DISTRO" in
+                ubuntu|debian|linuxmint)
+                    if ! safe_sudo apt update; then
+                        print_color "$RED" "Failed to update package lists"
+                        return 1
+                    fi
+                    ;;
+                arch|manjaro)
+                    if ! safe_sudo pacman -Syu --noconfirm; then
+                        print_color "$RED" "Failed to update package lists"
+                        return 1
+                    fi
+                    ;;
+                fedora|centos|rhel)
+                    if ! safe_sudo dnf check-update; then
+                        print_color "$YELLOW" "Package list check completed (some errors are normal)"
+                    fi
+                    ;;
+            esac
+            ;;
+    esac
+    
+    PACKAGES_UPDATED=true
+    print_color "$GREEN" "✓ Package lists updated"
+    return 0
+}
+
 # Function to safely run sudo commands with error handling
 safe_sudo() {
-    # First try to run with sudo -n to check if we have cached credentials
+    # Check if we have cached credentials
     if ! sudo -n true 2>/dev/null; then
-        print_color "$YELLOW" "Sudo access required for: $*"
-        print_color "$YELLOW" "Please enter your password when prompted."
+        # Try to refresh sudo credentials silently
+        if ! sudo -v 2>/dev/null; then
+            print_color "$YELLOW" "Sudo access required for: $*"
+            print_color "$YELLOW" "Please enter your password when prompted."
+        fi
     fi
     
     # Try to run the sudo command
@@ -960,7 +991,7 @@ install_starship_universal() {
         linux)
             case "$DISTRO" in
                 ubuntu|debian|linuxmint)
-                    if command_exists apt && safe_sudo apt update && safe_sudo apt install -y starship; then
+                    if command_exists apt && safe_sudo apt install -y starship; then
                         print_color "$GREEN" "✓ Starship installed via apt"
                         return 0
                     fi
