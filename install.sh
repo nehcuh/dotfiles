@@ -210,10 +210,12 @@ setup_shell() {
 # Show help
 show_help() {
     echo "Simple Dotfiles Installer"
-    echo "Usage: $0 [packages...]"
+    echo "Usage: $0 [options] [packages...]"
     echo ""
     echo "Options:"
-    echo "  --help, -h    Show this help message"
+    echo "  --help, -h        Show this help message"
+    echo "  --dev-env         Setup development environments after dotfiles installation"
+    echo "  --dev-all         Setup all development environments (Rust, Python, Go, Java, Node.js, C/C++)"
     echo ""
     echo "Available packages:"
     echo "  system        System-wide configurations"
@@ -229,18 +231,59 @@ show_help() {
     echo "  macos         macOS-specific configurations"
     echo ""
     echo "Examples:"
-    echo "  $0              # Install default packages"
-    echo "  $0 git vim      # Install only git and vim"
-    echo "  $0 zsh tmux     # Install shell and terminal multiplexer"
+    echo "  $0                  # Install default packages"
+    echo "  $0 git vim          # Install only git and vim"
+    echo "  $0 zsh tmux         # Install shell and terminal multiplexer"
+    echo "  $0 --dev-env        # Install default packages + setup dev environments"
+    echo "  $0 --dev-all        # Install default packages + setup all dev environments"
+    echo "  $0 git --dev-env    # Install git package + setup dev environments"
+}
+
+# Setup development environment
+setup_dev_environment() {
+    local dev_script="$DOTFILES_DIR/scripts/setup-dev-environment.sh"
+    
+    if [ -f "$dev_script" ]; then
+        log_info "Setting up development environments..."
+        chmod +x "$dev_script"
+        "$dev_script" "$@"
+    else
+        log_error "Development environment setup script not found: $dev_script"
+    fi
 }
 
 # Main installation
 main() {
-    # Check for help option
-    if [ "$1" = "--help" ] || [ "$1" = "-h" ]; then
-        show_help
-        exit 0
-    fi
+    local dev_env=false
+    local dev_all=false
+    local packages=()
+    
+    # Parse arguments
+    while [[ $# -gt 0 ]]; do
+        case $1 in
+            --help|-h)
+                show_help
+                exit 0
+                ;;
+            --dev-env)
+                dev_env=true
+                shift
+                ;;
+            --dev-all)
+                dev_all=true
+                shift
+                ;;
+            --*)
+                log_error "Unknown option: $1"
+                show_help
+                exit 1
+                ;;
+            *)
+                packages+=("$1")
+                shift
+                ;;
+        esac
+    done
     
     echo "========================================"
     echo "         Dotfiles Installation          "
@@ -249,8 +292,19 @@ main() {
     
     check_sudo
     check_prerequisites
-    install_packages "$@"
+    install_packages "${packages[@]}"
     setup_shell
+    
+    # Setup development environments if requested
+    if [ "$dev_env" = true ]; then
+        echo
+        log_info "Setting up development environments..."
+        setup_dev_environment
+    elif [ "$dev_all" = true ]; then
+        echo
+        log_info "Setting up all development environments..."
+        setup_dev_environment --all
+    fi
     
     echo
     log_success "Installation completed!"

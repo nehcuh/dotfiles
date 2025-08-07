@@ -22,6 +22,8 @@ DOTFILES_REPO="${DOTFILES_REPO:-https://github.com/nehcuh/dotfiles.git}"
 DOTFILES_DIR="${DOTFILES_DIR:-$HOME/.dotfiles}"
 INSTALL_PACKAGES="${INSTALL_PACKAGES:-}"  # Empty means default packages
 NON_INTERACTIVE="${NON_INTERACTIVE:-false}"  # Set to true to skip confirmation prompts
+DEV_ENV="${DEV_ENV:-false}"  # Set to true to setup development environments
+DEV_ALL="${DEV_ALL:-false}"  # Set to true to setup all development environments
 
 echo "========================================"
 echo "      Remote Dotfiles Installer        "
@@ -87,13 +89,24 @@ else
     log_info "Non-interactive mode: proceeding automatically..."
 fi
 
+# Build install command with appropriate options
+install_cmd="./install.sh"
+
+# Add packages if specified
 if [ -n "$INSTALL_PACKAGES" ]; then
-    log_info "Installing specific packages: $INSTALL_PACKAGES"
-    ./install.sh $INSTALL_PACKAGES
-else
-    log_info "Installing default packages"
-    ./install.sh
+    install_cmd="$install_cmd $INSTALL_PACKAGES"
 fi
+
+# Add development environment options
+if [ "$DEV_ALL" = "true" ]; then
+    install_cmd="$install_cmd --dev-all"
+elif [ "$DEV_ENV" = "true" ]; then
+    install_cmd="$install_cmd --dev-env"
+fi
+
+# Run installation
+log_info "Running installation command: $install_cmd"
+eval "$install_cmd"
 
 echo
 log_success "🎉 Remote installation completed!"

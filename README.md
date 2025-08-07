@@ -54,6 +54,33 @@ make install
 - `linux` - Linux-specific configurations
 - `macos` - macOS-specific configurations
 
+## Development Environment Setup
+
+The dotfiles include an optional development environment setup that installs and configures multiple programming languages and tools:
+
+### Supported Languages & Tools
+- **Rust**: Latest stable Rust with cargo
+- **Python**: pyenv + uv for fast Python package management
+- **Go**: Latest Go version with proper GOPATH setup
+- **Java**: OpenJDK with JAVA_HOME configuration
+- **Node.js**: NVM with latest LTS Node.js
+- **C/C++**: Build essentials and common development tools
+
+### Installation
+```bash
+# Install dotfiles with development environments (interactive selection)
+./install.sh --dev-env
+
+# Install all development environments automatically
+./install.sh --dev-all
+
+# One-line remote installation with dev environments
+DEV_ENV=true curl -fsSL https://raw.githubusercontent.com/nehcuh/dotfiles/main/remote-install.sh | bash
+
+# Run dev environment setup separately
+./scripts/setup-dev-environment.sh
+```
+
 ## Usage
 
 ### Install specific packages
