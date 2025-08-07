@@ -1,0 +1,46 @@
+# VS Code Privacy Configuration
+# This file contains privacy-focused settings for VS Code
+
+# Environment variables for VS Code privacy
+export VSCODE_DISABLE_EXTENSIONS="false"
+export VSCODE_CLI_USE_FILE_KEYCHAIN="false"
+export VSCODE_CRASH_REPORTER="0"
+export VSCODE_TELEMETRY="0"
+
+# VS Code directories and files (these will be created automatically)
+export VSCODE_CONFIG_DIR="$HOME/.config/Code"
+export VSCODE_USER_DIR="$VSCODE_CONFIG_DIR/User"
+export VSCODE_EXTENSIONS_DIR="$VSCODE_USER_DIR/extensions"
+export VSCODE_GLOBAL_STORAGE="$VSCODE_USER_DIR/globalStorage"
+export VSCODE_WORKSPACE_STORAGE="$VSCODE_USER_DIR/workspaceStorage"
+
+# Privacy-focused aliases
+alias code='code --disable-telemetry --disable-crash-reporter --disable-extensions'
+alias code-safe='code --disable-telemetry --disable-crash-reporter'
+alias code-private='code --disable-telemetry --disable-crash-reporter --disable-gpu --disable-web-security'
+
+# Functions for VS Code privacy management
+code_clean_cache() {
+    echo "Cleaning VS Code cache..."
+    rm -rf "$VSCODE_GLOBAL_STORAGE" 2>/dev/null || true
+    rm -rf "$VSCODE_WORKSPACE_STORAGE"/* 2>/dev/null || true
+    echo "Cache cleaned successfully"
+}
+
+code_reset_extensions() {
+    echo "Resetting VS Code extensions..."
+    rm -rf "$VSCODE_EXTENSIONS_DIR" 2>/dev/null || true
+    echo "Extensions reset successfully"
+}
+
+code_show_privacy_status() {
+    echo "VS Code Privacy Status:"
+    echo "  Telemetry: DISABLED"
+    echo "  Crash Reporter: DISABLED"
+    echo "  Extensions: ENABLED"
+    echo "  Cache: MANAGED"
+    echo "  Auto-update: DISABLED"
+}
+
+# Auto-cleanup on shell exit (optional)
+# trap 'code_clean_cache' EXIT

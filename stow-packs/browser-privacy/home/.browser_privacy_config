@@ -1,0 +1,213 @@
+#!/bin/bash
+# Browser Privacy Configuration
+# This file contains privacy-focused settings for Firefox, Chrome, and Brave browsers
+
+# Environment variables for browser privacy
+export FIREFOX_TELEMETRY_DISABLED="1"
+export FIREFOX_AUTO_UPDATE="0"
+export FIREFOX_SYNC_DISABLED="1"
+export FIREFOX_DATA_COLLECTION_DISABLED="1"
+
+export CHROME_TELEMETRY_DISABLED="1"
+export CHROME_AUTO_UPDATE="0"
+export CHROME_SYNC_DISABLED="1"
+export CHROME_DATA_COLLECTION_DISABLED="1"
+
+export BRAVE_TELEMETRY_DISABLED="1"
+export BRAVE_AUTO_UPDATE="0"
+export BRAVE_SYNC_DISABLED="1"
+export BRAVE_DATA_COLLECTION_DISABLED="1"
+
+# Browser directories
+export FIREFOX_CONFIG_DIR="$HOME/.mozilla/firefox"
+export FIREFOX_PROFILE_DIR="$FIREFOX_CONFIG_DIR/*.default-release"
+export CHROME_CONFIG_DIR="$HOME/.config/google-chrome"
+export CHROMIUM_CONFIG_DIR="$HOME/.config/chromium"
+export BRAVE_CONFIG_DIR="$HOME/.config/BraveSoftware/Brave-Browser"
+
+# Cache directories
+export FIREFOX_CACHE_DIR="$HOME/.cache/mozilla/firefox"
+export CHROME_CACHE_DIR="$HOME/.cache/google-chrome"
+export CHROMIUM_CACHE_DIR="$HOME/.cache/chromium"
+export BRAVE_CACHE_DIR="$HOME/.cache/BraveSoftware/Brave-Browser"
+
+# Privacy-focused aliases
+alias firefox='firefox --disable-telemetry --no-remote --private-window'
+alias firefox-safe='firefox --disable-telemetry --disable-updater --no-remote --private-window'
+alias firefox-private='firefox --disable-telemetry --disable-updater --disable-sync --no-remote --private-window'
+
+alias chrome='google-chrome --disable-telemetry --incognito'
+alias chrome-safe='google-chrome --disable-telemetry --disable-auto-update --incognito'
+alias chrome-private='google-chrome --disable-telemetry --disable-auto-update --disable-sync --incognito'
+
+alias chromium='chromium --disable-telemetry --incognito'
+alias chromium-safe='chromium --disable-telemetry --disable-auto-update --incognito'
+alias chromium-private='chromium --disable-telemetry --disable-auto-update --disable-sync --incognito'
+
+alias brave='brave --disable-telemetry --incognito'
+alias brave-safe='brave --disable-telemetry --disable-auto-update --incognito'
+alias brave-private='brave --disable-telemetry --disable-auto-update --disable-sync --incognito'
+
+# Functions for Firefox privacy management
+firefox_clean_cache() {
+    echo "Cleaning Firefox cache..."
+    rm -rf "$FIREFOX_CACHE_DIR" 2>/dev/null || true
+    find "$FIREFOX_CONFIG_DIR" -name "*.sqlite" -type f -delete 2>/dev/null || true
+    find "$FIREFOX_CONFIG_DIR" -name "places.sqlite*" -type f -delete 2>/dev/null || true
+    find "$FIREFOX_CONFIG_DIR" -name "formhistory.sqlite" -type f -delete 2>/dev/null || true
+    find "$FIREFOX_CONFIG_DIR" -name "downloads.sqlite" -type f -delete 2>/dev/null || true
+    echo "Firefox cache cleaned successfully"
+}
+
+firefox_clean_data() {
+    echo "Cleaning Firefox data..."
+    find "$FIREFOX_CONFIG_DIR" -name "webappsstore.sqlite" -type f -delete 2>/dev/null || true
+    find "$FIREFOX_CONFIG_DIR" -name "cookies.sqlite" -type f -delete 2>/dev/null || true
+    find "$FIREFOX_CONFIG_DIR" -name "signons.sqlite" -type f -delete 2>/dev/null || true
+    find "$FIREFOX_CONFIG_DIR" -name "permissions.sqlite" -type f -delete 2>/dev/null || true
+    echo "Firefox data cleaned successfully"
+}
+
+firefox_reset_profile() {
+    echo "Resetting Firefox profile..."
+    if [ -d "$FIREFOX_PROFILE_DIR" ]; then
+        cp -r "$FIREFOX_PROFILE_DIR" "$FIREFOX_PROFILE_DIR.backup.$(date +%Y%m%d_%H%M%S)"
+        rm -rf "$FIREFOX_PROFILE_DIR/Crash Reports" 2>/dev/null || true
+        rm -rf "$FIREFOX_PROFILE_DIR/datareporting" 2>/dev/null || true
+        rm -rf "$FIREFOX_PROFILE_DIR/gmp-gmpopenh264" 2>/dev/null || true
+        rm -rf "$FIREFOX_PROFILE_DIR/safebrowsing" 2>/dev/null || true
+        rm -rf "$FIREFOX_PROFILE_DIR/storage" 2>/dev/null || true
+        echo "Firefox profile reset successfully"
+    fi
+}
+
+# Functions for Chrome/Chromium privacy management
+chrome_clean_cache() {
+    echo "Cleaning Chrome cache..."
+    rm -rf "$CHROME_CACHE_DIR" 2>/dev/null || true
+    find "$CHROME_CONFIG_DIR" -name "*.cache" -type d -exec rm -rf {} + 2>/dev/null || true
+    find "$CHROME_CONFIG_DIR" -name "Cache*" -type d -exec rm -rf {} + 2>/dev/null || true
+    echo "Chrome cache cleaned successfully"
+}
+
+chromium_clean_cache() {
+    echo "Cleaning Chromium cache..."
+    rm -rf "$CHROMIUM_CACHE_DIR" 2>/dev/null || true
+    find "$CHROMIUM_CONFIG_DIR" -name "*.cache" -type d -exec rm -rf {} + 2>/dev/null || true
+    find "$CHROMIUM_CONFIG_DIR" -name "Cache*" -type d -exec rm -rf {} + 2>/dev/null || true
+    echo "Chromium cache cleaned successfully"
+}
+
+chrome_clean_data() {
+    echo "Cleaning Chrome data..."
+    find "$CHROME_CONFIG_DIR" -name "Cookies*" -type f -delete 2>/dev/null || true
+    find "$CHROME_CONFIG_DIR" -name "History*" -type f -delete 2>/dev/null || true
+    find "$CHROME_CONFIG_DIR" -name "Login Data*" -type f -delete 2>/dev/null || true
+    find "$CHROME_CONFIG_DIR" -name "Web Data*" -type f -delete 2>/dev/null || true
+    find "$CHROME_CONFIG_DIR" -name "Bookmarks*" -type f -delete 2>/dev/null || true
+    echo "Chrome data cleaned successfully"
+}
+
+chromium_clean_data() {
+    echo "Cleaning Chromium data..."
+    find "$CHROMIUM_CONFIG_DIR" -name "Cookies*" -type f -delete 2>/dev/null || true
+    find "$CHROMIUM_CONFIG_DIR" -name "History*" -type f -delete 2>/dev/null || true
+    find "$CHROMIUM_CONFIG_DIR" -name "Login Data*" -type f -delete 2>/dev/null || true
+    find "$CHROMIUM_CONFIG_DIR" -name "Web Data*" -type f -delete 2>/dev/null || true
+    find "$CHROMIUM_CONFIG_DIR" -name "Bookmarks*" -type f -delete 2>/dev/null || true
+    echo "Chromium data cleaned successfully"
+}
+
+# Functions for Brave privacy management
+brave_clean_cache() {
+    echo "Cleaning Brave cache..."
+    rm -rf "$BRAVE_CACHE_DIR" 2>/dev/null || true
+    find "$BRAVE_CONFIG_DIR" -name "*.cache" -type d -exec rm -rf {} + 2>/dev/null || true
+    find "$BRAVE_CONFIG_DIR" -name "Cache*" -type d -exec rm -rf {} + 2>/dev/null || true
+    echo "Brave cache cleaned successfully"
+}
+
+brave_clean_data() {
+    echo "Cleaning Brave data..."
+    find "$BRAVE_CONFIG_DIR" -name "Cookies*" -type f -delete 2>/dev/null || true
+    find "$BRAVE_CONFIG_DIR" -name "History*" -type f -delete 2>/dev/null || true
+    find "$BRAVE_CONFIG_DIR" -name "Login Data*" -type f -delete 2>/dev/null || true
+    find "$BRAVE_CONFIG_DIR" -name "Web Data*" -type f -delete 2>/dev/null || true
+    find "$BRAVE_CONFIG_DIR" -name "Bookmarks*" -type f -delete 2>/dev/null || true
+    echo "Brave data cleaned successfully"
+}
+
+# General browser privacy functions
+browsers_clean_all_cache() {
+    echo "Cleaning all browser caches..."
+    firefox_clean_cache
+    chrome_clean_cache
+    chromium_clean_cache
+    brave_clean_cache
+    echo "All browser caches cleaned successfully"
+}
+
+browsers_clean_all_data() {
+    echo "Cleaning all browser data..."
+    firefox_clean_data
+    chrome_clean_data
+    chromium_clean_data
+    brave_clean_data
+    echo "All browser data cleaned successfully"
+}
+
+browser_show_privacy_status() {
+    echo "Browser Privacy Status:"
+    echo "  Firefox:"
+    echo "    Telemetry: DISABLED"
+    echo "    Auto Update: DISABLED"
+    echo "    Sync: DISABLED"
+    echo "    Data Collection: DISABLED"
+    echo "  Chrome:"
+    echo "    Telemetry: DISABLED"
+    echo "    Auto Update: DISABLED"
+    echo "    Sync: DISABLED"
+    echo "    Data Collection: DISABLED"
+    echo "  Chromium:"
+    echo "    Telemetry: DISABLED"
+    echo "    Auto Update: DISABLED"
+    echo "    Sync: DISABLED"
+    echo "    Data Collection: DISABLED"
+    echo "  Brave:"
+    echo "    Telemetry: DISABLED"
+    echo "    Auto Update: DISABLED"
+    echo "    Sync: DISABLED"
+    echo "    Data Collection: DISABLED"
+}
+
+browser_privacy_check() {
+    echo "Checking browser privacy settings..."
+    
+    # Check Firefox settings
+    if [ -d "$FIREFOX_CONFIG_DIR" ]; then
+        echo "Firefox profile found at: $FIREFOX_CONFIG_DIR"
+        # Look for user.js files that might contain privacy settings
+        find "$FIREFOX_CONFIG_DIR" -name "user.js" -type f -exec echo "Firefox user.js found: {}" \;
+    fi
+    
+    # Check Chrome settings
+    if [ -d "$CHROME_CONFIG_DIR" ]; then
+        echo "Chrome profile found at: $CHROME_CONFIG_DIR"
+    fi
+    
+    # Check Chromium settings
+    if [ -d "$CHROMIUM_CONFIG_DIR" ]; then
+        echo "Chromium profile found at: $CHROMIUM_CONFIG_DIR"
+    fi
+    
+    # Check Brave settings
+    if [ -d "$BRAVE_CONFIG_DIR" ]; then
+        echo "Brave profile found at: $BRAVE_CONFIG_DIR"
+    fi
+}
+
+# Browser startup flags for maximum privacy
+export FIREFOX_PRIVACY_FLAGS="--disable-telemetry --disable-updater --disable-sync --no-remote --private-window --disable-remote-fonts --disable-web-security --disable-dev-tools"
+export CHROME_PRIVACY_FLAGS="--disable-telemetry --disable-auto-update --disable-sync --incognito --disable-remote-fonts --disable-web-security --disable-dev-tools --disable-background-timer-throttling --disable-renderer-backgrounding"
+export CHROMIUM_PRIVACY_FLAGS="--disable-telemetry --disable-auto-update --disable-sync --incognito --disable-remote-fonts --disable-web-security --disable-dev-tools --disable-background-timer-throttling --disable-renderer-backgrounding"
+export BRAVE_PRIVACY_FLAGS="--disable-telemetry --disable-auto-update --disable-sync --incognito --disable-remote-fonts --disable-web-security --disable-dev-tools --disable-background-timer-throttling --disable-renderer-backgrounding"

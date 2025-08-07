@@ -607,7 +607,6 @@ install_prerequisites() {
                         fi
                     ;;
             esac
-            ;;
         windows)
             if grep -q Microsoft /proc/version 2>/dev/null; then
                 # WSL environment

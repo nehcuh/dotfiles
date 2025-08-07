@@ -1,0 +1,402 @@
+# Git Privacy Protection .gitignore
+# This file contains patterns to ignore sensitive Git-related files and directories
+
+# Git credentials and authentication
+.git-credentials
+.git-credential-cache
+.git-credential-store
+.git-credential-osxkeychain
+.git-credential-manager
+.git-credential-manager-core
+.git-credential-libsecret
+.git-credential-wincred
+.git-credential-winstore
+
+# Git configuration files with sensitive data
+.gitconfig_local
+.gitconfig_personal
+.gitconfig_work
+.gitconfig_sensitive
+.gitconfig_private
+.gitconfig_secret
+
+# Git logs and history
+.git_history
+.git_command_history
+.git_recent_repos
+.git_usage_log
+.git_telemetry_log
+.git_activity_log
+.git_session_log
+
+# Git cache and temporary files
+.git_cache
+.git_temp
+.git_tmp
+.git_sessions
+.git_worktrees
+.git_submodule_cache
+.git_lfs_cache
+.git_index_cache
+.git_object_cache
+
+# Git hooks and scripts
+.git/hooks/pre-commit
+.git/hooks/pre-push
+.git/hooks/post-commit
+.git/hooks/post-push
+.git/hooks/pre-rebase
+.git/hooks/post-receive
+.git/hooks/update
+.git/hooks/pre-applypatch
+.git/hooks/applypatch-msg
+.git/hooks/commit-msg
+.git/hooks/pre-receive
+.git/hooks/prepare-commit-msg
+.git/hooks/post-update
+.git/hooks/post-rewrite
+.git/hooks/post-checkout
+.git/hooks/post-merge
+.git/hooks/pre-auto-gc
+.git/hooks/fsmonitor-watchman
+
+# Git LFS and large files
+.git/lfs
+.gitattributes
+.gitattributes_global
+.git/info/attributes
+.git/info/exclude
+
+# Git worktrees and temporary directories
+.git/worktrees
+.git/rewritten
+.git/sequencer
+.git/rebase-apply
+.git/rebase-merge
+.git/CHERRY_PICK_HEAD
+.git/REBASE_HEAD
+.git/REVERT_HEAD
+.git/MERGE_HEAD
+.git/ORIG_HEAD
+.git/FETCH_HEAD
+.git/COMMIT_EDITMSG
+.git/COMMIT_MSG
+.git/MERGE_MSG
+.git/SQUASH_MSG
+.git/TAG_EDITMSG
+.git/NOTES_EDITMSG
+.git/PULLREQ_EDITMSG
+
+# Git state and lock files
+.git/index.lock
+.git/HEAD.lock
+.git/shallow.lock
+.git/packed-refs.lock
+.git/refs/heads/.lock
+.git/refs/tags/.lock
+.git/refs/remotes/.lock
+
+# Git backup and temporary files
+.git/*.bak
+.git/*.backup
+.git/*.tmp
+.git/*.temp
+.git/*.old
+.git/*.orig
+.git/*.rej
+.git/*.patch
+
+# Git specific tools and integrations
+.git/gc.log
+.git/gc.log.*
+.git/refs/original
+.git/logs/refs/original
+.git/refs/wip
+.git/logs/refs/wip
+.git/refs/draft
+.git/logs/refs/draft
+.git/refs/stash
+.git/logs/refs/stash
+
+# GitHub CLI and integrations
+.gh/config.yml
+.gh/hosts.yml
+.github_cli_config
+.github_token
+.github_pat
+.github_oauth
+
+# GitLab CLI and integrations
+.gitlab-ci.yml
+.gitlab-ci.local.yml
+.gitlab-token
+.gitlab-oauth-token
+.gitlab-pat
+.gitlab-personal-token
+
+# Bitbucket and other Git hosting
+.bitbucket/config
+.bitbucket/credentials
+.bitbucket-token
+.bitbucket-pat
+
+# Git GUI clients
+.gitk
+.gitgui
+.git-cola
+.gitg
+.sourcetree
+.fork
+.gitkraken
+.tower
+.smartgit
+
+# Git extensions and plugins
+.git/extensions
+.git/plugins
+.git/addons
+.git/modules
+
+# Git templates and initialization
+.git/templates
+.git/template
+.git/init_template
+.git/init_template_dir
+
+# Git performance and optimization
+.git/objects/info/packs
+.git/objects/info/alternates
+.git/objects/info/http-alternates
+.git/objects/info/commit-graph
+.git/objects/info/multi-pack-index
+.git/objects/info/rev-cache
+
+# Git security and encryption
+.git/secrets
+.git/encrypted
+.git/crypted
+.git/gpg
+.git/sign
+.git/cert
+.git/key
+.git/ssl
+.git/tls
+
+# Git network and communication
+.git/network
+.git/remote
+.git/upstream
+.git/origin
+.git/mirror
+.git/bundle
+
+# Git development and testing
+.git/test
+.git/tests
+.git/testing
+.git/debug
+.git/experimental
+.git/dev
+
+# Git backup and synchronization
+.git/backup
+.git/sync
+.git/mirror
+.git/clone
+.git/fork
+
+# Git configuration management
+.git/config.local
+.git/config.work
+.git/config.personal
+.git/config.private
+.git/config.sensitive
+.git/config.secret
+
+# Git environment and context
+.git/env
+.git/context
+.git/profile
+.git/session
+.git/instance
+
+# Git analytics and monitoring
+.git/analytics
+.git/monitoring
+.git/metrics
+.git/stats
+.git/tracking
+.git/telemetry
+
+# Git automation and CI/CD
+.git/automation
+.git/ci
+.git/cd
+.git/workflow
+.git/action
+.git/pipeline
+.git/build
+.git/deploy
+
+# Git documentation and notes
+.git/docs
+.git/notes
+.git/wiki
+.git/readme
+.git/changelog
+.git/license
+
+# Git miscellaneous
+.git/misc
+.git/other
+.git/custom
+.git/user
+.git/local
+.git/global
+.git/system
+
+# Additional privacy protection patterns
+# Sensitive file patterns that might be in Git repositories
+*.key
+*.pem
+*.p12
+*.pfx
+*.crt
+*.cer
+*.p7b
+*.p7c
+*.p7s
+*.p8
+*.asc
+*.gpg
+*.pgp
+*.sig
+*.sign
+*.enc
+*.encrypted
+*.password
+*.pass
+*.secret
+*.sensitive
+*.private
+*.confidential
+*.internal
+*.restricted
+*.protected
+*.secure
+*.auth
+*.token
+*.oauth
+*.session
+*.cookie
+*.cache
+*.temp
+*.tmp
+*.backup
+*.bak
+*.old
+*.orig
+*.log
+*.debug
+*.trace
+
+# Configuration files with potential secrets
+config.json
+settings.json
+credentials.json
+secrets.json
+tokens.json
+keys.json
+certs.json
+auth.json
+profile.json
+user.json
+account.json
+
+# Environment files
+.env
+.env.local
+.env.development
+.env.production
+.env.staging
+.env.test
+.env.backup
+.env.old
+.env.temp
+.env.tmp
+
+# SSH and GPG related
+ssh_config
+ssh_known_hosts
+gpg.conf
+gpg-agent.conf
+ssh-agent.conf
+ssh-keygen.conf
+
+# Cloud provider configuration
+aws_config
+aws_credentials
+gcloud_config
+azure_config
+terraform.tfvars
+kubeconfig
+
+# Database and API credentials
+database.yml
+database.conf
+api_keys.txt
+api_tokens.txt
+database_passwords.txt
+
+# Build and deployment artifacts
+build/
+dist/
+out/
+target/
+node_modules/
+vendor/
+.bundle/
+.cache/
+
+# IDE and editor specific
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+.netrwhist
+.viminfo
+
+# System specific
+.DS_Store
+Thumbs.db
+*.lnk
+*.lnk
+*.url
+*.website
+*.webloc
+
+# Log files
+*.log
+*.logs
+log/
+logs/
+
+# Temporary files
+*.tmp
+*.temp
+*.temp.*
+*.cache
+*.cache.*
+temp/
+tmp/
+.cache/
+
+# Backup files
+*.backup
+*.bak
+*.old
+*.orig
+backup/
+bak/
+old/

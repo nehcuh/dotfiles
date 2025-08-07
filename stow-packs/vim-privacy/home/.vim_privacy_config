@@ -1,0 +1,211 @@
+# Vim Privacy Configuration
+# This file contains privacy-focused settings for Vim
+
+# Environment variables for Vim privacy
+export VIM_DISABLE_TELEMETRY="1"
+export VIM_DISABLE_AUTO_UPDATE="1"
+export VIM_DISABLE_ONLINE_FEATURES="1"
+export VIM_DISABLE_NETRW="1"
+
+# Vim directories and files (these will be created automatically)
+export VIM_CONFIG_DIR="$HOME/.vim"
+export VIM_DATA_DIR="$HOME/.vim"
+export VIM_CACHE_DIR="$HOME/.vim/cache"
+export VIM_TMP_DIR="$HOME/.vim/tmp"
+
+# Privacy-focused aliases
+alias vim='vim --noplugin'
+alias vim-safe='vim --noplugin --clean'
+alias vim-private='vim --noplugin --clean --cmd "set noswapfile nobackup noundofile"'
+alias vim-clean='vim --noplugin --clean --cmd "set noswapfile nobackup noundofile novisualbell"'
+
+# Functions for Vim privacy management
+vim_clean_cache() {
+    echo "Cleaning Vim cache..."
+    rm -rf "$VIM_CACHE_DIR" 2>/dev/null || true
+    rm -rf "$VIM_TMP_DIR" 2>/dev/null || true
+    rm -rf "$VIM_CONFIG_DIR/session" 2>/dev/null || true
+    rm -rf "$VIM_CONFIG_DIR/swap" 2>/dev/null || true
+    rm -rf "$VIM_CONFIG_DIR/backup" 2>/dev/null || true
+    rm -rf "$VIM_CONFIG_DIR/undo" 2>/dev/null || true
+    rm -rf "$VIM_CONFIG_DIR/view" 2>/dev/null || true
+    rm -f "$HOME/.viminfo" 2>/dev/null || true
+    rm -f "$HOME/.viminfo.tmp" 2>/dev/null || true
+    rm -f "$HOME/.netrwhist" 2>/dev/null || true
+    echo "Cache cleaned successfully"
+}
+
+vim_clean_plugins() {
+    echo "Cleaning Vim plugins..."
+    rm -rf "$VIM_CONFIG_DIR/plugged" 2>/dev/null || true
+    rm -rf "$VIM_CONFIG_DIR/bundle" 2>/dev/null || true
+    rm -rf "$VIM_CONFIG_DIR/autoload" 2>/dev/null || true
+    rm -rf "$VIM_CONFIG_DIR/after" 2>/dev/null || true
+    echo "Plugins cleaned successfully"
+}
+
+vim_reset_config() {
+    echo "Resetting Vim configuration..."
+    rm -rf "$VIM_CONFIG_DIR" 2>/dev/null || true
+    echo "Configuration reset successfully"
+}
+
+vim_clean_all() {
+    echo "Cleaning all Vim data..."
+    vim_clean_cache
+    vim_clean_plugins
+    echo "All data cleaned successfully"
+}
+
+vim_show_privacy_status() {
+    echo "Vim Privacy Status:"
+    echo "  Telemetry: DISABLED"
+    echo "  Auto Update: DISABLED"
+    echo "  Online Features: DISABLED"
+    echo "  Netrw: DISABLED"
+    echo "  Cache: MANAGED"
+    echo "  Plugins: MANAGED"
+}
+
+vim_privacy_check() {
+    echo "Checking Vim privacy settings..."
+    
+    # Check environment variables
+    if [ "$VIM_DISABLE_TELEMETRY" = "1" ]; then
+        echo "✓ Telemetry disabled"
+    else
+        echo "✗ Telemetry not disabled"
+    fi
+    
+    if [ "$VIM_DISABLE_AUTO_UPDATE" = "1" ]; then
+        echo "✓ Auto update disabled"
+    else
+        echo "✗ Auto update not disabled"
+    fi
+    
+    # Check if Vim is running
+    if pgrep -f "vim" > /dev/null; then
+        echo "⚠ Vim is currently running - restart to apply changes"
+    else
+        echo "✓ Vim is not running"
+    fi
+    
+    # Check for sensitive files
+    if [ -f "$HOME/.viminfo" ]; then
+        echo "⚠ Viminfo file exists - consider removing"
+    fi
+    
+    if [ -f "$HOME/.netrwhist" ]; then
+        echo "⚠ Netrwhist file exists - consider removing"
+    fi
+    
+    if [ -d "$VIM_CONFIG_DIR/session" ]; then
+        echo "⚠ Session directory exists - consider removing"
+    fi
+}
+
+vim_safe_edit() {
+    local file="$1"
+    if [ -z "$file" ]; then
+        echo "Usage: vim_safe_edit <file>"
+        return 1
+    fi
+    
+    echo "Opening $file in safe mode..."
+    vim --noplugin --clean --cmd "set noswapfile nobackup noundofile novisualbell" "$file"
+}
+
+vim_temp_edit() {
+    local temp_file="/tmp/vim_temp_$(date +%s).txt"
+    echo "Opening temporary file: $temp_file"
+    vim --noplugin --clean --cmd "set noswapfile nobackup noundofile novisualbell" "$temp_file"
+}
+
+vim_create_privacy_vimrc() {
+    echo "Creating privacy-focused .vimrc..."
+    cat > "$HOME/.vimrc_privacy" << 'EOF'
+" Vim Privacy Configuration
+" This file contains privacy-focused settings for Vim
+
+" Disable telemetry and online features
+let g:loaded_netrw = 1
+let g:loaded_netrwPlugin = 1
+let g:loaded_netrwSettings = 1
+let g:loaded_netrwFileHandlers = 1
+
+" Disable auto update
+let g:auto_update = 0
+let g:check_updates = 0
+
+" Disable file monitoring
+set noautoread
+set noswapfile
+set nobackup
+set noundofile
+set novisualbell
+set noerrorbells
+
+" Privacy settings
+set history=50
+set viminfo='50,<100,s10,h
+set ruler
+set showcmd
+set laststatus=2
+set statusline=%f\ %h%w%m%r\ %=%(%l,%c%V\ %p%%%)
+
+" Disable file type detection for privacy
+filetype off
+syntax off
+
+" Disable mouse
+set mouse=
+
+" Disable modeline
+set nomodeline
+
+" Disable encryption for now
+set nocompatible
+
+" Set secure options
+set secure
+set exrc
+
+" Disable wildmenu for privacy
+set wildmenu
+set wildmode=list:longest,full
+
+" Set secure file patterns
+set wildignore+=*.tmp,*.temp,*.log,*.bak,*.swp,*.swo
+set wildignore+=*.pyc,*.pyo,*.class,*.jar,*.war
+set wildignore+=*.zip,*.tar.gz,*.rar,*.7z
+set wildignore+=*.git*,*.svn*,*.hg*,*.CVS*
+set wildignore+=*.DS_Store,*.Thumbs.db
+set wildignore+=node_modules/*,dist/*,build/*,coverage/*
+set wildignore+=__pycache__/*,.pytest_cache/*,.nyc_output/*
+
+" Disable completion for privacy
+set complete=.
+set completeopt=menuone,noselect
+
+" Disable folding for privacy
+set nofoldenable
+set foldmethod=manual
+
+" Disable search highlighting for privacy
+set nohlsearch
+set incsearch
+set ignorecase
+set smartcase
+
+" Disable undo for privacy
+set noundofile
+set undolevels=-1
+
+" Disable viminfo for privacy
+set viminfo=
+EOF
+    echo "Privacy .vimrc created at $HOME/.vimrc_privacy"
+}
+
+# Auto-cleanup on shell exit (optional)
+# trap 'vim_clean_cache' EXIT

@@ -1,0 +1,418 @@
+{
+  "privacy": {
+    "telemetry": {
+      "enabled": false,
+      "metrics": false,
+      "crash_reporting": false,
+      "usage_stats": false,
+      "brave_telemetry": false,
+      "p3a": false,
+      "privacy_stats": false
+    },
+    "auto_update": {
+      "enabled": false,
+      "check_frequency": 0,
+      "background_updates": false
+    },
+    "sync": {
+      "enabled": false,
+      "bookmarks": false,
+      "history": false,
+      "passwords": false,
+      "extensions": false,
+      "settings": false,
+      "apps": false,
+      "autofill": false,
+      "tabs": false,
+      "sessions": false
+    },
+    "data_collection": {
+      "enabled": false,
+      "url_tracking": false,
+      "search_suggestions": false,
+      "alternate_error_pages": false,
+      "usage_reporting": false,
+      "ad_measurement": false,
+      "web_services": false,
+      "brave_stats": false,
+      "brave_rewards": false
+    },
+    "browsing_data": {
+      "clear_on_exit": true,
+      "browsing_history": true,
+      "download_history": true,
+      "cookies": true,
+      "cache": true,
+      "passwords": true,
+      "form_data": true,
+      "site_settings": true,
+      "hosted_apps_data": true
+    },
+    "security": {
+      "safe_browsing": {
+        "enabled": false,
+        "extended_reporting": false
+      },
+      "password_protection": {
+        "enabled": false,
+        "leak_detection": false
+      },
+      "ssl": {
+        "revocation_checking": false
+      },
+      "https_everywhere": true,
+      "brave_firewall": true,
+      "brave_vpn": false
+    },
+    "network": {
+      "prefetch": {
+        "enabled": false,
+        "dns_prefetching": false,
+        "network_prediction": false
+      },
+      "proxy": {
+        "enabled": false,
+        "mode": "system"
+      },
+      "quic": {
+        "enabled": false
+      },
+      "http": {
+        "accept_language": "en-US,en",
+        "accept_charset": "utf-8"
+      }
+    },
+    "media": {
+      "autoplay": {
+        "enabled": false,
+        "policy": "block"
+      },
+      "webRTC": {
+        "enabled": false,
+        "ip_handling_policy": "disable_non_proxied_udp"
+      },
+      "DRM": {
+        "enabled": false
+      },
+      "hardware_acceleration": {
+        "enabled": false
+      }
+    },
+    "location": {
+      "enabled": false,
+      "geolocation": false,
+      "wifi_access_points": false,
+      "cell_towers": false
+    },
+    "notifications": {
+      "enabled": false,
+      "desktop_notifications": false,
+      "push_notifications": false
+    },
+    "microphone": {
+      "enabled": false,
+      "access_control": "block"
+    },
+    "camera": {
+      "enabled": false,
+      "access_control": "block"
+    },
+    "extensions": {
+      "auto_update": false,
+      "background_mode": false,
+      "webstore_recommendations": false,
+      "extension_permissions": "strict"
+    },
+    "printing": {
+      "enabled": false,
+      "cloud_print": false
+    },
+    "cloud_services": {
+      "enabled": false,
+      "google_services": false,
+      "drive_integration": false,
+      "docs_integration": false,
+      "sheets_integration": false,
+      "slides_integration": false
+    },
+    "experiments": {
+      "enabled": false,
+      "A_B_testing": false,
+      "feature_trials": false
+    },
+    "diagnostics": {
+      "enabled": false,
+      "performance_monitoring": false,
+      "memory_usage": false,
+      "CPU_usage": false,
+      "network_usage": false
+    },
+    "content_settings": {
+      "cookies": "block_third_party",
+      "javascript": "allow",
+      "popups": "block",
+      "ads": "block",
+      "images": "allow",
+      "plugins": "block",
+      "location": "block",
+      "notifications": "block",
+      "microphone": "block",
+      "camera": "block",
+      "unsandboxed_plugins": "block",
+      "automatic_downloads": "block",
+      "midi_devices": "block",
+      "usb_devices": "block",
+      "serial_ports": "block",
+      "bluetooth": "block",
+      "handlers": "block",
+      "payment": "block",
+      "site_data": "block_third_party"
+    },
+    "brave_specific": {
+      "brave_shields": {
+        "enabled": true,
+        "aggressive_mode": true,
+        "block_ads": true,
+        "block_trackers": true,
+        "block_phishing": true,
+        "block_malware": true,
+        "upgrade_https": true,
+        "block_fingerprinting": true,
+        "block_cookies": true
+      },
+      "brave_rewards": {
+        "enabled": false,
+        "auto_contribute": false,
+        "ads_enabled": false
+      },
+      "brave_tor": {
+        "enabled": false
+      },
+      "brave_firewall": {
+        "enabled": true
+      },
+      "brave_vpn": {
+        "enabled": false
+      },
+      "brave_sync": {
+        "enabled": false
+      },
+      "brave_wallet": {
+        "enabled": false
+      },
+      "brave_ai": {
+        "enabled": false
+      },
+      "brave_talk": {
+        "enabled": false
+      },
+      "brave_news": {
+        "enabled": false
+      },
+      "brave_playlist": {
+        "enabled": false
+      },
+      "brave_screenshots": {
+        "enabled": false
+      },
+      "brave_social_blocking": {
+        "enabled": true
+      }
+    }
+  },
+  "appearance": {
+    "theme": "system",
+    "home_button": true,
+    "bookmarks_bar": false,
+    "extensions_bar": false,
+    "custom_chrome_frame": false,
+    "custom_titlebar": false,
+    "NTP_background_image": false,
+    "NTP_custom_background": false,
+    "brave_super_referrers": false,
+    "brave_branded_wallpaper": false
+  },
+  "search": {
+    "enabled": true,
+    "suggestions": false,
+    "instant_enabled": false,
+    "search_engine": "duckduckgo",
+    "alternate_urls": false,
+    "contextual_search": false
+  },
+  "performance": {
+    "memory_saver": true,
+    "battery_saver": true,
+    "hardware_acceleration": false,
+    "background_mode": false,
+    "background_tabs": true,
+    "tab_discarding": true,
+    "tab_memory_usage": true
+  },
+  "extensions": {
+    "managed": [],
+    "disabled": [],
+    "blocked": []
+  },
+  "policies": {
+    "Disable3DAPIs": true,
+    "DisableApps": true,
+    "DisableAudioOutput": true,
+    "DisableBackgroundMode": true,
+    "DisableBluetooth": true,
+    "DisableCamera": true,
+    "DisableChromeCaptivePortal": true,
+    "DisableChromeCleanup": true,
+    "DisableChromeReports": true,
+    "DisableCloudImport": true,
+    "DisableComponentUpdate": true,
+    "DisableDeveloperTools": true,
+    "DisableDeveloperMode": true,
+    "DisableDiagnostics": true,
+    "DisableDomainsBlockedList": true,
+    "DisableDownloadBar": true,
+    "DisableDownloadDirectory": true,
+    "DisableDownloadUI": true,
+    "DisableEditingUserSettings": true,
+    "DisableExtensions": true,
+    "DisableFilePickerHandlers": true,
+    "DisableFileSystemAccessAPI": true,
+    "DisableGpu": true,
+    "DisableHTTPCache": true,
+    "DisableHTTPCacheValidation": true,
+    "DisableIPv6": true,
+    "DisableIncognitoMode": false,
+    "DisableLockProfile": true,
+    "DisableMediaHistory": true,
+    "DisableMediaPlayer": true,
+    "DisableMemorySaverPressure": true,
+    "DisableMicrophone": true,
+    "DisableNativeMessaging": true,
+    "DisableNetworkPrediction": true,
+    "DisableNotifications": true,
+    "DisableOfflineDownloads": true,
+    "DisablePDFReader": true,
+    "DisablePasswordManager": true,
+    "DisablePluginFinder": true,
+    "DisablePlugins": true,
+    "DisablePrinting": true,
+    "DisablePrivateAudioAPI": true,
+    "DisablePrivateMode": false,
+    "DisableProfileCreation": true,
+    "DisableProfileImport": true,
+    "DisableProfileReset": true,
+    "DisableProtocols": true,
+    "DisableProxy": true,
+    "DisableQRCodeGenerator": true,
+    "DisableReadingList": true,
+    "DisableSafeBrowsing": true,
+    "DisableScreenshots": true,
+    "DisableSearchSuggest": true,
+    "DisableSecurityKeys": true,
+    "DisableSessions": true,
+    "DisableSettings": true,
+    "DisableSha1Certificates": true,
+    "DisableSharedClipboard": true,
+    "DisableSignIn": true,
+    "DisableSpellChecking": true,
+    "DisableSync": true,
+    "DisableSystemNotifications": true,
+    "DisableTabDiscarding": true,
+    "DisableTaskManager": true,
+    "DisableTLS13": true,
+    "DisableTelemetry": true,
+    "DisableThirdPartyCookies": true,
+    "DisableTouchpadScrolling": true,
+    "DisableTranslate": true,
+    "DisableUnsafeTLSWarnings": true,
+    "DisableUpdate": true,
+    "DisableUpdateNotifications": true,
+    "DisableUserMediaCapture": true,
+    "DisableVideoCapture": true,
+    "DisableWebAuthentication": true,
+    "DisableWebBluetooth": true,
+    "DisableWebRtc": true,
+    "DisableWebUsb": true,
+    "DisableWelcomePage": true,
+    "DisableWindowMinimize": true,
+    "DisableWindows10TitleBar": true,
+    "DisableWindowsSandbox": true,
+    "DisableWorkspaces": true,
+    "DisableXPSP3": true,
+    "EnableOnlineRevocationChecks": false,
+    "EnableMediaRouter": false,
+    "EnableMemorySaver": true,
+    "EnableNetworkTimeQueries": false,
+    "EnablePasswordManager": false,
+    "EnableSafeBrowsing": false,
+    "EnableSync": false,
+    "EnableTabDiscarding": true,
+    "EnableTLS13": false,
+    "EnableTranslation": false,
+    "EnableUpdates": false,
+    "EnableWebBluetooth": false,
+    "EnableWebRtc": false,
+    "EnableWebUsb": false,
+    "EnterpriseMode": true,
+    "ForceLegacyDefaultBrowserPrompts": false,
+    "ForceNetworkInProcess": true,
+    "ForceYouTubeRestrict": true,
+    "FullscreenAllowed": false,
+    "GpuSwitching": false,
+    "HardwareAccelerationMode": false,
+    "IncognitoModeAvailability": 1,
+    "InsecurePasswordWarningsEnabled": false,
+    "LegacySameSiteCookieBehaviorEnabled": true,
+    "NativeMessagingBlocklist": ["*"],
+    "NetworkTimeQueriesEnabled": false,
+    "PasswordManagerEnabled": false,
+    "PromptForDownloadLocation": true,
+    "ProhibitedDownloadPatterns": ["*"],
+    "ProhibitedURLPatterns": ["*"],
+    "RemoteAccessHostClientList": [],
+    "RemoteAccessHostFirewallTraversal": false,
+    "RemoteAccessHostRequireCurtain": true,
+    "RemoteAccessHostTalkGadgetPrefix": "",
+    "RequireOnlineRevocationChecksForLocalAnchors": false,
+    "ResolveNavigationErrorsToGoogleSearch": false,
+    "RestrictSigninToPattern": "",
+    "RoamingProfileLocation": "",
+    "SafeBrowsingExtendedReportingEnabled": false,
+    "SafeBrowsingForTrustedSourcesEnabled": false,
+    "SafeBrowsingProtectionLevel": 0,
+    "SafeBrowsingReportingEnabled": false,
+    "SafeBrowsingTrustedSources": false,
+    "SavePasswordOnSites": false,
+    "SearchSuggestEnabled": false,
+    "SecurityKeyPermitAttestation": false,
+    "SendDevToolsPerformanceData": false,
+    "SendSitesInfoToGoogle": false,
+    "ShowHomeButton": true,
+    "SpellCheckEnabled": false,
+    "SuppressUnsupportedOSWarning": true,
+    "SyncDisabled": true,
+    "TranslateEnabled": false,
+    "URLBlocklist": ["*"],
+    "URLAllowlist": [],
+    "WebBluetoothBlocklist": ["*"],
+    "WebRtcLocalIpAllowedUrls": [],
+    "WebRtcLocalhostIpHandling": 2,
+    "WebRtcUdpPortRange": "0",
+    "WebUsbAllowDevicesForUrls": [],
+    "WebUsbBlocklist": ["*"],
+    "WindowMinimizeButtonEnabled": false,
+    "WindowsSandboxEnabled": false,
+    "BraveRewardsDisabled": true,
+    "BraveVPNDisabled": true,
+    "BraveWalletDisabled": true,
+    "BraveAIAssistantDisabled": true,
+    "BraveTorDisabled": true,
+    "BraveSyncDisabled": true,
+    "BraveFirewallEnabled": true,
+    "BraveSocialBlockingEnabled": true,
+    "BraveAdsDisabled": true,
+    "BraveTrackingProtectionEnabled": true,
+    "BraveHTTPSUpgradesEnabled": true,
+    "BraveFingerprintingBlockingEnabled": true
+  }
+}

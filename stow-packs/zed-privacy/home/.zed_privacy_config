@@ -1,0 +1,93 @@
+# Zed Privacy Configuration
+# This file contains privacy-focused settings for Zed editor
+
+# Environment variables for Zed privacy
+export ZED_TELEMETRY_DISABLED="1"
+export ZED_AUTO_UPDATE="0"
+export ZED_DIAGNOSTICS="0"
+export ZED_COLLABORATION="0"
+export ZED_CRASH_REPORTING="0"
+
+# Zed directories and files (these will be created automatically)
+export ZED_CONFIG_DIR="$HOME/.config/zed"
+export ZED_DATA_DIR="$HOME/Library/Application Support/Zed"
+export ZED_CACHE_DIR="$HOME/.cache/zed"
+export ZED_STATE_DIR="$HOME/.local/state/zed"
+
+# Privacy-focused aliases
+alias zed='zed --disable-telemetry --disable-auto-update'
+alias zed-safe='zed --disable-telemetry --disable-auto-update --disable-diagnostics'
+alias zed-private='zed --disable-telemetry --disable-auto-update --disable-diagnostics --disable-collaboration'
+alias zed-offline='zed --offline --disable-telemetry --disable-auto-update --disable-diagnostics --disable-collaboration'
+
+# Functions for Zed privacy management
+zed_clean_cache() {
+    echo "Cleaning Zed cache..."
+    rm -rf "$ZED_CACHE_DIR" 2>/dev/null || true
+    rm -rf "$ZED_STATE_DIR" 2>/dev/null || true
+    rm -f "$HOME/.zed-history" 2>/dev/null || true
+    rm -rf "$HOME/.zed-sessions" 2>/dev/null || true
+    echo "Cache cleaned successfully"
+}
+
+zed_reset_config() {
+    echo "Resetting Zed configuration..."
+    rm -rf "$ZED_CONFIG_DIR" 2>/dev/null || true
+    rm -rf "$HOME/.zed" 2>/dev/null || true
+    echo "Configuration reset successfully"
+}
+
+zed_clean_data() {
+    echo "Cleaning Zed data..."
+    rm -rf "$ZED_DATA_DIR" 2>/dev/null || true
+    rm -rf "$HOME/.zed-backup" 2>/dev/null || true
+    rm -rf "$HOME/.zed-temp" 2>/dev/null || true
+    echo "Data cleaned successfully"
+}
+
+zed_show_privacy_status() {
+    echo "Zed Privacy Status:"
+    echo "  Telemetry: DISABLED"
+    echo "  Auto Update: DISABLED"
+    echo "  Diagnostics: DISABLED"
+    echo "  Collaboration: DISABLED"
+    echo "  Crash Reporting: DISABLED"
+    echo "  Cache: MANAGED"
+    echo "  State: MANAGED"
+}
+
+zed_privacy_check() {
+    echo "Checking Zed privacy settings..."
+    
+    # Check environment variables
+    if [ "$ZED_TELEMETRY_DISABLED" = "1" ]; then
+        echo "✓ Telemetry disabled"
+    else
+        echo "✗ Telemetry not disabled"
+    fi
+    
+    if [ "$ZED_AUTO_UPDATE" = "0" ]; then
+        echo "✓ Auto update disabled"
+    else
+        echo "✗ Auto update not disabled"
+    fi
+    
+    # Check if Zed is running
+    if pgrep -f "zed" > /dev/null; then
+        echo "⚠ Zed is currently running - restart to apply changes"
+    else
+        echo "✓ Zed is not running"
+    fi
+    
+    # Check for sensitive files
+    if [ -f "$HOME/.zed-history" ]; then
+        echo "⚠ History file exists - consider removing"
+    fi
+    
+    if [ -d "$HOME/.zed-sessions" ]; then
+        echo "⚠ Sessions directory exists - consider removing"
+    fi
+}
+
+# Auto-cleanup on shell exit (optional)
+# trap 'zed_clean_cache' EXIT

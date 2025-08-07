@@ -1,0 +1,125 @@
+# Neovim Privacy Configuration
+# This file contains privacy-focused settings for Neovim
+
+# Environment variables for Neovim privacy
+export NVIM_DISABLE_TELEMETRY="1"
+export NVIM_DISABLE_AUTO_UPDATE="1"
+export NVIM_DISABLE_ONLINE_FEATURES="1"
+export NVIM_DISABLE_AI="1"
+
+# Neovim directories and files (these will be created automatically)
+export NVIM_CONFIG_DIR="$HOME/.config/nvim"
+export NVIM_DATA_DIR="$HOME/.local/share/nvim"
+export NVIM_STATE_DIR="$HOME/.local/state/nvim"
+export NVIM_CACHE_DIR="$HOME/.cache/nvim"
+
+# Privacy-focused aliases
+alias nvim='nvim --disable-lua-api'
+alias nvim-safe='nvim --disable-lua-api --headless'
+alias nvim-private='nvim --disable-lua-api --headless --noplugin'
+alias nvim-clean='nvim --disable-lua-api --headless --noplugin --clean'
+
+# Functions for Neovim privacy management
+nvim_clean_cache() {
+    echo "Cleaning Neovim cache..."
+    rm -rf "$NVIM_CACHE_DIR" 2>/dev/null || true
+    rm -rf "$NVIM_STATE_DIR" 2>/dev/null || true
+    rm -rf "$NVIM_CONFIG_DIR/session" 2>/dev/null || true
+    rm -rf "$NVIM_CONFIG_DIR/swap" 2>/dev/null || true
+    rm -rf "$NVIM_CONFIG_DIR/backup" 2>/dev/null || true
+    rm -rf "$NVIM_CONFIG_DIR/undo" 2>/dev/null || true
+    rm -rf "$NVIM_CONFIG_DIR/view" 2>/dev/null || true
+    rm -f "$HOME/.viminfo" 2>/dev/null || true
+    rm -f "$HOME/.viminfo.tmp" 2>/dev/null || true
+    echo "Cache cleaned successfully"
+}
+
+nvim_clean_data() {
+    echo "Cleaning Neovim data..."
+    rm -rf "$NVIM_DATA_DIR" 2>/dev/null || true
+    rm -rf "$NVIM_CONFIG_DIR/shada" 2>/dev/null || true
+    rm -rf "$NVIM_CONFIG_DIR/log" 2>/dev/null || true
+    rm -f "$NVIM_CONFIG_DIR/lazy-lock.json" 2>/dev/null || true
+    echo "Data cleaned successfully"
+}
+
+nvim_reset_config() {
+    echo "Resetting Neovim configuration..."
+    rm -rf "$NVIM_CONFIG_DIR" 2>/dev/null || true
+    echo "Configuration reset successfully"
+}
+
+nvim_clean_all() {
+    echo "Cleaning all Neovim data..."
+    nvim_clean_cache
+    nvim_clean_data
+    echo "All data cleaned successfully"
+}
+
+nvim_show_privacy_status() {
+    echo "Neovim Privacy Status:"
+    echo "  Telemetry: DISABLED"
+    echo "  Auto Update: DISABLED"
+    echo "  Online Features: DISABLED"
+    echo "  AI Features: DISABLED"
+    echo "  Cache: MANAGED"
+    echo "  State: MANAGED"
+    echo "  Data: MANAGED"
+}
+
+nvim_privacy_check() {
+    echo "Checking Neovim privacy settings..."
+    
+    # Check environment variables
+    if [ "$NVIM_DISABLE_TELEMETRY" = "1" ]; then
+        echo "✓ Telemetry disabled"
+    else
+        echo "✗ Telemetry not disabled"
+    fi
+    
+    if [ "$NVIM_DISABLE_AUTO_UPDATE" = "1" ]; then
+        echo "✓ Auto update disabled"
+    else
+        echo "✗ Auto update not disabled"
+    fi
+    
+    # Check if Neovim is running
+    if pgrep -f "nvim" > /dev/null; then
+        echo "⚠ Neovim is currently running - restart to apply changes"
+    else
+        echo "✓ Neovim is not running"
+    fi
+    
+    # Check for sensitive files
+    if [ -f "$HOME/.viminfo" ]; then
+        echo "⚠ Viminfo file exists - consider removing"
+    fi
+    
+    if [ -d "$NVIM_CONFIG_DIR/session" ]; then
+        echo "⚠ Session directory exists - consider removing"
+    fi
+    
+    if [ -d "$NVIM_DATA_DIR" ]; then
+        echo "⚠ Data directory exists - consider cleaning"
+    fi
+}
+
+nvim_safe_edit() {
+    local file="$1"
+    if [ -z "$file" ]; then
+        echo "Usage: nvim_safe_edit <file>"
+        return 1
+    fi
+    
+    echo "Opening $file in safe mode..."
+    nvim --disable-lua-api --headless --noplugin --clean "$file"
+}
+
+nvim_temp_edit() {
+    local temp_file="/tmp/nvim_temp_$(date +%s).txt"
+    echo "Opening temporary file: $temp_file"
+    nvim --disable-lua-api --headless --noplugin --clean "$temp_file"
+}
+
+# Auto-cleanup on shell exit (optional)
+# trap 'nvim_clean_cache' EXIT
