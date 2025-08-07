@@ -673,17 +673,32 @@ install_linux_editors_universal() {
                 if command_exists apt; then
                     # Add Microsoft's GPG key and repository
                     print_color "$YELLOW" "Adding Microsoft GPG key for VS Code..."
-                    curl -fsSL https://packages.microsoft.com/keys/microsoft.asc | gpg --dearmor > /tmp/microsoft.gpg
-                    if ! safe_sudo cp /tmp/microsoft.gpg /etc/apt/trusted.gpg.d/microsoft.gpg; then
-                        print_color "$RED" "Failed to add Microsoft GPG key"
-                        print_color "$YELLOW" "You can install VS Code manually from: https://code.visualstudio.com"
-                        rm -f /tmp/microsoft.gpg
-                        return 1
+                    # Download GPG key
+                    curl -fsSL https://packages.microsoft.com/keys/microsoft.asc > /tmp/microsoft.asc
+                    
+                    # Try to import GPG key using apt-key first (preferred method)
+                    if command_exists apt-key && safe_sudo apt-key add /tmp/microsoft.asc; then
+                        print_color "$GREEN" "✓ GPG key imported using apt-key"
+                    else
+                        # Fallback to manual GPG key installation
+                        print_color "$YELLOW" "Trying alternative GPG key import method..."
+                        if ! curl -fsSL https://packages.microsoft.com/keys/microsoft.asc | gpg --dearmor | safe_sudo tee /etc/apt/trusted.gpg.d/microsoft.gpg >/dev/null; then
+                            print_color "$RED" "Failed to import Microsoft GPG key"
+                            print_color "$YELLOW" "You can install VS Code manually from: https://code.visualstudio.com"
+                            rm -f /tmp/microsoft.asc
+                            return 1
+                        fi
+                        print_color "$GREEN" "✓ GPG key imported using manual method"
                     fi
-                    rm -f /tmp/microsoft.gpg
+                    rm -f /tmp/microsoft.asc
                     
                     print_color "$YELLOW" "Adding VS Code repository..."
-                    echo "deb [arch=amd64,arm64,armhf signed-by=/etc/apt/trusted.gpg.d/microsoft.gpg] https://packages.microsoft.com/repos/code stable main" > /tmp/vscode.list
+                    # Check if we need to use signed-by parameter (for manual GPG method)
+                    if [ -f "/etc/apt/trusted.gpg.d/microsoft.gpg" ]; then
+                        echo "deb [arch=amd64,arm64,armhf signed-by=/etc/apt/trusted.gpg.d/microsoft.gpg] https://packages.microsoft.com/repos/code stable main" > /tmp/vscode.list
+                    else
+                        echo "deb [arch=amd64,arm64,armhf] https://packages.microsoft.com/repos/code stable main" > /tmp/vscode.list
+                    fi
                     if ! safe_sudo cp /tmp/vscode.list /etc/apt/sources.list.d/vscode.list; then
                         print_color "$RED" "Failed to add VS Code repository"
                         print_color "$YELLOW" "You can install VS Code manually from: https://code.visualstudio.com"
