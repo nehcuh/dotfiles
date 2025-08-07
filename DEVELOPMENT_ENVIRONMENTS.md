@@ -59,6 +59,8 @@ Install dotfiles and development environments together:
 ./install.sh git zsh --dev-env
 ```
 
+**Note:** On macOS, the installer will also automatically detect and offer to install packages from the included Brewfile, which provides many of the CLI tools and applications mentioned in this guide.
+
 ### 2. Remote One-Line Installation
 
 ```bash
