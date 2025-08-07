@@ -268,7 +268,7 @@ install_vscode_linux() {
                 if ! safe_sudo apt update; then
                     return 1
                 fi
-                if ! safe_sudo apt install -y curl gpg; then
+                if ! safe_sudo apt install -y curl gpg wget; then
                     return 1
                 fi
                 
@@ -307,7 +307,7 @@ install_vscode_linux() {
             if command -v dnf >/dev/null 2>&1; then
                 echo -e "${YELLOW}Trying to install VS Code via dnf...${NC}"
                 # Add Microsoft repository
-                sudo rpm --import https://packages.microsoft.com/keys/microsoft.asc
+                safe_sudo rpm --import https://packages.microsoft.com/keys/microsoft.asc
                 echo -e "[code]\nname=Visual Studio Code\nbaseurl=https://packages.microsoft.com/yumrepos/vscode\nenabled=1\ngpgcheck=1\ngpgkey=https://packages.microsoft.com/keys/microsoft.asc" | safe_sudo tee /etc/yum.repos.d/vscode.repo >/dev/null
                 
                 # Install VS Code
@@ -317,6 +317,23 @@ install_vscode_linux() {
             fi
             ;;
     esac
+    
+    # Try official .deb package for Debian/Ubuntu systems
+    if command -v apt >/dev/null 2>&1; then
+        echo -e "${YELLOW}Trying VS Code .deb package installation...${NC}"
+        if wget -qO- https://packages.microsoft.com/repos/code/pool/main/c/code/code_*_amd64.deb | safe_sudo dpkg -i -; then
+            safe_sudo apt install -f -y
+            return 0
+        fi
+    fi
+    
+    # Try official .rpm package for Fedora/RHEL systems
+    if command -v dnf >/dev/null 2>&1; then
+        echo -e "${YELLOW}Trying VS Code .rpm package installation...${NC}"
+        if wget -qO- https://packages.microsoft.com/repos/code/pool/main/c/code/code-*x86_64.rpm | safe_sudo rpm -i -; then
+            return 0
+        fi
+    fi
     
     # Try official installation script as fallback
     echo -e "${YELLOW}Trying VS Code official installation script...${NC}"
@@ -486,18 +503,16 @@ install_linux_packages() {
             ;;
     esac
     
-    # Install Linux Homebrew (optional, for tools not available in package manager)
+    # Install Linux Homebrew (for tools not available in package manager)
     if ! command -v brew &> /dev/null; then
-        echo -e "${YELLOW}Would you like to install Linux Homebrew? (y/N)${NC}"
-        read -r install_homebrew
-        if [ "$install_homebrew" = "y" ] || [ "$install_homebrew" = "Y" ]; then
-            echo -e "${YELLOW}Installing Linux Homebrew...${NC}"
-            /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
-            
+        echo -e "${YELLOW}Installing Linux Homebrew...${NC}"
+        if /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"; then
             # Add Homebrew to PATH
             echo 'eval "$(/home/linuxbrew/.linuxbrew/bin/brew shellenv)"' >> ~/.zprofile
             eval "$(/home/linuxbrew/.linuxbrew/bin/brew shellenv)"
             echo -e "${GREEN}✓ Linux Homebrew installed${NC}"
+        else
+            echo -e "${RED}Failed to install Linux Homebrew${NC}"
         fi
     fi
 }
@@ -708,11 +723,8 @@ install_editors
 
 # Setup Linux Homebrew with Tsinghua mirror (if needed)
 if [ "$PLATFORM" = "linux" ]; then
-    echo -e "${YELLOW}Would you like to install Linux Homebrew with Tsinghua mirror? (y/N)${NC}"
-    read -r install_homebrew
-    if [ "$install_homebrew" = "y" ] || [ "$install_homebrew" = "Y" ]; then
-        setup_linux_homebrew
-    fi
+    echo -e "${YELLOW}Installing Linux Homebrew with Tsinghua mirror...${NC}"
+    setup_linux_homebrew
 fi
 
 # Install editor configurations

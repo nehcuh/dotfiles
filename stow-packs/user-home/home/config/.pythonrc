@@ -1,0 +1,43 @@
+# Python Configuration
+# This file is executed when Python starts
+
+import sys
+import os
+import readline
+import rlcompleter
+
+# Enable tab completion
+readline.parse_and_bind('tab: complete')
+
+# Enable history
+readline.parse_and_bind('set show-all-if-ambiguous on')
+readline.parse_and_bind('set bell-style none')
+
+# Set history file
+histfile = os.path.expanduser('~/.python_history')
+try:
+    readline.read_history_file(histfile)
+    # Set history length
+    readline.set_history_length(10000)
+except FileNotFoundError:
+    pass
+
+# Save history on exit
+import atexit
+atexit.register(readline.write_history_file, histfile)
+
+# Pretty printing
+try:
+    from pprint import pprint
+except ImportError:
+    pass
+
+# Common imports
+import math
+import json
+import re
+import datetime
+
+# Print welcome message
+print(f"Python {sys.version}")
+print(f"History file: {histfile}")

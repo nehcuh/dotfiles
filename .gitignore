@@ -490,6 +490,81 @@ dist
 *.tar.gz
 *.rar
 
+# User Home Directory Files
+# These files are managed by the user-home stow package but contain sensitive data
+
+# Shell History Files (sensitive command history)
+.bash_history
+.zsh_history
+.history
+.histfile
+.python_history
+.irb_history
+.node_repl_history
+
+# Shell Cache Files
+.zcompdump*
+.z
+.sudo_as_admin_successful
+.lesshst
+.wget-hsts
+
+# System and Application Files
+.cache/
+.local/share/
+.local/state/
+.fzf_history
+.python_history
+.python_history-*
+.node_repl_history
+.irb_history
+
+# User Home Directory Management
+# The actual files in stow-packs/user-home/ should be ignored, but the structure can be committed
+stow-packs/user-home/home/history/
+stow-packs/user-home/home/cache/
+stow-packs/user-home/home/appdata/
+
+# Specific sensitive files in user-home
+stow-packs/user-home/home/history/.bash_history
+stow-packs/user-home/home/history/.zsh_history
+stow-packs/user-home/home/history/.history
+stow-packs/user-home/home/history/.histfile
+stow-packs/user-home/home/history/.python_history
+stow-packs/user-home/home/history/.node_repl_history
+stow-packs/user-home/home/history/.irb_history
+
+stow-packs/user-home/home/cache/.zcompdump*
+stow-packs/user-home/home/cache/.z
+stow-packs/user-home/home/cache/.sudo_as_admin_successful
+stow-packs/user-home/home/cache/.lesshst
+stow-packs/user-home/home/cache/.wget-hsts
+
+# Local configuration files (sensitive)
+.bashrc.local
+.zshrc.local
+.profile.local
+.bash_profile.local
+.config/shell/local
+.config/*/local
+.config/*/secrets*
+
+# Sensitive directories
+.ssh/
+.gnupg/
+.aws/
+.azure/
+.docker/
+.kube/
+.vault/
+.password-store/
+
+# Application data (sensitive)
+.local/share/keyrings/
+.local/share/flatpak/
+.local/share/containers/
+.cache/
+
 # Compiled binaries
 *.exe
 *.dll
