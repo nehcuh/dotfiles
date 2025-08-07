@@ -90,6 +90,13 @@ else
     log_info "Non-interactive mode: proceeding automatically..."
 fi
 
+# For Brewfile installation, we need to ensure proper TTY handling
+# When running through pipe (curl | bash), stdin might not be available for prompts
+if [ ! -t 0 ] && [ "$NON_INTERACTIVE" != "true" ]; then
+    log_warning "Detected piped input - setting non-interactive mode for Brewfile installation"
+    export NON_INTERACTIVE="true"
+fi
+
 # Build install command with appropriate options
 install_cmd="./install.sh"
 
