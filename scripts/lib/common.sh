@@ -368,9 +368,9 @@ install_homebrew() {
   
   # Install Homebrew using the official script
   if command_exists curl; then
-    /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/master/install.sh)"
+    /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
   else
-    /bin/bash -c "$(wget -qO- https://raw.githubusercontent.com/Homebrew/install/master/install.sh)"
+    /bin/bash -c "$(wget -qO- https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
   fi
   
   # Check if Homebrew was installed successfully
