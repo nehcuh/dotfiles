@@ -1,0 +1,25 @@
+# macOS-specific Zsh configuration
+
+# Homebrew environment setup
+if [[ -f "/opt/homebrew/bin/brew" ]]; then
+    # Apple Silicon Mac
+    eval "$(/opt/homebrew/bin/brew shellenv)"
+elif [[ -f "/usr/local/bin/brew" ]]; then
+    # Intel Mac
+    eval "$(/usr/local/bin/brew shellenv)"
+fi
+
+# macOS-specific aliases
+alias ll='ls -la'
+alias la='ls -A'
+alias l='ls -CF'
+
+# Show/hide hidden files in Finder
+alias showfiles='defaults write com.apple.finder AppleShowAllFiles YES; killall Finder /System/Library/CoreServices/Finder.app'
+alias hidefiles='defaults write com.apple.finder AppleShowAllFiles NO; killall Finder /System/Library/CoreServices/Finder.app'
+
+# Quick Look an image
+alias ql='qlmanage -p'
+
+# Recursively delete .DS_Store files
+alias cleanup="find . -name '*.DS_Store' -type f -ls -delete"

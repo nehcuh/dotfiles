@@ -4,6 +4,14 @@
 DOTFILES=$HOME/.dotfiles
 NVIMD=$HOME/.config/nvim
 
+# Load OS-specific configuration
+if [[ "$OSTYPE" == "darwin"* ]]; then
+    # macOS-specific configuration
+    if [[ -f "$DOTFILES/stow-packs/macos/.zshrc.macos" ]]; then
+        source "$DOTFILES/stow-packs/macos/.zshrc.macos"
+    fi
+fi
+
 # Initialize starship prompt
 eval "$(starship init zsh)"
 
@@ -150,7 +158,7 @@ zstyle ':fzf-tab:*' switch-group '<' '>'
 
 # Preview contents
 zstyle ':fzf-tab:complete:*:*' fzf-preview 'less ${(Q)realpath}'
-export LESSOPEN='|~/.dotfiles/.lessfilter %s'
+export LESSOPEN='|~/.lessfilter %s'
 
 # Preview environment vareiables
 zstyle ':fzf-tab:complete:(-command-|-parameter-|-brace-parameter-|export|unset|expand):*' \
@@ -339,7 +347,3 @@ export BUN_INSTALL="$HOME/.bun"
 export PATH="$BUN_INSTALL/bin:$PATH"
 
 [[ "$TERM_PROGRAM" == "kiro" ]] && . "$(kiro --locate-shell-integration-path zsh)"
-alias gitai="/Users/huchen/Projects/gitai/target/release/gitai"
-
-# Source shell history configuration
-source "/Users/huchen/.dotfiles/stow-packs/shell-history/home/.shell_history_config"

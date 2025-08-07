@@ -60,10 +60,36 @@ check_prerequisites() {
                 ;;
             macos)
                 if command -v brew &> /dev/null; then
+                    log_info "Homebrew found, installing GNU Stow..."
                     brew install stow
                 else
-                    log_error "Homebrew not found. Please install GNU Stow manually."
-                    exit 1
+                    log_warning "Homebrew not found. Installing Homebrew first..."
+                    
+                    # Install Homebrew
+                    log_info "Installing Homebrew..."
+                    /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
+                    
+                    # Add Homebrew to PATH for current session
+                    if [ -f "/opt/homebrew/bin/brew" ]; then
+                        # Apple Silicon Mac
+                        export PATH="/opt/homebrew/bin:$PATH"
+                        eval "$(/opt/homebrew/bin/brew shellenv)"
+                    elif [ -f "/usr/local/bin/brew" ]; then
+                        # Intel Mac
+                        export PATH="/usr/local/bin:$PATH"
+                        eval "$(/usr/local/bin/brew shellenv)"
+                    fi
+                    
+                    # Verify Homebrew installation
+                    if command -v brew &> /dev/null; then
+                        log_success "Homebrew installed successfully"
+                        log_info "Installing GNU Stow..."
+                        brew install stow
+                    else
+                        log_error "Failed to install Homebrew. Please install it manually:"
+                        log_error "Visit: https://brew.sh"
+                        exit 1
+                    fi
                 fi
                 ;;
         esac
