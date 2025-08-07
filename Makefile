@@ -2,7 +2,7 @@
 
 # Variables
 DOTFILES_DIR := $(CURDIR)
-VERSION := 2.0.0
+VERSION := 1.0.0
 
 # Detect platform
 UNAME_S := $(shell uname -s)
@@ -35,6 +35,8 @@ help:
 	@echo "  $(GREEN)status$(NC)       - Show current status" 
 	@echo "  $(GREEN)update$(NC)       - Update repository"
 	@echo "  $(GREEN)clean$(NC)        - Clean backup files"
+	@echo "  $(GREEN)setup-dev$(NC)    - Setup development environments"
+	@echo "  $(GREEN)setup-git$(NC)    - Setup Git configuration"
 	@echo ""
 	@echo "$(BLUE)Examples:$(NC)"
 	@echo "  make install      # Install all dotfiles"
@@ -89,19 +91,12 @@ setup-git:
 	@./scripts/setup-git-config.sh
 	@echo "$(GREEN)✓ Git setup complete!$(NC)"
 
-# Python setup
-.PHONY: setup-python
-setup-python:
-	@echo "$(BLUE)Setting up Python environment...$(NC)"
-	@./scripts/setup-python-env.sh
-	@echo "$(GREEN)✓ Python setup complete!$(NC)"
-
-# Node.js setup
-.PHONY: setup-node
-setup-node:
-	@echo "$(BLUE)Setting up Node.js environment...$(NC)"
-	@./scripts/setup-node-env.sh
-	@echo "$(GREEN)✓ Node.js setup complete!$(NC)"
+# Development environment setup
+.PHONY: setup-dev
+setup-dev:
+	@echo "$(BLUE)Setting up development environments...$(NC)"
+	@./scripts/setup-dev-environment.sh
+	@echo "$(GREEN)✓ Development environment setup complete!$(NC)"
 
 # Check requirements
 .PHONY: check
