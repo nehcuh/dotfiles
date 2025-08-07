@@ -700,61 +700,106 @@ safe_sudo() {
     return 0
 }
 
-# Main installation process
-main() {
-    # Detect environment
-    detect_shell
-    detect_platform
+# Install Homebrew on Linux with Tsinghua mirror
+install_linux_homebrew_universal() {
+    if [ "$PLATFORM" != "linux" ]; then
+        return 0
+    fi
     
-    # Print header with detected information
-    print_header
+    if command_exists brew; then
+        print_color "$GREEN" "✓ Homebrew already installed"
+        return 0
+    fi
     
-    # Ask user for confirmation
-    printf "Do you want to proceed with the installation? [Y/n]: "
-    read response < /dev/tty
-    case "$response" in
-        [nN][oO]|[nN])
-            print_color "$YELLOW" "Installation cancelled."
-            exit 0
+    print_color "$YELLOW" "Installing Linux Homebrew with Tsinghua mirror..."
+    
+    # Install Homebrew with Tsinghua mirror
+    export HOMEBREW_BREW_GIT_REMOTE="https://mirrors.tuna.tsinghua.edu.cn/git/homebrew/brew.git"
+    export HOMEBREW_CORE_GIT_REMOTE="https://mirrors.tuna.tsinghua.edu.cn/git/homebrew/homebrew-core.git"
+    export HOMEBREW_BOTTLE_DOMAIN="https://mirrors.tuna.tsinghua.edu.cn/homebrew-bottles"
+    
+    # Install Homebrew
+    if ! /bin/bash -c "$(curl -fsSL https://mirrors.tuna.tsinghua.edu.cn/git/homebrew/install.git/raw/master/install.sh)"; then
+        print_color "$RED" "Failed to install Homebrew with Tsinghua mirror"
+        return 1
+    fi
+    
+    # Add Homebrew to PATH
+    echo 'eval "$(/home/linuxbrew/.linuxbrew/bin/brew shellenv)"' >> ~/.zprofile
+    eval "$(/home/linuxbrew/.linuxbrew/bin/brew shellenv)"
+    
+    # Configure Tsinghua mirror for existing Homebrew installation
+    brew git -C "$(brew --repo)" remote set-url origin https://mirrors.tuna.tsinghua.edu.cn/git/homebrew/brew.git
+    brew git -C "$(brew --repo homebrew/core)" remote set-url origin https://mirrors.tuna.tsinghua.edu.cn/git/homebrew/homebrew-core.git
+    
+    # Configure bottle domain
+    echo 'export HOMEBREW_BOTTLE_DOMAIN="https://mirrors.tuna.tsinghua.edu.cn/homebrew-bottles"' >> ~/.zprofile
+    
+    print_color "$GREEN" "✓ Linux Homebrew installed with Tsinghua mirror"
+    return 0
+}
+
+# Install Starship prompt
+install_starship_universal() {
+    if command_exists starship; then
+        print_color "$GREEN" "✓ Starship already installed"
+        return 0
+    fi
+    
+    print_color "$YELLOW" "Installing Starship prompt..."
+    
+    # Try different installation methods
+    if command_exists curl; then
+        # Install via curl
+        if curl -fsSL https://starship.rs/install.sh | sh; then
+            print_color "$GREEN" "✓ Starship installed"
+            return 0
+        fi
+    elif command_exists wget; then
+        # Install via wget
+        if wget -qO- https://starship.rs/install.sh | sh; then
+            print_color "$GREEN" "✓ Starship installed"
+            return 0
+        fi
+    fi
+    
+    # Try package manager installation
+    case "$PLATFORM" in
+        macos)
+            if command_exists brew; then
+                if brew install starship; then
+                    print_color "$GREEN" "✓ Starship installed via Homebrew"
+                    return 0
+                fi
+            fi
             ;;
-        *)
+        linux)
+            case "$DISTRO" in
+                ubuntu|debian|linuxmint)
+                    if command_exists apt && safe_sudo apt update && safe_sudo apt install -y starship; then
+                        print_color "$GREEN" "✓ Starship installed via apt"
+                        return 0
+                    fi
+                    ;;
+                arch|manjaro)
+                    if command_exists pacman && safe_sudo pacman -Syu --noconfirm starship; then
+                        print_color "$GREEN" "✓ Starship installed via pacman"
+                        return 0
+                    fi
+                    ;;
+                fedora|centos|rhel)
+                    if command_exists dnf && safe_sudo dnf install -y starship; then
+                        print_color "$GREEN" "✓ Starship installed via dnf"
+                        return 0
+                    fi
+                    ;;
+            esac
             ;;
     esac
     
-    # Check for sudo access on Unix-like systems
-    if [ "$PLATFORM" != "windows" ]; then
-        if ! check_sudo_access; then
-            print_color "$RED" "Error: Sudo access required for installation"
-            exit 1
-        fi
-        keep_sudo_alive
-    fi
-    
-    # Install prerequisites
-    install_prerequisites
-    
-    # Clone dotfiles
-    clone_dotfiles
-    
-    # Check for configuration conflicts
-    check_config_conflicts
-    
-    # Install VS Code and Zed editors
-    print_color "$YELLOW" "🚀 Installing editors (VS Code, Zed)..."
-    install_editors_universal
-    
-    # Run installer
-    run_installer
-    
-    print_color "$GREEN" ""
-    print_color "$GREEN" "╔══════════════════════════════════════════════════════════════╗"
-    print_color "$GREEN" "║                      Installation Complete!                  ║"
-    print_color "$GREEN" "╚══════════════════════════════════════════════════════════════╝"
-    print_color "$YELLOW" "Please restart your terminal to apply all changes."
-    print_color "$BLUE" "You can manage your dotfiles with:"
-    print_color "$CYAN" "  cd ~/.dotfiles && ./scripts/stow.sh [install|remove|list|status]"
-    printf "\n"
-    print_color "$GREEN" "🎉 Happy coding!"
+    print_color "$RED" "Failed to install Starship"
+    print_color "$YELLOW" "You can install it manually from: https://starship.rs"
+    return 1
 }
 
 # Uninstall function
@@ -804,6 +849,15 @@ main() {
             ;;
     esac
     
+    # Check for sudo access on Unix-like systems
+    if [ "$PLATFORM" != "windows" ]; then
+        if ! check_sudo_access; then
+            print_color "$RED" "Error: Sudo access required for installation"
+            exit 1
+        fi
+        keep_sudo_alive
+    fi
+    
     # Install prerequisites
     install_prerequisites
     
@@ -812,6 +866,20 @@ main() {
     
     # Check for configuration conflicts
     check_config_conflicts
+    
+    # Install Linux Homebrew (if on Linux)
+    if [ "$PLATFORM" = "linux" ]; then
+        print_color "$YELLOW" "🍺 Installing Linux Homebrew..."
+        install_linux_homebrew_universal
+    fi
+    
+    # Install Starship prompt
+    print_color "$YELLOW" "🚀 Installing Starship prompt..."
+    install_starship_universal
+    
+    # Install VS Code and Zed editors
+    print_color "$YELLOW" "🚀 Installing editors (VS Code, Zed)..."
+    install_editors_universal
     
     # Run installer
     run_installer
