@@ -5,8 +5,18 @@
 set -e
 
 # Get script directory
-SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
-DOTFILES_DIR="$(dirname "$SCRIPT_DIR")"
+if [ -n "$0" ] && [ "$0" != "sh" ]; then
+    SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
+    DOTFILES_DIR="$(dirname "$SCRIPT_DIR")"
+else
+    # Script is being piped, use current directory
+    SCRIPT_DIR="$(pwd)"
+    DOTFILES_DIR="$(dirname "$SCRIPT_DIR")"
+    # If we're in scripts directory, go up one level
+    if [ "$(basename "$SCRIPT_DIR")" = "scripts" ]; then
+        DOTFILES_DIR="$(dirname "$SCRIPT_DIR")"
+    fi
+fi
 
 # Smart shell detection and re-execution
 smart_shell_detection() {
@@ -99,8 +109,17 @@ main() {
     
     # Check if interactive-install.sh exists
     if [ ! -f "$DOTFILES_DIR/scripts/interactive-install.sh" ]; then
-        log_error "Interactive install script not found: $DOTFILES_DIR/scripts/interactive-install.sh"
-        exit 1
+        log_warning "Interactive install script not found locally, attempting to download..."
+        # Try to download it
+        if command -v curl >/dev/null 2>&1; then
+            curl -fsSL "https://raw.githubusercontent.com/nehcuh/dotfiles/main/scripts/interactive-install.sh" -o "$DOTFILES_DIR/scripts/interactive-install.sh"
+        elif command -v wget >/dev/null 2>&1; then
+            wget -q "https://raw.githubusercontent.com/nehcuh/dotfiles/main/scripts/interactive-install.sh" -O "$DOTFILES_DIR/scripts/interactive-install.sh"
+        else
+            log_error "Interactive install script not found: $DOTFILES_DIR/scripts/interactive-install.sh"
+            log_error "No curl or wget available to download it"
+            exit 1
+        fi
     fi
     
     # Make sure it's executable
