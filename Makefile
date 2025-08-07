@@ -5,6 +5,7 @@
 DOTFILES_DIR := $(CURDIR)
 STOW_DIR := $(DOTFILES_DIR)/stow-packs
 TARGET_DIR := $(HOME)
+VERSION := 1.0.0
 
 # Detect platform
 UNAME_S := $(shell uname -s)
@@ -16,18 +17,35 @@ else
 	PLATFORM := windows
 endif
 
+# Detect architecture
+UNAME_M := $(shell uname -m)
+ifeq ($(UNAME_M),x86_64)
+	ARCH := amd64
+else ifeq ($(UNAME_M),amd64)
+	ARCH := amd64
+else ifeq ($(UNAME_M),arm64)
+	ARCH := arm64
+else ifeq ($(UNAME_M),aarch64)
+	ARCH := arm64
+else
+	ARCH := $(UNAME_M)
+endif
+
 # Colors
 GREEN := \033[0;32m
 YELLOW := \033[1;33m
 BLUE := \033[0;34m
 CYAN := \033[0;36m
+RED := \033[0;31m
 NC := \033[0m # No Color
 
 # Default target
 .PHONY: help
 help:
-	@echo "$(CYAN)Cross-Platform Dotfiles Management$(NC)"
+	@echo "$(CYAN)Cross-Platform Dotfiles Management v$(VERSION)$(NC)"
 	@echo "=================================="
+	@echo ""
+	@echo "$(BLUE)Platform:$(NC) $(PLATFORM) ($(ARCH))"
 	@echo ""
 	@echo "$(BLUE)Quick start:$(NC)"
 	@echo "  $(GREEN)make interactive$(NC) - Interactive installation wizard"
@@ -50,6 +68,21 @@ help:
 	@echo "  $(GREEN)install-linux$(NC)  - Linux-specific installation"
 	@echo "  $(GREEN)install-macos$(NC)  - macOS-specific installation"
 	@echo "  $(GREEN)install-windows$(NC) - Windows-specific installation"
+	@echo ""
+	@echo "$(BLUE)Development environment targets:$(NC)"
+	@echo "  $(GREEN)setup-python$(NC) - Setup Python environment"
+	@echo "  $(GREEN)setup-node$(NC)   - Setup Node.js environment"
+	@echo "  $(GREEN)setup-dev$(NC)    - Setup both Python and Node.js"
+	@echo "  $(GREEN)docker-build$(NC) - Build Docker development environment"
+	@echo "  $(GREEN)docker-up$(NC)    - Start Docker development environment"
+	@echo "  $(GREEN)docker-down$(NC)  - Stop Docker development environment"
+	@echo "  $(GREEN)docker-shell$(NC) - Access Docker development environment"
+	@echo ""
+	@echo "$(BLUE)Maintenance targets:$(NC)"
+	@echo "  $(GREEN)backup$(NC)      - Backup existing dotfiles"
+	@echo "  $(GREEN)restore$(NC)     - Restore from backup"
+	@echo "  $(GREEN)test$(NC)        - Run tests"
+	@echo "  $(GREEN)lint$(NC)        - Run linter"
 	@echo ""
 	@echo "$(BLUE)Quick installation:$(NC)"
 	@echo "  make install     # Install all dotfiles"
@@ -94,10 +127,7 @@ install-editors:
 install-linux:
 	@if [ "$(PLATFORM)" = "linux" ]; then \
 		echo "$(BLUE)Installing Linux-specific packages...$(NC)"; \
-		./scripts/stow.sh install system; \
-		if [ -f "install_$$(lsb_release -si | tr '[:upper:]' '[:lower:]').sh" ]; then \
-			./install_$$(lsb_release -si | tr '[:upper:]' '[:lower:]').sh; \
-		fi; \
+		./scripts/stow.sh install system linux; \
 	else \
 		echo "$(RED)This target is only for Linux systems.$(NC)"; \
 		exit 1; \
@@ -107,7 +137,7 @@ install-linux:
 install-macos:
 	@if [ "$(PLATFORM)" = "macos" ]; then \
 		echo "$(BLUE)Installing macOS-specific packages...$(NC)"; \
-		./scripts/stow.sh install system; \
+		./scripts/stow.sh install system macos; \
 		if command -v brew >/dev/null 2>&1; then \
 			brew bundle --global; \
 		fi; \
@@ -179,6 +209,18 @@ update:
 setup-git:
 	@echo "$(BLUE)Setting up git configuration...$(NC)"
 	@./scripts/setup-git-config.sh
+	@echo "$(GREEN)✓ Git configuration setup complete!$(NC)"
+
+# Development environment targets
+.PHONY: setup-python
+setup-python:
+	@echo "$(BLUE)Setting up Python environment...$(NC)"
+	@./scripts/setup-python-env.sh
+	@echo "$(GREEN)✓ Python environment setup complete!$(NC)"
+
+.PHONY: setup-node
+setup-node:
+	@echo "$(BLUE)Setting up Node.js environment...$(NC)"
 	@./scripts/setup-node-env.sh
 	@echo "$(GREEN)✓ Node.js environment setup complete!$(NC)"
 
@@ -186,19 +228,81 @@ setup-git:
 setup-dev: setup-python setup-node
 	@echo "$(GREEN)✓ Development environments setup complete!$(NC)"
 
+# Docker targets
+.PHONY: docker-build
+docker-build:
+	@echo "$(BLUE)Building Docker development environment...$(NC)"
+	@docker-compose -f docker/docker-compose.ubuntu-dev.yml build
+	@echo "$(GREEN)✓ Docker environment built!$(NC)"
+
+.PHONY: docker-up
+docker-up:
+	@echo "$(BLUE)Starting Docker development environment...$(NC)"
+	@docker-compose -f docker/docker-compose.ubuntu-dev.yml up -d
+	@echo "$(GREEN)✓ Docker environment started!$(NC)"
+	@echo "$(CYAN)Access with: docker-compose -f docker/docker-compose.ubuntu-dev.yml exec ubuntu-dev zsh$(NC)"
+
+.PHONY: docker-down
+docker-down:
+	@echo "$(BLUE)Stopping Docker development environment...$(NC)"
+	@docker-compose -f docker/docker-compose.ubuntu-dev.yml down
+	@echo "$(GREEN)✓ Docker environment stopped!$(NC)"
+
+.PHONY: docker-shell
+docker-shell:
+	@docker-compose -f docker/docker-compose.ubuntu-dev.yml exec ubuntu-dev zsh
+
+# Backup and restore targets
+.PHONY: backup
+backup:
+	@echo "$(BLUE)Backing up existing dotfiles...$(NC)"
+	@BACKUP_DIR="$(HOME)/.dotfiles-backup-$$(date +%Y%m%d-%H%M%S)"; \
+	mkdir -p "$$BACKUP_DIR"; \
+	for file in $(HOME)/.zshrc $(HOME)/.gitconfig $(HOME)/.config/starship.toml $(HOME)/.tmux.conf $(HOME)/.vimrc; do \
+		if [ -f "$$file" ] && [ ! -L "$$file" ]; then \
+			cp "$$file" "$$BACKUP_DIR/"; \
+			echo "$(GREEN)✓ Backed up $$(basename $$file)$(NC)"; \
+		fi; \
+	done; \
+	echo "$(GREEN)✓ Backup complete at $$BACKUP_DIR$(NC)"
+
+.PHONY: restore
+restore:
+	@echo "$(BLUE)Restoring from backup...$(NC)"
+	@echo "$(YELLOW)Available backups:$(NC)"
+	@ls -1d $(HOME)/.dotfiles-backup-* 2>/dev/null || echo "No backups found"
+	@echo ""
+	@echo "$(YELLOW)Enter backup directory to restore from:$(NC)"
+	@read -p "Backup directory: " BACKUP_DIR; \
+	if [ -d "$$BACKUP_DIR" ]; then \
+		for file in "$$BACKUP_DIR"/*; do \
+			if [ -f "$$file" ]; then \
+				cp "$$file" "$(HOME)/.$$(basename $$file)"; \
+				echo "$(GREEN)✓ Restored $$(basename $$file)$(NC)"; \
+			fi; \
+		done; \
+		echo "$(GREEN)✓ Restore complete!$(NC)"; \
+	else \
+		echo "$(RED)✗ Backup directory not found: $$BACKUP_DIR$(NC)"; \
+		exit 1; \
+	fi
+
 # Development targets
 .PHONY: test
 test:
 	@echo "$(BLUE)Running tests...$(NC)"
-	@echo "$(YELLOW)No tests defined yet.$(NC)"
+	@./scripts/test-config.sh
+	@echo "$(GREEN)✓ Tests complete!$(NC)"
 
 .PHONY: lint
 lint:
 	@echo "$(BLUE)Running linter...$(NC)"
 	@if command -v shellcheck >/dev/null 2>&1; then \
-		shellcheck *.sh; \
+		find ./scripts -name "*.sh" -exec shellcheck {} \; ; \
+		echo "$(GREEN)✓ Linting complete!$(NC)"; \
 	else \
 		echo "$(YELLOW)shellcheck not installed. Skipping linting.$(NC)"; \
+		echo "$(YELLOW)Install with: apt-get install shellcheck (Linux) or brew install shellcheck (macOS)$(NC)"; \
 	fi
 
 # Quick install targets
@@ -213,7 +317,9 @@ fresh-install: clean install
 detect-platform:
 	@echo "$(CYAN)Platform Detection$(NC)"
 	@echo "OS: $(UNAME_S)"
+	@echo "Architecture: $(UNAME_M)"
 	@echo "Platform: $(PLATFORM)"
+	@echo "Architecture: $(ARCH)"
 	@echo "Dotfiles directory: $(DOTFILES_DIR)"
 	@echo "Target directory: $(TARGET_DIR)"
 
@@ -242,27 +348,3 @@ check-requirements:
 bootstrap: check-requirements install
 	@echo "$(GREEN)🎉 Bootstrap complete!$(NC)"
 	@echo "$(YELLOW)Please restart your terminal.$(NC)"
-
-# Docker development environment
-.PHONY: docker-build
-docker-build:
-	@echo "$(BLUE)Building Docker development environment...$(NC)"
-	@docker-compose -f docker/docker-compose.ubuntu-dev.yml build
-	@echo "$(GREEN)✓ Docker environment built!$(NC)"
-
-.PHONY: docker-up
-docker-up:
-	@echo "$(BLUE)Starting Docker development environment...$(NC)"
-	@docker-compose -f docker/docker-compose.ubuntu-dev.yml up -d
-	@echo "$(GREEN)✓ Docker environment started!$(NC)"
-	@echo "$(CYAN)Access with: docker-compose -f docker/docker-compose.ubuntu-dev.yml exec ubuntu-dev zsh$(NC)"
-
-.PHONY: docker-down
-docker-down:
-	@echo "$(BLUE)Stopping Docker development environment...$(NC)"
-	@docker-compose -f docker/docker-compose.ubuntu-dev.yml down
-	@echo "$(GREEN)✓ Docker environment stopped!$(NC)"
-
-.PHONY: docker-shell
-docker-shell:
-	@docker-compose -f docker/docker-compose.ubuntu-dev.yml exec ubuntu-dev zsh

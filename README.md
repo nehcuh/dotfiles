@@ -5,6 +5,25 @@
 Full and clean configurations for development environment on Linux, macOS,
 and Windows.
 
+## Features
+
+### Cross-Platform Support
+- **Linux**: Ubuntu, Debian, Arch, Fedora, and more
+- **macOS**: All recent versions with Homebrew
+- **Windows**: WSL, MSYS2, native PowerShell
+
+### Package Management
+- **Linux**: apt, pacman, dnf, Homebrew
+- **macOS**: Homebrew
+- **Windows**: Scoop, Winget
+
+### Tools Included
+- **Shell**: Zsh with Zinit plugin manager
+- **Terminal**: tmux with Oh My Tmux
+- **Editors**: Neovim, Vim
+- **Utilities**: fzf, ripgrep, eza, bat, starship, zoxide
+- **Git**: Enhanced configuration with aliases
+
 ## Prerequisite
 
 - Linux, macOS, Windows (WSL/MSYS2)
@@ -30,7 +49,7 @@ This will launch an interactive wizard that automatically detects your shell and
 
 ### 🔐 Sudo Permission Handling
 
-All installation scripts now include comprehensive sudo permission management:
+All installation scripts include comprehensive sudo permission management:
 
 - **Automatic Detection**: Scripts check for sudo access before requiring it
 - **User-Friendly Prompts**: Clear instructions when password entry is needed
@@ -40,21 +59,20 @@ All installation scripts now include comprehensive sudo permission management:
 
 **macOS Users**: If you encounter permission issues, ensure your user has administrator privileges in System Preferences > Users & Groups.
 
-### One-Command Installation (Recommended)
+### One-Command Installation
 
 **Linux & macOS:**
 ```bash
-curl -fsSL https://raw.githubusercontent.com/nehcuh/dotfiles/main/scripts/install-unified.sh | bash
+curl -fsSL https://raw.githubusercontent.com/nehcuh/dotfiles/main/scripts/install.sh | bash
 
 # Or use the POSIX-compatible version:
-curl -fsSL https://raw.githubusercontent.com/nehcuh/dotfiles/main/scripts/install-unified-posix.sh | sh
+curl -fsSL https://raw.githubusercontent.com/nehcuh/dotfiles/main/scripts/install.sh | sh
 ```
 
 **Windows:**
 ```powershell
-git clone https://github.com/nehcuh/dotfiles.git ~/.dotfiles
-cd ~/.dotfiles
-./scripts/install.bat
+# Run in PowerShell
+iwr -useb https://raw.githubusercontent.com/nehcuh/dotfiles/main/scripts/install-windows-improved.ps1 | iex
 ```
 
 ### Manual Installation
@@ -63,17 +81,14 @@ cd ~/.dotfiles
 ```bash
 git clone https://github.com/nehcuh/dotfiles.git ~/.dotfiles
 cd ~/.dotfiles
-./scripts/install-unified.sh
-
-# Or use the POSIX-compatible version:
-./scripts/install-unified-posix.sh
+./scripts/install.sh
 ```
 
 **Windows:**
 ```powershell
 git clone https://github.com/nehcuh/dotfiles.git ~/.dotfiles
 cd ~/.dotfiles
-./scripts/install.bat
+./scripts/install-windows-improved.ps1
 ```
 
 ### Using Make
@@ -84,31 +99,11 @@ cd ~/.dotfiles
 make install
 ```
 
-## Features
-
-### Cross-Platform Support
-- **Linux**: Ubuntu, Debian, Arch, Fedora, etc.
-- **macOS**: All recent versions with Homebrew
-- **Windows**: WSL, MSYS2, native PowerShell
-
-### Package Management
-- **Linux**: apt, pacman, dnf, Homebrew
-- **macOS**: Homebrew
-- **Windows**: Scoop, Winget
-
-### Tools Included
-- **Shell**: Zsh with Zinit plugin manager
-- **Terminal**: tmux with Oh My Tmux
-- **Editors**: Neovim, Vim
-- **Utilities**: fzf, ripgrep, eza, bat, starship, zoxide
-- **Git**: Enhanced configuration with aliases
-
 ## Detailed Configuration
 
 ### 🖥️ System Packages
 **Core Development Tools:**
 - **Neovim**: Modern, extensible text editor with LSP support
-- **Zed**: Lightning-fast, collaborative code editor with optimized settings
 - **Zed**: Lightning-fast, collaborative code editor
 - **Tmux**: Terminal multiplexer for session management
 - **Git**: Version control with enhanced configuration
@@ -137,21 +132,8 @@ make install
 **Container Development:**
 - **Dev Containers**: VS Code development containers support
 - **Docker Compose**: Multi-container development environments  
-- **Ubuntu Dev Environment**: Complete Ubuntu 24.04.2 LTS development container with user "huchen"
-- **OrbStack**: Modern Docker alternative for macOS with better performance
+- **Ubuntu Dev Environment**: Complete Ubuntu 24.04.2 LTS development container
 
-**Python Development Environment:**
-- **Pyenv**: Python version management
-- **Anaconda3**: Latest version installed globally via pyenv
-- **uv**: Modern Python package installer and resolver
-- **direnv**: Directory-specific environment variable management
-- **Language Servers**: basedpyright for general use, pyrefly for Zed editor
-
-**Node.js Development Environment:**
-- **NVM**: Node Version Manager for easy Node.js version switching
-- **Node.js LTS**: Latest LTS version installed by default
-- **Package Managers**: npm, yarn, pnpm all supported
-- **Development Tools**: TypeScript, Prettier, ESLint pre-configured
 **System Monitoring:**
 - **bottom**: Better `top` with charts and GPU monitoring
 - **procs**: Modern replacement for `ps`
@@ -159,64 +141,6 @@ make install
 - **dust**: More intuitive version of `du`
 - **hyperfine**: Command-line benchmarking tool
 - **gping**: Ping, but with a graph
-
-### 🎨 Shell Configuration
-**Zsh Features:**
-- **Zinit**: Fast plugin manager with Turbo mode
-- **Syntax Highlighting**: Real-time command highlighting
-- **Auto Suggestions**: Smart command completion
-- **History Search**: Interactive history search with fzf
-- **Directory Navigation**: Smart jumping with zoxide
-- **Git Integration**: Status in prompt and aliases
-
-**Key Bindings:**
-- `Alt-c`: Fuzzy directory selection and navigation
-- `Ctrl-r`: Interactive command history search
-- `Ctrl-t`: Fuzzy file selection and insertion
-- `Tab`: Smart completion with fzf-tab
-
-### 🧠 Git Configuration
-**Enhanced Features:**
-- **Delta**: Beautiful git diff output with syntax highlighting
-- **Aliases**: Common git operations simplified
-- **Merge Tools**: Neovim integration for conflict resolution
-- **Global Ignores**: Consistent ignore patterns across projects
-- **Safe Settings**: Secure default configurations
-
-**Useful Aliases:**
-- `gco` → `git checkout`
-- `gcm` → `git commit -m`
-- `ga` → `git add`
-- `gs` → `git status`
-- `gp` → `git push`
-- `gl` → `git pull`
-
-### 🎯 Terminal Multiplexer (Tmux)
-**Features:**
-- **Session Persistence**: Detach and reattach sessions
-- **Panels**: Split terminal windows efficiently
-- **Status Bar**: Custom status with system information
-- **Copy Mode**: Vim-like copy and paste
-- **Mouse Support**: Clickable panes and scrolling
-
-### ⚡ Performance Benefits
-- **Fast Startup**: Zsh with optimized plugin loading
-- **Minimal Overhead**: Lightweight tools that don't slow down your system
-- **Parallel Processing**: Efficient use of system resources
-- **Memory Efficient**: Tools designed to be lightweight and fast
-
-### 🎨 Visual Enhancements
-- **Consistent Theme**: Starship prompt across all shells
-- **Syntax Highlighting**: All tools support color and syntax
-- **Icons**: File type icons in listings and prompts
-- **Git Integration**: Visual Git status everywhere
-
-### 🔧 Developer Experience
-- **LSP Support**: Language servers for multiple programming languages
-- **IntelliSense**: Smart code completion and suggestions
-- **Error Checking**: Real-time syntax and error highlighting
-- **Formatting**: Code formatting tools integration
-- **Debugging**: Debug adapter support where available
 
 ## Management
 
@@ -240,19 +164,13 @@ cd ~/.dotfiles
 cd ~/.dotfiles
 make setup-python        # Setup Python environment
 make setup-node          # Setup Node.js environment
-make setup-dev            # Setup both Python and Node.js
-make install          # Install all dotfiles
-make remove           # Remove all dotfiles
-make status           # Check current status
-make clean            # Clean up obsolete files
-make update           # Update repository
+make setup-dev           # Setup both Python and Node.js
+make install             # Install all dotfiles
+make remove              # Remove all dotfiles
+make status              # Check current status
+make clean               # Clean up obsolete files
+make update              # Update repository
 ```
-
-### Shell Shortcuts
-- `Alt-c`: cd into the selected directory
-- `Ctrl-r`: Paste the selected command from history
-- `Ctrl-t`: Paste the selected file path(s)
-- `Tab`: Smart completions
 
 ## Platform-Specific Notes
 
@@ -279,21 +197,6 @@ make update           # Update repository
 - Requires Xcode Command Line Tools
 - Uses Homebrew for package management
 - Apple Silicon Mac support included
-- **Sudo Permission Handling**: Automatic sudo access detection and management with detailed error messages for administrator privileges
-- **macOS Optimization Package**: Comprehensive system optimization scripts including:
-  - Keyboard optimization (faster repeat rate, disable press-and-hold)
-  - Mouse/Trackpad optimization (right-click configuration, assistive features, tap-to-click)
-  - Finder optimization (show file extensions, path bar, status bar)
-  - Dock optimization (auto-hide, icon size, minimize effects)
-  - Safari optimization (full URL, disable search suggestions)
-  - Quick optimization script for common settings
-  - Reset script to restore defaults
-  - Customizable configuration file
-
-**Troubleshooting macOS Permissions**:
-- If you see "Need sudo access on macOS" errors, ensure your user is in the admin group
-- Check System Preferences > Users & Groups > unlock and ensure "Allow user to administer this computer" is enabled
-- The installer will guide you through obtaining the necessary permissions
 
 ## Setup & Security
 
@@ -324,10 +227,10 @@ curl -fsSL https://raw.githubusercontent.com/nehcuh/dotfiles/main/scripts/intera
 2. **Run the installer**
    ```bash
    # Linux & macOS
-   ./scripts/install-unified.sh
+   ./scripts/install.sh
    
    # Windows
-   ./scripts/install.bat
+   ./scripts/install-windows-improved.ps1
    ```
 
 3. **Configure personal information**
