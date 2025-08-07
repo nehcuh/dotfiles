@@ -373,8 +373,8 @@ INSTALL_NODE_ENV=false
 INSTALL_DOCKER_ENV=false
 INSTALL_GIT_CONFIG=false
 
-# Function to display main menu
-show_main_menu() {
+# Function to display language selection
+show_language_menu() {
     clear
     printf "${CYAN}%s${NC}\n" "$(get_string "title")"
     printf "${CYAN}%s${NC}\n" "$(get_string "subtitle")"
@@ -382,10 +382,19 @@ show_main_menu() {
     printf "${YELLOW}%s: $PLATFORM ${DISTRO}${NC}\n" "$(get_string "platform_detected")"
     printf "\n"
     
-    # Language selection
     printf "%s\n" "$(get_string "select_language")"
     printf "1) %s\n" "$(get_string "english")"
     printf "2) %s\n" "$(get_string "chinese")"
+    printf "\n"
+}
+
+# Function to display main menu
+show_main_menu() {
+    clear
+    printf "${CYAN}%s${NC}\n" "$(get_string "title")"
+    printf "${CYAN}%s${NC}\n" "$(get_string "subtitle")"
+    printf "\n"
+    printf "${YELLOW}%s: $PLATFORM ${DISTRO}${NC}\n" "$(get_string "platform_detected")"
     printf "\n"
     
     # Installation options
@@ -474,6 +483,72 @@ show_selections() {
     fi
 }
 
+# Function to read user input safely
+read_input() {
+    local choice=""
+    
+    # Method 1: Try standard read
+    if [ -t 0 ]; then
+        if read -r choice 2>/dev/null; then
+            echo "$choice"
+            return 0
+        else
+            printf "${RED}Error: Failed to read input from terminal.${NC}\n"
+            return 1
+        fi
+    else
+        # Method 2: Try reading from /dev/tty
+        if [ -c /dev/tty ]; then
+            if read -r choice < /dev/tty 2>/dev/null; then
+                echo "$choice"
+                return 0
+            else
+                printf "${RED}Error: This script requires an interactive terminal.${NC}\n"
+                printf "${YELLOW}Please run this script directly in your terminal, not through a pipe.${NC}\n"
+                printf "${YELLOW}Or try: bash -i $(basename "$0")${NC}\n"
+                return 1
+            fi
+        else
+            printf "${RED}Error: This script requires an interactive terminal.${NC}\n"
+            printf "${YELLOW}Please run this script directly in your terminal.${NC}\n"
+            printf "${YELLOW}Or try: bash -i $(basename "$0")${NC}\n"
+            return 1
+        fi
+    fi
+}
+
+# Function to handle language selection
+handle_language_selection() {
+    while true; do
+        show_language_menu
+        printf "%s:\n" "$(get_string "enter_choice")"
+        
+        choice=$(read_input)
+        if [ $? -ne 0 ]; then
+            exit 1
+        fi
+        
+        case "$choice" in
+            1) 
+                CURRENT_LANG="en"
+                printf "${GREEN}Language set to English${NC}\n"
+                sleep 1
+                return 0
+                ;;
+            2) 
+                CURRENT_LANG="zh"
+                printf "${GREEN}语言设置为中文${NC}\n"
+                sleep 1
+                return 0
+                ;;
+            *)
+                printf "%s\n" "$(get_string "invalid_choice")"
+                sleep 1
+                ;;
+        esac
+    done
+}
+
 # Function to handle user input
 handle_input() {
     # Check for interactive terminal before showing menu
@@ -487,51 +562,60 @@ handle_input() {
         fi
     fi
     
+    # First, handle language selection
+    handle_language_selection
+    
+    # Then, handle installation selection
     while true; do
         show_main_menu
         printf "%s:\n" "$(get_string "enter_choice")"
         
-        # Read user input with error handling
-        # Try different methods to read input
-        choice=""
-        
-        # Method 1: Try standard read
-        if [ -t 0 ]; then
-            if read -r choice 2>/dev/null; then
-                : # Read successful
-            else
-                printf "${RED}Error: Failed to read input from terminal.${NC}\n"
-                exit 1
-            fi
-        else
-            # Method 2: Try reading from /dev/tty
-            if [ -c /dev/tty ]; then
-                printf "${YELLOW}Terminal not interactive, trying alternative input method...${NC}\n"
-                if read -r choice < /dev/tty 2>/dev/null; then
-                    : # Read from /dev/tty successful
-                else
-                    printf "${RED}Error: This script requires an interactive terminal.${NC}\n"
-                    printf "${YELLOW}Please run this script directly in your terminal, not through a pipe.${NC}\n"
-                    printf "${YELLOW}Or try: bash -i $(basename "$0")${NC}\n"
-                    exit 1
-                fi
-            else
-                printf "${RED}Error: This script requires an interactive terminal.${NC}\n"
-                printf "${YELLOW}Please run this script directly in your terminal.${NC}\n"
-                printf "${YELLOW}Or try: bash -i $(basename "$0")${NC}\n"
-                exit 1
-            fi
+        choice=$(read_input)
+        if [ $? -ne 0 ]; then
+            exit 1
         fi
         
         case "$choice" in
-            1) INSTALL_SYSTEM_PACKAGES=true ;;
-            2) INSTALL_SHELL_CONFIG=true ;;
-            3) INSTALL_DEV_TOOLS=true ;;
-            4) INSTALL_EDITORS=true ;;
-            5) INSTALL_PYTHON_ENV=true ;;
-            6) INSTALL_NODE_ENV=true ;;
-            7) INSTALL_DOCKER_ENV=true ;;
-            8) INSTALL_GIT_CONFIG=true ;;
+            1) 
+                INSTALL_SYSTEM_PACKAGES=true
+                printf "${GREEN}✓ %s${NC}\n" "$(get_string "system_packages")"
+                sleep 1
+                ;;
+            2) 
+                INSTALL_SHELL_CONFIG=true
+                printf "${GREEN}✓ %s${NC}\n" "$(get_string "shell_config")"
+                sleep 1
+                ;;
+            3) 
+                INSTALL_DEV_TOOLS=true
+                printf "${GREEN}✓ %s${NC}\n" "$(get_string "dev_tools")"
+                sleep 1
+                ;;
+            4) 
+                INSTALL_EDITORS=true
+                printf "${GREEN}✓ %s${NC}\n" "$(get_string "editors")"
+                sleep 1
+                ;;
+            5) 
+                INSTALL_PYTHON_ENV=true
+                printf "${GREEN}✓ %s${NC}\n" "$(get_string "python_env")"
+                sleep 1
+                ;;
+            6) 
+                INSTALL_NODE_ENV=true
+                printf "${GREEN}✓ %s${NC}\n" "$(get_string "node_env")"
+                sleep 1
+                ;;
+            7) 
+                INSTALL_DOCKER_ENV=true
+                printf "${GREEN}✓ %s${NC}\n" "$(get_string "docker_env")"
+                sleep 1
+                ;;
+            8) 
+                INSTALL_GIT_CONFIG=true
+                printf "${GREEN}✓ %s${NC}\n" "$(get_string "git_config")"
+                sleep 1
+                ;;
             a|A)
                 INSTALL_SYSTEM_PACKAGES=true
                 INSTALL_SHELL_CONFIG=true
@@ -541,20 +625,30 @@ handle_input() {
                 INSTALL_NODE_ENV=true
                 INSTALL_DOCKER_ENV=true
                 INSTALL_GIT_CONFIG=true
+                printf "${GREEN}✓ %s${NC}\n" "$(get_string "install_all")"
+                sleep 1
                 ;;
             b|B)
                 INSTALL_SYSTEM_PACKAGES=true
                 INSTALL_SHELL_CONFIG=true
                 INSTALL_DEV_TOOLS=true
                 INSTALL_EDITORS=true
+                printf "${GREEN}✓ %s${NC}\n" "$(get_string "core_only")"
+                sleep 1
                 ;;
             c|C)
                 INSTALL_PYTHON_ENV=true
                 INSTALL_NODE_ENV=true
                 INSTALL_DOCKER_ENV=true
+                printf "${GREEN}✓ %s${NC}\n" "$(get_string "dev_only")"
+                sleep 1
                 ;;
-            s|S) show_selections ;;
-            i|I) return 0 ;;
+            s|S) 
+                show_selections
+                ;;
+            i|I) 
+                return 0
+                ;;
             q|Q) 
                 printf "%s\n" "$(get_string "installation_cancelled")"
                 exit 0
