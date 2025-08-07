@@ -45,6 +45,51 @@ if [ "$PLATFORM" = "windows" ]; then
     DOTFILES_DIR="$HOME/.dotfiles"
 fi
 
+# Function to check and request sudo access
+check_sudo_access() {
+    echo -e "${YELLOW}Checking sudo access...${NC}"
+    
+    # Check if we already have sudo access
+    if sudo -n true 2>/dev/null; then
+        echo -e "${GREEN}✓ Sudo access confirmed${NC}"
+        return 0
+    fi
+    
+    # Request sudo access
+    echo -e "${YELLOW}This script requires sudo access for system-wide changes.${NC}"
+    echo -e "${YELLOW}Please enter your password when prompted.${NC}"
+    
+    if ! sudo -v; then
+        echo -e "${RED}Error: Failed to obtain sudo access${NC}"
+        echo -e "${RED}Please ensure your user has administrative privileges.${NC}"
+        echo -e "${YELLOW}On macOS, you may need to:${NC}"
+        echo -e "${YELLOW}1. Add your user to the admin group${NC}"
+        echo -e "${YELLOW}2. Enable 'Administrator' privileges in System Preferences > Users & Groups${NC}"
+        echo -e "${YELLOW}3. Or run this script with a user that has admin rights${NC}"
+        exit 1
+    fi
+    
+    echo -e "${GREEN}✓ Sudo access obtained${NC}"
+}
+
+# Function to keep sudo session alive
+keep_sudo_alive() {
+    echo -e "${BLUE}Maintaining sudo session...${NC}"
+    # Keep-alive: update existing sudo time stamp until script has finished
+    while true; do sudo -n true; sleep 60; kill -0 "$$" || exit; done 2>/dev/null &
+}
+
+# Function to safely run sudo commands with error handling
+safe_sudo() {
+    if ! sudo "$@" 2>/dev/null; then
+        echo -e "${RED}Error: Failed to run command with sudo: $*${NC}"
+        echo -e "${YELLOW}You may need to run this command manually:${NC}"
+        echo -e "${YELLOW}sudo $*${NC}"
+        return 1
+    fi
+    return 0
+}
+
 # Print header
 echo -e "${CYAN}"
 echo "╔══════════════════════════════════════════════════════════════╗"
@@ -53,6 +98,12 @@ echo "║                    Linux • macOS • Windows                   ║"
 echo "╚══════════════════════════════════════════════════════════════╝"
 echo -e "${NC}"
 echo -e "${BLUE}🚀 Starting installation on $OS${DISTRO:+ ($DISTRO)}...${NC}"
+
+# Check for sudo access on Unix-like systems
+if [ "$PLATFORM" != "windows" ]; then
+    check_sudo_access
+    keep_sudo_alive
+fi
 
 # Function to install packages based on platform
 install_packages() {
@@ -110,29 +161,53 @@ install_linux_packages() {
     case "$DISTRO" in
         ubuntu|debian|linuxmint)
             echo -e "${YELLOW}Installing packages for Debian/Ubuntu...${NC}"
-            sudo apt update
-            sudo apt install -y git stow curl build-essential
+            if ! safe_sudo apt update; then
+                echo -e "${RED}Failed to update package lists${NC}"
+                return 1
+            fi
+            if ! safe_sudo apt install -y git stow curl build-essential; then
+                echo -e "${RED}Failed to install required packages${NC}"
+                return 1
+            fi
             ;;
         arch|manjaro)
             echo -e "${YELLOW}Installing packages for Arch/Manjaro...${NC}"
-            sudo pacman -Syu --noconfirm git stow curl base-devel
+            if ! safe_sudo pacman -Syu --noconfirm git stow curl base-devel; then
+                echo -e "${RED}Failed to install required packages${NC}"
+                return 1
+            fi
             ;;
         fedora|centos|rhel)
             echo -e "${YELLOW}Installing packages for Fedora/CentOS...${NC}"
-            sudo dnf install -y git stow curl @development-tools
+            if ! safe_sudo dnf install -y git stow curl @development-tools; then
+                echo -e "${RED}Failed to install required packages${NC}"
+                return 1
+            fi
             ;;
         *)
             echo -e "${YELLOW}Installing packages for generic Linux...${NC}"
             if command -v apt >/dev/null 2>&1; then
-                sudo apt update
-                sudo apt install -y git stow curl build-essential
+                if ! safe_sudo apt update; then
+                    echo -e "${RED}Failed to update package lists${NC}"
+                    return 1
+                fi
+                if ! safe_sudo apt install -y git stow curl build-essential; then
+                    echo -e "${RED}Failed to install required packages${NC}"
+                    return 1
+                fi
             elif command -v pacman >/dev/null 2>&1; then
-                sudo pacman -Syu --noconfirm git stow curl base-devel
+                if ! safe_sudo pacman -Syu --noconfirm git stow curl base-devel; then
+                    echo -e "${RED}Failed to install required packages${NC}"
+                    return 1
+                fi
             elif command -v dnf >/dev/null 2>&1; then
-                sudo dnf install -y git stow curl @development-tools
+                if ! safe_sudo dnf install -y git stow curl @development-tools; then
+                    echo -e "${RED}Failed to install required packages${NC}"
+                    return 1
+                fi
             else
                 echo -e "${RED}Please install git, stow, curl, and build tools manually${NC}"
-                exit 1
+                return 1
             fi
             ;;
     esac
@@ -161,18 +236,32 @@ install_windows_packages() {
         echo -e "${YELLOW}Detected WSL environment${NC}"
         # Install stow via apt
         if ! command -v stow &> /dev/null; then
-            sudo apt update && sudo apt install -y git stow curl
+            echo -e "${YELLOW}Installing packages in WSL...${NC}"
+            if ! safe_sudo apt update; then
+                echo -e "${RED}Failed to update package lists in WSL${NC}"
+                return 1
+            fi
+            if ! safe_sudo apt install -y git stow curl; then
+                echo -e "${RED}Failed to install packages in WSL${NC}"
+                return 1
+            fi
+            echo -e "${GREEN}✓ WSL packages installed${NC}"
         fi
     elif command -v pacman &> /dev/null; then
         echo -e "${YELLOW}Detected MSYS2 environment${NC}"
         # Install stow via pacman
         if ! command -v stow &> /dev/null; then
-            pacman -Syu --noconfirm git stow curl
+            echo -e "${YELLOW}Installing packages in MSYS2...${NC}"
+            if ! pacman -Syu --noconfirm git stow curl; then
+                echo -e "${RED}Failed to install packages in MSYS2${NC}"
+                return 1
+            fi
+            echo -e "${GREEN}✓ MSYS2 packages installed${NC}"
         fi
     else
         echo -e "${RED}Unsupported Windows environment${NC}"
         echo -e "${YELLOW}Please use WSL or MSYS2 for Windows support${NC}"
-        exit 1
+        return 1
     fi
 }
 
@@ -186,7 +275,11 @@ fi
 cd "$DOTFILES_DIR"
 
 # Install packages
-install_packages
+if ! install_packages; then
+    echo -e "${RED}Error: Failed to install required packages${NC}"
+    echo -e "${YELLOW}Please check the error messages above and try again${NC}"
+    exit 1
+fi
 
 # Install dotfiles packages in order
 echo -e "${YELLOW}Installing dotfiles packages...${NC}"
@@ -282,16 +375,37 @@ fi
 # Change default shell to zsh (Unix-like systems only)
 if [ "$PLATFORM" != "windows" ] && [ "$SHELL" != "$(which zsh)" ]; then
     echo -e "${YELLOW}Changing default shell to zsh...${NC}"
-    if [ "$PLATFORM" = "macos" ]; then
-        sudo chsh -s $(which zsh) $USER
+    
+    ZSH_PATH=$(which zsh)
+    if [ -z "$ZSH_PATH" ]; then
+        echo -e "${RED}Error: zsh not found in PATH${NC}"
+        echo -e "${YELLOW}Please install zsh first${NC}"
     else
-        # On Linux, we need to check if zsh is in /etc/shells
-        if ! grep -q "$(which zsh)" /etc/shells; then
-            echo "$(which zsh)" | sudo tee -a /etc/shells
+        if [ "$PLATFORM" = "macos" ]; then
+            if ! safe_sudo chsh -s "$ZSH_PATH" $USER; then
+                echo -e "${YELLOW}Warning: Could not change default shell to zsh${NC}"
+                echo -e "${YELLOW}You may need to run manually: sudo chsh -s $ZSH_PATH $USER${NC}"
+            else
+                echo -e "${GREEN}✓ Default shell changed to zsh${NC}"
+            fi
+        else
+            # On Linux, we need to check if zsh is in /etc/shells
+            if ! grep -q "$ZSH_PATH" /etc/shells; then
+                echo -e "${YELLOW}Adding zsh to /etc/shells...${NC}"
+                if ! echo "$ZSH_PATH" | safe_sudo tee -a /etc/shells >/dev/null; then
+                    echo -e "${YELLOW}Warning: Could not add zsh to /etc/shells${NC}"
+                    echo -e "${YELLOW}You may need to run manually: echo '$ZSH_PATH' | sudo tee -a /etc/shells${NC}"
+                fi
+            fi
+            
+            if ! safe_sudo chsh -s "$ZSH_PATH" $USER; then
+                echo -e "${YELLOW}Warning: Could not change default shell to zsh${NC}"
+                echo -e "${YELLOW}You may need to run manually: sudo chsh -s $ZSH_PATH $USER${NC}"
+            else
+                echo -e "${GREEN}✓ Default shell changed to zsh${NC}"
+            fi
         fi
-        sudo chsh -s $(which zsh) $USER
     fi
-    echo -e "${GREEN}✓ Default shell changed to zsh${NC}"
 fi
 
 # Setup git configuration

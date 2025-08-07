@@ -149,35 +149,69 @@ install_prerequisites() {
         linux)
             case "$DISTRO" in
                 ubuntu|debian|linuxmint)
-                    sudo apt update
-                    sudo apt install -y git stow curl build-essential
+                    if ! safe_sudo apt update; then
+                        print_color "$RED" "Failed to update package lists"
+                        return 1
+                    fi
+                    if ! safe_sudo apt install -y git stow curl build-essential; then
+                        print_color "$RED" "Failed to install required packages"
+                        return 1
+                    fi
                     ;;
                 arch|manjaro)
-                    sudo pacman -Syu --noconfirm git stow curl base-devel
+                    if ! safe_sudo pacman -Syu --noconfirm git stow curl base-devel; then
+                        print_color "$RED" "Failed to install required packages"
+                        return 1
+                    fi
                     ;;
                 fedora|centos|rhel)
-                    sudo dnf install -y git stow curl @development-tools
+                    if ! safe_sudo dnf install -y git stow curl @development-tools; then
+                        print_color "$RED" "Failed to install required packages"
+                        return 1
+                    fi
                     ;;
                 *)
                     if command_exists apt; then
-                        sudo apt update
-                        sudo apt install -y git stow curl build-essential
+                        if ! safe_sudo apt update; then
+                            print_color "$RED" "Failed to update package lists"
+                            return 1
+                        fi
+                        if ! safe_sudo apt install -y git stow curl build-essential; then
+                            print_color "$RED" "Failed to install required packages"
+                            return 1
+                        fi
                     elif command_exists pacman; then
-                        sudo pacman -Syu --noconfirm git stow curl base-devel
+                        if ! safe_sudo pacman -Syu --noconfirm git stow curl base-devel; then
+                            print_color "$RED" "Failed to install required packages"
+                            return 1
+                        fi
                     elif command_exists dnf; then
-                        sudo dnf install -y git stow curl @development-tools
+                        if ! safe_sudo dnf install -y git stow curl @development-tools; then
+                            print_color "$RED" "Failed to install required packages"
+                            return 1
+                        fi
                     else
                         print_color "$RED" "Please install git, stow, curl, and build tools manually"
-                        exit 1
+                        return 1
                     fi
                     ;;
             esac
             ;;
         windows)
             if grep -q Microsoft /proc/version 2>/dev/null; then
-                sudo apt update && sudo apt install -y git stow curl
+                if ! safe_sudo apt update; then
+                    print_color "$RED" "Failed to update package lists in WSL"
+                    return 1
+                fi
+                if ! safe_sudo apt install -y git stow curl; then
+                    print_color "$RED" "Failed to install packages in WSL"
+                    return 1
+                fi
             elif command_exists pacman; then
-                pacman -Syu --noconfirm git stow curl
+                if ! pacman -Syu --noconfirm git stow curl; then
+                    print_color "$RED" "Failed to install packages in MSYS2"
+                    return 1
+                fi
             fi
             ;;
     esac
@@ -357,6 +391,52 @@ run_installer() {
     fi
 }
 
+# Function to check and request sudo access
+check_sudo_access() {
+    print_color "$YELLOW" "Checking sudo access..."
+    
+    # Check if we already have sudo access
+    if sudo -n true 2>/dev/null; then
+        print_color "$GREEN" "✓ Sudo access confirmed"
+        return 0
+    fi
+    
+    # Request sudo access
+    print_color "$YELLOW" "This script requires sudo access for system-wide changes."
+    print_color "$YELLOW" "Please enter your password when prompted."
+    
+    if ! sudo -v; then
+        print_color "$RED" "Error: Failed to obtain sudo access"
+        print_color "$RED" "Please ensure your user has administrative privileges."
+        print_color "$YELLOW" "On macOS, you may need to:"
+        print_color "$YELLOW" "1. Add your user to the admin group"
+        print_color "$YELLOW" "2. Enable 'Administrator' privileges in System Preferences > Users & Groups"
+        print_color "$YELLOW" "3. Or run this script with a user that has admin rights"
+        return 1
+    fi
+    
+    print_color "$GREEN" "✓ Sudo access obtained"
+    return 0
+}
+
+# Function to keep sudo session alive
+keep_sudo_alive() {
+    print_color "$BLUE" "Maintaining sudo session..."
+    # Keep-alive: update existing sudo time stamp until script has finished
+    while true; do sudo -n true; sleep 60; kill -0 "$$" || exit; done 2>/dev/null &
+}
+
+# Function to safely run sudo commands with error handling
+safe_sudo() {
+    if ! sudo "$@" 2>/dev/null; then
+        print_color "$RED" "Error: Failed to run command with sudo: $*"
+        print_color "$YELLOW" "You may need to run this command manually:"
+        print_color "$YELLOW" "sudo $*"
+        return 1
+    fi
+    return 0
+}
+
 # Main installation process
 main() {
     # Detect environment
@@ -377,6 +457,15 @@ main() {
         *)
             ;;
     esac
+    
+    # Check for sudo access on Unix-like systems
+    if [ "$PLATFORM" != "windows" ]; then
+        if ! check_sudo_access; then
+            print_color "$RED" "Error: Sudo access required for installation"
+            exit 1
+        fi
+        keep_sudo_alive
+    fi
     
     # Install prerequisites
     install_prerequisites
