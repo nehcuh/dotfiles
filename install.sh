@@ -196,13 +196,21 @@ log_warning "Failed to install $package (conflicts detected)"
 install_brewfile() {
     if [[ "$OS" == "macos" ]] && command -v brew &> /dev/null; then
         local brewfile="$HOME/.Brewfile"
+        local repo_brewfile="$DOTFILES_DIR/stow-packs/system/home/.Brewfile"
         
-        if [ -f "$brewfile" ]; then
-            log_info "Installing Homebrew packages from Brewfile..."
+        # Check if Brewfile exists either in home directory (after stow) or in repo
+        if [ -f "$brewfile" ] || [ -f "$repo_brewfile" ]; then
+            # Skip if explicitly requested
+            if [ "${SKIP_BREWFILE:-false}" = "true" ]; then
+                log_info "Skipping Brewfile installation (SKIP_BREWFILE=true)"
+                return
+            fi
+            
+            log_info "Found Brewfile, installing Homebrew packages..."
             log_warning "This may take several minutes and will install many applications"
             
             # Ask for confirmation unless in non-interactive mode
-            if [ "${NON_INTERACTIVE:-false}" != "true" ] && [ "${SKIP_BREWFILE:-false}" != "true" ]; then
+            if [ "${NON_INTERACTIVE:-false}" != "true" ]; then
                 echo
                 log_info "The Brewfile includes:"
                 log_info "• CLI tools: bat, eza, fzf, ripgrep, neovim, etc."
@@ -218,14 +226,23 @@ install_brewfile() {
                     log_info "You can install it later with: brew bundle --global"
                     return
                 fi
+            else
+                log_info "Non-interactive mode: installing Brewfile packages automatically"
+            fi
+            
+            # Use the Brewfile that exists (prefer the one in home directory if both exist)
+            local brewfile_to_use="$brewfile"
+            if [ ! -f "$brewfile" ] && [ -f "$repo_brewfile" ]; then
+                brewfile_to_use="$repo_brewfile"
+                log_info "Using Brewfile from repository: $repo_brewfile"
             fi
             
             # Install packages from Brewfile
-            if brew bundle --global; then
+            if brew bundle --file="$brewfile_to_use"; then
                 log_success "Brewfile packages installed successfully"
             else
                 log_warning "Some Brewfile packages failed to install"
-                log_info "You can retry with: brew bundle --global"
+                log_info "You can retry with: brew bundle --file='$brewfile_to_use'"
             fi
         else
             log_info "No Brewfile found at $brewfile, skipping Homebrew package installation"
