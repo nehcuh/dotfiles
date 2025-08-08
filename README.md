@@ -2,18 +2,35 @@
 
 A comprehensive, cross-platform dotfiles configuration supporting both **macOS** and **Linux** systems with intelligent environment detection and automatic setup.
 
-## Quick Start
+## ⚡ One-Line Install
 
-### One-line remote installation
 ```bash
-# Install with default packages (interactive)
+curl -fsSL https://raw.githubusercontent.com/nehcuh/dotfiles/main/scripts/unified-install.sh | bash
+```
+
+> 🎆 Works on both macOS and Linux with automatic OS detection and smart configuration!
+
+## 🚀 Quick Start
+
+### ⚡ Unified One-Line Installation (Recommended)
+```bash
+# Works on both macOS and Linux with automatic detection
+curl -fsSL https://raw.githubusercontent.com/nehcuh/dotfiles/main/scripts/unified-install.sh | bash
+
+# Install with all development environments
+DEV_ALL=true curl -fsSL https://raw.githubusercontent.com/nehcuh/dotfiles/main/scripts/unified-install.sh | bash
+
+# Non-interactive installation (perfect for automation)
+NON_INTERACTIVE=true DEV_ALL=true curl -fsSL https://raw.githubusercontent.com/nehcuh/dotfiles/main/scripts/unified-install.sh | bash
+
+# Install specific packages only
+INSTALL_PACKAGES="git vim tmux zsh" curl -fsSL https://raw.githubusercontent.com/nehcuh/dotfiles/main/scripts/unified-install.sh | bash
+```
+
+### Legacy Installation Methods
+```bash
+# Original remote installer (still works)
 curl -fsSL https://raw.githubusercontent.com/nehcuh/dotfiles/main/remote-install.sh | bash
-
-# Install specific packages
-INSTALL_PACKAGES="git vim nvim zsh" curl -fsSL https://raw.githubusercontent.com/nehcuh/dotfiles/main/remote-install.sh | bash
-
-# Non-interactive installation (for automation)
-NON_INTERACTIVE=true curl -fsSL https://raw.githubusercontent.com/nehcuh/dotfiles/main/remote-install.sh | bash
 ```
 
 **Note for macOS users:** The installer will automatically install Homebrew if not present, which requires administrator privileges. You may be prompted for your password during installation.
