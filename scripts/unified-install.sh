@@ -103,38 +103,89 @@ setup_repository() {
     if [[ -d "$DEFAULT_DIR" ]]; then
         print_warning "Directory $DEFAULT_DIR already exists"
         
-        if [[ "$NON_INTERACTIVE" != "true" ]]; then
-            echo
-            read -p "Do you want to update the existing repository? (y/N): " -n 1 -r
-            echo
-            
-            if [[ ! $REPLY =~ ^[Yy]$ ]]; then
-                print_info "Using existing repository"
-                cd "$DEFAULT_DIR"
-                return
-            fi
-        else
-            print_info "Non-interactive mode: updating existing repository"
-        fi
-        
-        # Update existing repository
+        # Check if it's a valid dotfiles directory
         cd "$DEFAULT_DIR"
-        if git remote -v | grep -q "$DEFAULT_REPO"; then
-            print_info "Updating dotfiles repository..."
-            git fetch origin
-            git reset --hard "origin/$DEFAULT_BRANCH"
-            git clean -fd
-        else
-            print_warning "Existing directory doesn't match expected repository"
-            print_info "Backing up existing directory and cloning fresh"
+        if [[ ! -f "install.sh" ]] || [[ ! -d "stow-packs" ]]; then
+            print_error "Existing directory is not a valid dotfiles repository"
+            if [[ "$NON_INTERACTIVE" != "true" ]]; then
+                echo
+                read -p "Do you want to backup and replace it? (y/N): " -n 1 -r
+                echo
+                
+                if [[ ! $REPLY =~ ^[Yy]$ ]]; then
+                    print_error "Cannot proceed with invalid dotfiles directory"
+                    exit 1
+                fi
+            else
+                print_info "Non-interactive mode: automatically backing up invalid directory"
+            fi
             
+            # Backup and replace
+            cd ..
             backup_dir="${DEFAULT_DIR}.backup-$(date +%Y%m%d-%H%M%S)"
             mv "$DEFAULT_DIR" "$backup_dir"
-            print_info "Existing directory backed up to: $backup_dir"
+            print_info "Invalid directory backed up to: $backup_dir"
             
+            # Clone fresh
             git clone "$DEFAULT_REPO" "$DEFAULT_DIR"
             cd "$DEFAULT_DIR"
             git checkout "$DEFAULT_BRANCH"
+        else
+            # Valid dotfiles directory exists
+            if [[ "$NON_INTERACTIVE" != "true" ]]; then
+                echo
+                read -p "Do you want to update the existing repository? (Y/n): " -n 1 -r
+                echo
+                
+                if [[ $REPLY =~ ^[Nn]$ ]]; then
+                    print_info "Using existing repository without updates"
+                    # Ensure we're in the right directory
+                    cd "$DEFAULT_DIR"
+                    print_success "Repository setup completed (existing)"
+                    return
+                fi
+            else
+                print_info "Non-interactive mode: updating existing repository"
+            fi
+            
+            # Update existing repository
+            if git remote -v 2>/dev/null | grep -q "$DEFAULT_REPO"; then
+                print_info "Updating dotfiles repository..."
+                git fetch origin 2>/dev/null || {
+                    print_warning "Failed to fetch updates, continuing with existing repository"
+                    print_success "Repository setup completed (existing)"
+                    return
+                }
+                git reset --hard "origin/$DEFAULT_BRANCH" 2>/dev/null || {
+                    print_warning "Failed to reset to latest, continuing with existing repository"
+                    print_success "Repository setup completed (existing)"
+                    return
+                }
+                git clean -fd 2>/dev/null || true
+            else
+                print_warning "Existing directory doesn't match expected repository"
+                if [[ "$NON_INTERACTIVE" != "true" ]]; then
+                    echo
+                    read -p "Do you want to backup and re-clone? (y/N): " -n 1 -r
+                    echo
+                    
+                    if [[ ! $REPLY =~ ^[Yy]$ ]]; then
+                        print_info "Using existing directory as-is"
+                        print_success "Repository setup completed (existing)"
+                        return
+                    fi
+                fi
+                
+                # Backup and re-clone
+                cd ..
+                backup_dir="${DEFAULT_DIR}.backup-$(date +%Y%m%d-%H%M%S)"
+                mv "$DEFAULT_DIR" "$backup_dir"
+                print_info "Existing directory backed up to: $backup_dir"
+                
+                git clone "$DEFAULT_REPO" "$DEFAULT_DIR"
+                cd "$DEFAULT_DIR"
+                git checkout "$DEFAULT_BRANCH"
+            fi
         fi
     else
         # Fresh clone
