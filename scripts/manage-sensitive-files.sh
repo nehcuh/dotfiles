@@ -39,6 +39,7 @@ SENSITIVE_FILES=(
     ".mysql_history"
     ".psql_history"
     ".rediscli_history"
+    "cache.db"
 )
 
 show_help() {

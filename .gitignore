@@ -57,6 +57,8 @@ stow-packs/sensitive/*
 .mysql_history
 .psql_history
 .rediscli_history
+cache.db
+*.cache
 
 # SSH keys and config (if any accidentally placed in dotfiles)
 .ssh/id_*
