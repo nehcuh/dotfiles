@@ -37,9 +37,6 @@ help:
 	@echo "  $(GREEN)clean$(NC)        - Clean backup files"
 	@echo "  $(GREEN)setup-dev$(NC)    - Setup development environments"
 	@echo "  $(GREEN)setup-git$(NC)    - Setup Git configuration"
-	@echo "  $(GREEN)optimize$(NC)     - Optimize editors and system settings"
-	@echo "  $(GREEN)fonts$(NC)        - Install editor fonts"
-	@echo "  $(GREEN)dev-tools$(NC)    - Install development tools"
 	@echo ""
 	@echo "$(BLUE)Examples:$(NC)"
 	@echo "  make install      # Install all dotfiles"
@@ -101,26 +98,6 @@ setup-dev:
 	@./scripts/setup-dev-environment.sh
 	@echo "$(GREEN)✓ Development environment setup complete!$(NC)"
 
-# Editor and system optimization
-.PHONY: optimize
-optimize:
-	@echo "$(BLUE)Running comprehensive editor and system optimization...$(NC)"
-	@./scripts/setup-editor-optimization.sh
-	@echo "$(GREEN)✓ Optimization complete!$(NC)"
-
-# Install fonts only
-.PHONY: fonts
-fonts:
-	@echo "$(BLUE)Installing editor fonts...$(NC)"
-	@./scripts/setup-editor-fonts.sh
-	@echo "$(GREEN)✓ Font installation complete!$(NC)"
-
-# Install development tools only
-.PHONY: dev-tools
-dev-tools:
-	@echo "$(BLUE)Installing development tools...$(NC)"
-	@./scripts/setup-dev-tools.sh
-	@echo "$(GREEN)✓ Development tools installation complete!$(NC)"
 
 # Check requirements
 .PHONY: check
