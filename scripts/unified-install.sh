@@ -239,8 +239,20 @@ run_installation() {
     print_info "Running: $full_cmd"
     echo
     
-    # Run with environment variables
-    env "${env_vars[@]}" "$install_cmd" "${install_args[@]}"
+    # Run with environment variables (handle empty arrays)
+    if [[ ${#env_vars[@]} -gt 0 ]]; then
+        if [[ ${#install_args[@]} -gt 0 ]]; then
+            env "${env_vars[@]}" "$install_cmd" "${install_args[@]}"
+        else
+            env "${env_vars[@]}" "$install_cmd"
+        fi
+    else
+        if [[ ${#install_args[@]} -gt 0 ]]; then
+            "$install_cmd" "${install_args[@]}"
+        else
+            "$install_cmd"
+        fi
+    fi
     
     print_success "Installation completed successfully!"
 }
