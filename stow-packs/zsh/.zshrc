@@ -334,16 +334,15 @@ alias unsetproxy='export http_proxy=; export https_proxy=; export all_proxy=; ex
 alias toggleproxy='if [ -n "$http_proxy" ]; then unsetproxy; else setproxy; fi'
 
 # Development tools initialization
-# Pyenv
+# Pyenv - interactive shell initialization
 if command -v pyenv &> /dev/null; then
-    eval "$(pyenv init -)"
+    eval "$(pyenv init - zsh)"
 fi
 
-# NVM
-if [[ -d "$HOME/.nvm" ]]; then
-    [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"  # This loads nvm
-    [ -s "$NVM_DIR/bash_completion" ] && \. "$NVM_DIR/bash_completion"  # This loads nvm bash_completion
-fi
+# NVM - Node Version Manager
+export NVM_DIR="$HOME/.nvm"
+[ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"  # This loads nvm
+[ -s "$NVM_DIR/bash_completion" ] && \. "$NVM_DIR/bash_completion"  # This loads nvm bash_completion
 
 # Local customizations, e.g. theme, plugins, aliases, etc.
 [ -f $HOME/.zshrc.local ] && source $HOME/.zshrc.local

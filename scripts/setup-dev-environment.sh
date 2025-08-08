@@ -112,13 +112,27 @@ install_python() {
             curl https://pyenv.run | bash
         fi
         
-        # Add pyenv to shell profile
-        if [[ -f ~/.zshrc ]] && ! grep -q 'pyenv init' ~/.zshrc; then
-            echo '' >> ~/.zshrc
-            echo '# Pyenv configuration' >> ~/.zshrc
-            echo 'export PYENV_ROOT="$HOME/.pyenv"' >> ~/.zshrc
-            echo 'command -v pyenv >/dev/null || export PATH="$PYENV_ROOT/bin:$PATH"' >> ~/.zshrc
-            echo 'eval "$(pyenv init -)"' >> ~/.zshrc
+        # Add pyenv to shell profile (if not using dotfiles management)
+        if [[ ! -f ~/.dotfiles/stow-packs/zsh/.zshenv ]]; then
+            # Only add if not managed by dotfiles
+            if [[ -f ~/.zshrc ]] && ! grep -q 'pyenv init' ~/.zshrc; then
+                echo '' >> ~/.zshrc
+                echo '# Pyenv configuration' >> ~/.zshrc
+                echo 'export PYENV_ROOT="$HOME/.pyenv"' >> ~/.zshrc
+                echo '[[ -d $PYENV_ROOT/bin ]] && export PATH="$PYENV_ROOT/bin:$PATH"' >> ~/.zshrc
+                echo 'eval "$(pyenv init - zsh)"' >> ~/.zshrc
+            fi
+            
+            # Add to .zshenv for noninteractive shells
+            if [[ -f ~/.zshenv ]] && ! grep -q 'PYENV_ROOT' ~/.zshenv; then
+                echo '' >> ~/.zshenv
+                echo '# Pyenv PATH configuration' >> ~/.zshenv
+                echo 'export PYENV_ROOT="$HOME/.pyenv"' >> ~/.zshenv
+                echo '[[ -d $PYENV_ROOT/bin ]] && export PATH="$PYENV_ROOT/bin:$PATH"' >> ~/.zshenv
+                echo 'command -v pyenv >/dev/null 2>&1 && eval "$(pyenv init --path)"' >> ~/.zshenv
+            fi
+        else
+            log_info "Pyenv configuration managed by dotfiles, skipping shell profile updates"
         fi
         
         # Source for current session

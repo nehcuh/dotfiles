@@ -21,9 +21,10 @@ fi
 export PATH=$HOME/bin:$HOME/.local/bin:/usr/local/sbin:$PATH
 
 # Pyenv configuration - must be set early for PATH precedence
-if [[ -d "$HOME/.pyenv" ]]; then
-    export PYENV_ROOT="$HOME/.pyenv"
-    export PATH="$PYENV_ROOT/bin:$PATH"
+export PYENV_ROOT="$HOME/.pyenv"
+[[ -d $PYENV_ROOT/bin ]] && export PATH="$PYENV_ROOT/bin:$PATH"
+# pyenv init --path must be in .zshenv for noninteractive shells
+if command -v pyenv >/dev/null 2>&1; then
     eval "$(pyenv init --path)"
 fi
 
