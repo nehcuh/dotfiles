@@ -274,21 +274,41 @@ setup_shell() {
     log_info "Setting up shell..."
     
     if command -v zsh &> /dev/null; then
-        if [ "$SHELL" != "$(command -v zsh)" ]; then
-            log_info "Changing shell to zsh..."
+        local zsh_path="$(command -v zsh)"
+        local current_shell="$SHELL"
+        
+        # Check if we're already running zsh
+        if [[ "$0" == *"zsh"* ]] || [[ "$(ps -p $$ -o comm=)" == *"zsh"* ]]; then
+            log_success "Already running zsh in current session"
+            
+            # Still check if default shell needs to be changed
+            if [ "$current_shell" != "$zsh_path" ]; then
+                log_info "Current session is zsh, but default shell is $current_shell"
+                log_info "Updating default shell to zsh..."
+                
+                if chsh -s "$zsh_path" 2>/dev/null; then
+                    log_success "Default shell updated to zsh"
+                else
+                    log_info "Could not update default shell automatically"
+                    log_info "You can update it manually with: chsh -s $zsh_path"
+                fi
+            else
+                log_success "Default shell is already set to zsh"
+            fi
+        elif [ "$current_shell" != "$zsh_path" ]; then
+            log_info "Changing shell from $current_shell to $zsh_path..."
             
             # Try to change shell, with error handling
-            if chsh -s "$(command -v zsh)" 2>/dev/null; then
+            if chsh -s "$zsh_path" 2>/dev/null; then
                 log_success "Shell changed to zsh (restart terminal to take effect)"
             else
                 log_warning "Failed to change shell automatically"
-                log_info "You can manually change your shell to zsh later with:"
-                log_info "  chsh -s $(command -v zsh)"
+                log_info "You can manually change your shell to zsh with:"
+                log_info "  chsh -s $zsh_path"
                 log_info "Or add this to your current shell's rc file:"
                 log_info "  exec zsh"
                 
-                # On some systems, we need to ensure zsh is in /etc/shells
-                local zsh_path="$(command -v zsh)"
+                # Check if zsh is in /etc/shells
                 if [ -f /etc/shells ] && ! grep -q "^$zsh_path$" /etc/shells; then
                     log_warning "Zsh may not be in /etc/shells. You might need to add it:"
                     log_info "  echo '$zsh_path' | sudo tee -a /etc/shells"
