@@ -27,10 +27,21 @@ elif [[ "$OSTYPE" == "darwin"* ]]; then
     OS="macos"
 fi
 
-# Ensure Homebrew is available on Linux
+# Ensure Homebrew is available on both Linux and macOS
 if [[ "$OS" == "linux" ]] && [ -d "/home/linuxbrew/.linuxbrew" ]; then
     eval "$(/home/linuxbrew/.linuxbrew/bin/brew shellenv)"
     log_info "Homebrew environment loaded for development setup"
+elif [[ "$OS" == "macos" ]]; then
+    # Check for Homebrew in common locations
+    if [ -f "/opt/homebrew/bin/brew" ]; then
+        # Apple Silicon Mac
+        eval "$(/opt/homebrew/bin/brew shellenv)"
+        log_info "Homebrew environment loaded: Apple Silicon"
+    elif [ -f "/usr/local/bin/brew" ]; then
+        # Intel Mac
+        eval "$(/usr/local/bin/brew shellenv)"
+        log_info "Homebrew environment loaded: Intel"
+    fi
 fi
 
 echo "========================================"
@@ -338,6 +349,41 @@ install_cpp() {
     fi
 }
 
+# Install VS Code extensions
+install_vscode() {
+    log_header "Setting up VS Code extensions"
+    
+    # Check if VS Code is installed
+    if ! command -v code &> /dev/null; then
+        log_warning "VS Code not found, skipping extension installation"
+        log_info "Install VS Code with: brew install --cask visual-studio-code"
+        return 0
+    fi
+    
+    # Find and run the VS Code extensions script
+    local script_path=""
+    local possible_paths=(
+        "$(dirname "${BASH_SOURCE[0]}")/setup-vscode-extensions.sh"
+        "./scripts/setup-vscode-extensions.sh"
+        "$HOME/.dotfiles/scripts/setup-vscode-extensions.sh"
+    )
+    
+    for path in "${possible_paths[@]}"; do
+        if [[ -f "$path" ]]; then
+            script_path="$path"
+            break
+        fi
+    done
+    
+    if [[ -n "$script_path" ]]; then
+        log_info "Running VS Code extensions installation..."
+        bash "$script_path"
+    else
+        log_warning "VS Code extensions script not found"
+        log_info "You can manually install extensions later"
+    fi
+}
+
 # Show help
 show_help() {
     echo "Development Environment Setup"
@@ -354,11 +400,13 @@ show_help() {
     echo "  java              Java (OpenJDK) with Maven and Gradle"
     echo "  node, nodejs      Node.js with NVM and common tools"
     echo "  cpp, c++          C/C++ with build tools"
+    echo "  vscode            VS Code extensions from extensions.json"
     echo ""
     echo "Examples:"
     echo "  $0 --all          # Install all development environments"
     echo "  $0 rust python    # Install only Rust and Python"
     echo "  $0 node java      # Install only Node.js and Java"
+    echo "  $0 vscode         # Install VS Code extensions only"
 }
 
 # Main installation function
@@ -377,7 +425,7 @@ main() {
                 install_all=true
                 shift
                 ;;
-            rust|python|go|golang|java|node|nodejs|cpp|c++)
+            rust|python|go|golang|java|node|nodejs|cpp|c++|vscode)
                 languages+=("$1")
                 shift
                 ;;
@@ -397,7 +445,7 @@ main() {
     
     # Install all if requested
     if [[ $install_all == true ]]; then
-        languages=("rust" "python" "go" "java" "node" "cpp")
+        languages=("rust" "python" "go" "java" "node" "cpp" "vscode")
     fi
     
     # Install requested languages
@@ -420,6 +468,9 @@ main() {
                 ;;
             cpp|c++)
                 install_cpp
+                ;;
+            vscode)
+                install_vscode
                 ;;
         esac
         echo
