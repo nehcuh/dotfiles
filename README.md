@@ -212,6 +212,17 @@ Create these files for personal settings (they won't be tracked by git):
 
 🐧 **For dedicated Linux support, use the `linux` branch:**
 
+#### Remote Installation (Recommended)
+```bash
+# One-line Linux-optimized installation
+curl -fsSL https://raw.githubusercontent.com/nehcuh/dotfiles/main/remote-install-linux.sh | bash
+
+# With environment variables
+NON_INTERACTIVE=true curl -fsSL https://raw.githubusercontent.com/nehcuh/dotfiles/main/remote-install-linux.sh | bash
+DEV_ALL=true curl -fsSL https://raw.githubusercontent.com/nehcuh/dotfiles/main/remote-install-linux.sh | bash
+```
+
+#### Manual Installation
 ```bash
 # Clone and switch to Linux branch
 git clone https://github.com/nehcuh/dotfiles.git ~/.dotfiles
