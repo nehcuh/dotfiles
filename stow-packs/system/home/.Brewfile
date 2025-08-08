@@ -37,7 +37,9 @@ brew "uv"
 brew "direnv"
 
 # Node.js development
-brew "nvm"
+# NOTE: Install nvm via official installation script:
+# curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.39.0/install.sh | bash
+# The brew "nvm" package is NOT the official nvm and does not provide nvm command
 
 # Development tools for specific languages
 brew "black"          # Python formatter
