@@ -504,9 +504,57 @@ main() {
         setup_dev_environment --all
     fi
     
+    # Setup VS Code extensions if requested
+    if command -v code &> /dev/null && [ -f "$DOTFILES_DIR/scripts/setup-vscode-extensions.sh" ]; then
+        echo
+        log_info "Setting up VS Code extensions..."
+        if [ "${NON_INTERACTIVE:-false}" != "true" ]; then
+            read -p "Do you want to install VS Code extensions? (y/N): " -n 1 -r
+            echo
+            if [[ $REPLY =~ ^[Yy]$ ]]; then
+                chmod +x "$DOTFILES_DIR/scripts/setup-vscode-extensions.sh"
+                "$DOTFILES_DIR/scripts/setup-vscode-extensions.sh" || log_warning "Some VS Code extensions failed to install"
+            fi
+        else
+            log_info "Non-interactive mode: installing VS Code extensions automatically"
+            chmod +x "$DOTFILES_DIR/scripts/setup-vscode-extensions.sh"
+            "$DOTFILES_DIR/scripts/setup-vscode-extensions.sh" || log_warning "Some VS Code extensions failed to install"
+        fi
+    fi
+    
+    # Run macOS optimizations if on macOS
+    if [[ "$OS" == "macos" ]] && [ -f "$HOME/.config/macos/optimize.sh" ]; then
+        echo
+        log_info "Applying macOS system optimizations..."
+        if [ "${NON_INTERACTIVE:-false}" != "true" ]; then
+            read -p "Do you want to apply macOS system optimizations? (y/N): " -n 1 -r
+            echo
+            if [[ $REPLY =~ ^[Yy]$ ]]; then
+                chmod +x "$HOME/.config/macos/optimize.sh"
+                "$HOME/.config/macos/optimize.sh" || log_warning "Some macOS optimizations failed to apply"
+                
+                if [ -f "$HOME/.config/macos/quick-optimize.sh" ]; then
+                    log_info "Running additional quick optimizations..."
+                    chmod +x "$HOME/.config/macos/quick-optimize.sh"
+                    "$HOME/.config/macos/quick-optimize.sh" || log_warning "Some quick optimizations failed to apply"
+                fi
+            fi
+        else
+            log_info "Non-interactive mode: applying macOS optimizations automatically"
+            chmod +x "$HOME/.config/macos/optimize.sh"
+            "$HOME/.config/macos/optimize.sh" || log_warning "Some macOS optimizations failed to apply"
+        fi
+    elif [[ "$OS" == "macos" ]]; then
+        log_warning "macOS optimization scripts not found. Run 'stow -R -t $HOME macos' to fix this."
+    fi
+    
     echo
     log_success "Installation completed!"
     log_info "Please restart your terminal or run 'source ~/.zshrc' to apply changes"
+    log_info "If VS Code was configured, please restart it to load all extensions"
+    if [[ "$OS" == "macos" ]]; then
+        log_info "Some macOS settings may require a system restart to take full effect"
+    fi
 }
 
 # Run main function with all arguments
