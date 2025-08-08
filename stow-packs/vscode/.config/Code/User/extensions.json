@@ -6,10 +6,10 @@
         "ms-vscode.vscode-markdown",
         "streetsidesoftware.code-spell-checker",
         
-        // Python
+        // Python (with basedpyright)
         "ms-python.python",
+        "detachhead.basedpyright",
         "ms-python.black-formatter",
-        "ms-python.pylint",
         "ms-python.isort",
         "charliermarsh.ruff",
         
@@ -41,6 +41,9 @@
         "bradlc.vscode-tailwindcss",
         "ms-vscode.vscode-css",
         
+        // Vim support
+        "vscodevim.vim",
+        
         // Testing
         "ms-vscode.test-adapter-converter",
         "hbenl.vscode-test-explorer",
@@ -55,6 +58,13 @@
         "ms-dotnettools.csharp",
         "redhat.java",
         "ms-vscode.cpptools",
+        
+        // Configuration Files
+        "tamasfe.even-better-toml",
+        "bungcip.better-toml",
+        "ms-vscode.vscode-ini",
+        "redhat.vscode-xml",
+        "dotjoshjohnson.xml",
         
         // Utilities
         "ms-vscode.vscode-keybindings",
