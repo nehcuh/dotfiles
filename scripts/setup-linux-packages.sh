@@ -149,11 +149,10 @@ install_homebrew() {
 
 # Install packages via Homebrew (CLI tools only, no cask)
 install_homebrew_packages() {
-    local brewfile_path="$HOME/.Brewfile.linux"
-    
     # Ensure Homebrew is available in current session
     if [ -d "/home/linuxbrew/.linuxbrew" ]; then
         eval "$(/home/linuxbrew/.linuxbrew/bin/brew shellenv)"
+        log_info "Homebrew environment loaded: $(which brew 2>/dev/null || echo 'not found')"
     fi
     
     # Verify brew command is available
@@ -163,8 +162,28 @@ install_homebrew_packages() {
         return 1
     fi
     
-    if [ ! -f "$brewfile_path" ]; then
-        log_warning "Linux Brewfile not found at $brewfile_path"
+    # Look for Brewfile in multiple locations
+    local brewfile_path=""
+    local brewfile_locations=(
+        "$HOME/.Brewfile.linux"          # After stow installation
+        "$(pwd)/../stow-packs/linux/home/.Brewfile.linux"  # From repo structure
+        "$(dirname "$0")/../stow-packs/linux/home/.Brewfile.linux"  # Relative to script
+    )
+    
+    for location in "${brewfile_locations[@]}"; do
+        if [ -f "$location" ]; then
+            brewfile_path="$location"
+            log_info "Found Brewfile at: $brewfile_path"
+            break
+        fi
+    done
+    
+    if [ -z "$brewfile_path" ]; then
+        log_warning "Linux Brewfile not found in any of these locations:"
+        for location in "${brewfile_locations[@]}"; do
+            log_info "  - $location"
+        done
+        log_info "Skipping Homebrew package installation"
         return
     fi
     

@@ -277,28 +277,45 @@ setup_shell() {
         local zsh_path="$(command -v zsh)"
         local current_shell="$SHELL"
         
-        # Check if we're already running zsh
-        if [[ "$0" == *"zsh"* ]] || [[ "$(ps -p $$ -o comm=)" == *"zsh"* ]]; then
-            log_success "Already running zsh in current session"
+        # Multiple ways to detect if running in zsh context
+        local is_zsh_session=false
+        
+        # Method 1: Check parent process
+        if [[ "$(ps -p $PPID -o comm= 2>/dev/null)" == *"zsh"* ]]; then
+            is_zsh_session=true
+        fi
+        
+        # Method 2: Check current process
+        if [[ "$(ps -p $$ -o comm= 2>/dev/null)" == *"zsh"* ]]; then
+            is_zsh_session=true
+        fi
+        
+        # Method 3: Check $0 variable
+        if [[ "$0" == *"zsh"* ]]; then
+            is_zsh_session=true
+        fi
+        
+        # Method 4: Check if SHELL matches zsh_path
+        if [ "$current_shell" = "$zsh_path" ]; then
+            log_success "Default shell is already set to zsh"
+            return
+        fi
+        
+        # If we detect zsh session, be more gentle
+        if [ "$is_zsh_session" = true ]; then
+            log_info "Detected zsh environment, updating default shell setting..."
             
-            # Still check if default shell needs to be changed
-            if [ "$current_shell" != "$zsh_path" ]; then
-                log_info "Current session is zsh, but default shell is $current_shell"
-                log_info "Updating default shell to zsh..."
-                
-                if chsh -s "$zsh_path" 2>/dev/null; then
-                    log_success "Default shell updated to zsh"
-                else
-                    log_info "Could not update default shell automatically"
-                    log_info "You can update it manually with: chsh -s $zsh_path"
-                fi
+            if chsh -s "$zsh_path" 2>/dev/null; then
+                log_success "Default shell updated to zsh"
             else
-                log_success "Default shell is already set to zsh"
+                log_info "Could not update default shell automatically (this is normal in some environments)"
+                log_info "Your current session is already using zsh"
+                log_info "To set zsh as default permanently, run: chsh -s $zsh_path"
             fi
-        elif [ "$current_shell" != "$zsh_path" ]; then
+        else
+            # Regular shell change logic
             log_info "Changing shell from $current_shell to $zsh_path..."
             
-            # Try to change shell, with error handling
             if chsh -s "$zsh_path" 2>/dev/null; then
                 log_success "Shell changed to zsh (restart terminal to take effect)"
             else
@@ -314,8 +331,6 @@ setup_shell() {
                     log_info "  echo '$zsh_path' | sudo tee -a /etc/shells"
                 fi
             fi
-        else
-            log_success "Shell is already set to zsh"
         fi
     else
         log_warning "Zsh not found, keeping current shell"
