@@ -42,5 +42,27 @@ logs/
 .bash_history
 .history
 
+# Sensitive dotfiles (managed by stow but not versioned)
+stow-packs/sensitive/*
+!stow-packs/sensitive/.gitkeep
+
+# User-specific cache and state files
+.viminfo
+.z
+.zcompdump*
+.lesshst
+.sqlite_history
+.python_history
+.node_repl_history
+.mysql_history
+.psql_history
+.rediscli_history
+
+# SSH keys and config (if any accidentally placed in dotfiles)
+.ssh/id_*
+.ssh/*_rsa*
+.ssh/*.pem
+.ssh/known_hosts
+
 # Temporary directories
 /tmp/

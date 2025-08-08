@@ -145,6 +145,12 @@ install_packages() {
         fi
     fi
     
+    # Handle sensitive files first
+    if [[ -x "$DOTFILES_DIR/scripts/manage-sensitive-files.sh" ]]; then
+        log_info "Managing sensitive dotfiles..."
+        "$DOTFILES_DIR/scripts/manage-sensitive-files.sh" backup >/dev/null 2>&1 || true
+    fi
+    
     log_info "Installing packages: ${packages[*]}"
     
     cd "$DOTFILES_DIR/stow-packs" || exit 1
@@ -190,6 +196,11 @@ log_warning "Failed to install $package (conflicts detected)"
             log_warning "Package $package not found, skipping"
         fi
     done
+    
+    # Restore sensitive files as symlinks after all packages are installed
+    if [[ -x "$DOTFILES_DIR/scripts/manage-sensitive-files.sh" ]]; then
+        "$DOTFILES_DIR/scripts/manage-sensitive-files.sh" restore >/dev/null 2>&1 || true
+    fi
 }
 
 # Install Linux packages

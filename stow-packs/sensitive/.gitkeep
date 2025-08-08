@@ -1,0 +1,2 @@
+# This directory contains sensitive dotfiles that should not be committed to git
+# These files are managed by stow but excluded from version control

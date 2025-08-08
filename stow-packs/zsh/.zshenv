@@ -1,11 +1,36 @@
-# ZSH envioronment
+# ZSH environment
 
 export LANG="en_US.UTF-8"
 export LC_ALL="en_US.UTF-8"
 export TERM=xterm-256color
 export DEFAULT_USER=$USER
 export EDITOR='nvim'
+
+# Homebrew - ensure it's loaded first for PATH precedence
+if [[ "$OSTYPE" == "darwin"* ]]; then
+    if [ -f "/opt/homebrew/bin/brew" ]; then
+        eval "$(/opt/homebrew/bin/brew shellenv)"
+    elif [ -f "/usr/local/bin/brew" ]; then
+        eval "$(/usr/local/bin/brew shellenv)"
+    fi
+elif [[ "$OSTYPE" == "linux-gnu"* ]] && [ -d "/home/linuxbrew/.linuxbrew" ]; then
+    eval "$(/home/linuxbrew/.linuxbrew/bin/brew shellenv)"
+fi
+
+# Base PATH setup
 export PATH=$HOME/bin:$HOME/.local/bin:/usr/local/sbin:$PATH
+
+# Pyenv configuration - must be set early for PATH precedence
+if [[ -d "$HOME/.pyenv" ]]; then
+    export PYENV_ROOT="$HOME/.pyenv"
+    export PATH="$PYENV_ROOT/bin:$PATH"
+    eval "$(pyenv init --path)"
+fi
+
+# NVM configuration - set DIR but don't source yet (done in .zshrc)
+if [[ -d "$HOME/.nvm" ]]; then
+    export NVM_DIR="$HOME/.nvm"
+fi
 
 # Zinit
 export PATH=$HOME/.local/share/zinit/polaris/bin:$PATH
@@ -21,6 +46,18 @@ export PATH=${GOPATH//://bin:}/bin:$PATH
 
 # Rust
 export PATH=$HOME/.cargo/bin:$PATH
+
+# uv (Python package manager)
+export PATH="$HOME/.local/bin:$PATH"
+
+# Java (if installed via Homebrew)
+if [[ "$OSTYPE" == "darwin"* ]] && command -v brew &> /dev/null; then
+    JAVA_HOME_BREW="$(brew --prefix)/opt/openjdk"
+    if [[ -d "$JAVA_HOME_BREW" ]]; then
+        export PATH="$JAVA_HOME_BREW/bin:$PATH"
+        export CPPFLAGS="-I$JAVA_HOME_BREW/include"
+    fi
+fi
 
 # AI/LLM API Configuration (Templates - Uncomment and modify with your actual keys)
 # export ***REMOVED***=https://api.anthropic.com
