@@ -25,6 +25,7 @@ NON_INTERACTIVE="${NON_INTERACTIVE:-false}"  # Set to true to skip confirmation 
 DEV_ENV="${DEV_ENV:-false}"  # Set to true to setup development environments
 DEV_ALL="${DEV_ALL:-false}"  # Set to true to setup all development environments
 SKIP_BREWFILE="${SKIP_BREWFILE:-false}"  # Set to true to skip Brewfile installation
+USE_LINUX_BRANCH="${USE_LINUX_BRANCH:-false}"  # Set to true to use the Linux branch
 
 echo "========================================"
 echo "      Remote Dotfiles Installer        "
@@ -68,6 +69,24 @@ log_success "Repository cloned successfully"
 # Change to dotfiles directory
 cd "$DOTFILES_DIR"
 
+# Detect OS and potentially switch to Linux branch
+if [[ "$OSTYPE" == "linux-gnu"* ]] && [[ "$USE_LINUX_BRANCH" != "false" ]]; then
+    log_info "Linux system detected, switching to Linux branch..."
+    if git checkout linux 2>/dev/null; then
+        log_success "Switched to Linux branch for better Linux support"
+    else
+        log_warning "Linux branch not available, using main branch"
+    fi
+elif [[ "$USE_LINUX_BRANCH" == "true" ]]; then
+    log_info "Forcing Linux branch usage..."
+    if git checkout linux 2>/dev/null; then
+        log_success "Switched to Linux branch"
+    else
+        log_error "Linux branch not available"
+        exit 1
+    fi
+fi
+
 # Make install script executable
 chmod +x install.sh
 
@@ -76,8 +95,14 @@ log_info "Running installation..."
 
 # Show installation requirements
 log_warning "Installation Requirements:"
-log_info "• On macOS: Administrator privileges may be required"
-log_info "• Homebrew will be automatically installed if not present"
+if [[ "$OSTYPE" == "linux-gnu"* ]]; then
+    log_info "• On Linux: Administrator privileges may be required for package installation"
+    log_info "• Homebrew for Linux will be automatically installed if not present"
+    log_info "• Native package managers (apt, dnf, pacman) will be used for GUI apps"
+else
+    log_info "• On macOS: Administrator privileges may be required"
+    log_info "• Homebrew will be automatically installed if not present"
+fi
 log_info "• You may be prompted for your password during installation"
 log_info "• The installation is safe and will backup any conflicting files"
 echo
