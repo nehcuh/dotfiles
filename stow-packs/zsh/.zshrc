@@ -340,9 +340,28 @@ if command -v pyenv &> /dev/null; then
 fi
 
 # NVM - Node Version Manager
-export NVM_DIR="$HOME/.nvm"
-[ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"  # This loads nvm
-[ -s "$NVM_DIR/bash_completion" ] && \. "$NVM_DIR/bash_completion"  # This loads nvm bash_completion
+# Support both official installation and Homebrew installation
+if (( $+commands[brew] )); then
+    # Try Homebrew nvm first
+    export NVM_DIR="$HOME/.nvm"
+    [ ! -d "$NVM_DIR" ] && mkdir -p "$NVM_DIR"  # Create NVM_DIR if it doesn't exist
+    
+    # Check if Homebrew nvm is available
+    if [ -s "$(brew --prefix)/opt/nvm/nvm.sh" ]; then
+        # Load Homebrew nvm
+        source "$(brew --prefix)/opt/nvm/nvm.sh"
+        [ -s "$(brew --prefix)/opt/nvm/etc/bash_completion.d/nvm" ] && source "$(brew --prefix)/opt/nvm/etc/bash_completion.d/nvm"
+    elif [ -s "$NVM_DIR/nvm.sh" ]; then
+        # Fallback to official nvm installation
+        source "$NVM_DIR/nvm.sh"
+        [ -s "$NVM_DIR/bash_completion" ] && source "$NVM_DIR/bash_completion"
+    fi
+else
+    # Non-Homebrew systems: use official nvm installation
+    export NVM_DIR="$HOME/.nvm"
+    [ -s "$NVM_DIR/nvm.sh" ] && source "$NVM_DIR/nvm.sh"
+    [ -s "$NVM_DIR/bash_completion" ] && source "$NVM_DIR/bash_completion"
+fi
 
 # Local customizations, e.g. theme, plugins, aliases, etc.
 [ -f $HOME/.zshrc.local ] && source $HOME/.zshrc.local

@@ -37,12 +37,7 @@ brew "uv"
 brew "direnv"
 
 # Node.js development
-# NOTE: Install nvm via official installation script (always gets latest version):
-# Visit https://github.com/nvm-sh/nvm#install--update-script for latest installation command
-# Or use these commands (replace VERSION with latest from GitHub releases):
-# curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/VERSION/install.sh | bash
-# wget -qO- https://raw.githubusercontent.com/nvm-sh/nvm/VERSION/install.sh | bash
-# The brew "nvm" package is NOT the official nvm and does not provide nvm command
+brew "nvm"  # Note: Requires special configuration in shell (see .zshrc)
 
 # Development tools for specific languages
 brew "black"          # Python formatter
