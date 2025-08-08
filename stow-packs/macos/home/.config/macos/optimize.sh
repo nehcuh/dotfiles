@@ -35,9 +35,9 @@ defaults write NSGlobalDomain InitialKeyRepeat -int 15
 # Disable press-and-hold for keys in favor of key repeat
 defaults write NSGlobalDomain ApplePressAndHoldEnabled -bool false
 
-# Set language and text formats
-defaults write NSGlobalDomain AppleLanguages -array "en"
-defaults write NSGlobalDomain AppleLocale -string "en_US@currency=USD"
+# Set language and text formats (Chinese Simplified, China)
+defaults write NSGlobalDomain AppleLanguages -array "zh-Hans-CN" "en-CN"
+defaults write NSGlobalDomain AppleLocale -string "zh_CN@currency=CNY"
 defaults write NSGlobalDomain AppleMeasurementUnits -string "Centimeters"
 defaults write NSGlobalDomain AppleMetricUnits -bool true
 
