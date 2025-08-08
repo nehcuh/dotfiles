@@ -31,8 +31,24 @@ brew "yaml-language-server"
 brew "yazi"
 brew "zoxide"
 
-# Linux-specific packages
-brew "linux-headers" # if needed for compilation
+# Python development
+brew "pyenv"
+brew "uv"
+brew "direnv"
 
-# Zed editor (Linux version)
-brew "zed"
+# Node.js development
+brew "nvm"
+
+# Development tools for specific languages
+brew "black"          # Python formatter
+brew "isort"          # Python import sorter
+brew "prettier"       # JavaScript/TypeScript formatter
+brew "eslint"         # JavaScript/TypeScript linter
+brew "maven"          # Java build tool
+brew "gradle"         # Java build tool
+
+# Additional development utilities
+brew "jq"             # JSON processor
+brew "yq"             # YAML processor
+brew "httpie"         # HTTP client
+brew "gh"             # GitHub CLI
