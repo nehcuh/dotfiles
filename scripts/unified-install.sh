@@ -36,6 +36,11 @@ DEFAULT_REPO="${DOTFILES_REPO:-https://github.com/nehcuh/dotfiles.git}"
 DEFAULT_DIR="${DOTFILES_DIR:-$HOME/.dotfiles}"
 DEFAULT_BRANCH="${DOTFILES_BRANCH:-main}"
 
+# Debug: Show configuration
+print_info "Repository: $DEFAULT_REPO"
+print_info "Directory: $DEFAULT_DIR"
+print_info "Branch: $DEFAULT_BRANCH"
+
 # Environment variables for customization
 NON_INTERACTIVE="${NON_INTERACTIVE:-false}"
 SKIP_BREWFILE="${SKIP_BREWFILE:-false}"
