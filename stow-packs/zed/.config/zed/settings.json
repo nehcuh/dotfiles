@@ -24,8 +24,9 @@
     "shell": {
       "program": "zsh"
     },
-    "font_family": "Google Sans Code",
-    "font_size": 14
+    "font_family": "JetBrainsMono Nerd Font",
+    "font_size": 14,
+    "font_weight": 400
   },
   
   // Language servers
@@ -156,8 +157,8 @@
     "copilot": true
   },
   
-  // Vim mode (optional)
-  "vim_mode": false,
+  // Vim mode
+  "vim_mode": true,
   
   // Telemetry
   "telemetry": {

@@ -64,9 +64,17 @@ defaults -currentHost write NSGlobalDomain com.apple.trackpad.enableSecondaryCli
 defaults write com.apple.driver.AppleBluetoothMultitouch.mouse MouseButtonMode -string "TwoButton"
 defaults write NSGlobalDomain com.apple.mouse.scaling -float 2.5
 
-# Enable mouse button assistive features
+# Enable mouse button assistive features and assistive click
 defaults write com.apple.universalaccess mouseDriverTracking -bool true
 defaults write com.apple.universalaccess mouseDriverHIDClickAssist -bool true
+defaults write com.apple.universalaccess mouseDriverCursorSize -float 1.0
+
+# Enable assistive click (right-click by holding down left button)
+defaults write com.apple.universalaccess mouseDriverCursorSize -float 1.0
+defaults write com.apple.universalaccess mouseDriverIgnoreTrackpadIfMousePresent -bool false
+
+# Optimize mouse movement speed
+defaults write NSGlobalDomain com.apple.mouse.scaling -float 3.0
 
 # Enable tap to click for trackpad
 defaults write com.apple.driver.AppleBluetoothMultitouch.trackpad Clicking -bool true

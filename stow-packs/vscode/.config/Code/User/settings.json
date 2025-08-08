@@ -30,8 +30,6 @@
     "editor.autoClosingQuotes": "always",
     "editor.autoSurround": "languageDefined",
     "editor.suggest.insertMode": "replace",
-    "editor.fontSize": 14,
-    "editor.lineHeight": 1.6,
     "editor.letterSpacing": 0.5,
     "editor.fontWeight": "400",
     "editor.fontLigatures": true,
@@ -106,12 +104,55 @@
     "markdown.preview.fontSize": 14,
     "markdown.preview.lineHeight": 1.6,
     "markdown.preview.fontFamily": "Fira Code, 'Courier New', monospace",
+    
+    // Language-specific formatting settings
     "[python]": {
         "editor.defaultFormatter": "ms-python.black-formatter",
         "editor.formatOnSave": true,
         "editor.codeActionsOnSave": {
             "source.organizeImports": true
         }
+    },
+    "[rust]": {
+        "editor.defaultFormatter": "rust-lang.rust-analyzer",
+        "editor.formatOnSave": true,
+        "editor.codeActionsOnSave": {
+            "source.organizeImports": true
+        }
+    },
+    "[go]": {
+        "editor.defaultFormatter": "golang.go",
+        "editor.formatOnSave": true,
+        "editor.codeActionsOnSave": {
+            "source.organizeImports": true
+        }
+    },
+    "[java]": {
+        "editor.defaultFormatter": "redhat.java",
+        "editor.formatOnSave": true,
+        "editor.codeActionsOnSave": {
+            "source.organizeImports": true
+        }
+    },
+    "[c]": {
+        "editor.defaultFormatter": "ms-vscode.cpptools",
+        "editor.formatOnSave": true
+    },
+    "[cpp]": {
+        "editor.defaultFormatter": "ms-vscode.cpptools",
+        "editor.formatOnSave": true
+    },
+    "[dockerfile]": {
+        "editor.defaultFormatter": "ms-azuretools.vscode-docker",
+        "editor.formatOnSave": true
+    },
+    "[toml]": {
+        "editor.defaultFormatter": "tamasfe.even-better-toml",
+        "editor.formatOnSave": true
+    },
+    "[ini]": {
+        "editor.insertSpaces": true,
+        "editor.tabSize": 4
     },
     "[javascript]": {
         "editor.defaultFormatter": "esbenp.prettier-vscode",
@@ -141,21 +182,56 @@
         "editor.defaultFormatter": "esbenp.prettier-vscode",
         "editor.formatOnSave": true
     },
-    "python.analysis.typeCheckingMode": "basic",
-    "python.analysis.autoImportCompletions": true,
-    "python.analysis.autoSearchPaths": true,
-    "python.analysis.extraPaths": [],
-    "python.analysis.diagnosticMode": "workspace",
-    "python.analysis.logLevel": "error",
+    
+    // Python - Use basedpyright as language server
+    "python.defaultInterpreterPath": "python3",
+    "python.languageServer": "None",
+    "basedpyright.analysis.typeCheckingMode": "strict",
+    "basedpyright.analysis.autoImportCompletions": true,
+    "basedpyright.analysis.autoSearchPaths": true,
+    "basedpyright.analysis.diagnosticMode": "workspace",
+    "basedpyright.analysis.stubPath": "./typings",
+    "basedpyright.analysis.extraPaths": [],
     "python.linting.enabled": true,
-    "python.linting.pylintEnabled": true,
-    "python.linting.pylintArgs": [
-        "--load-plugins=pylint_django,pylint_flask"
-    ],
+    "python.linting.pylintEnabled": false,
+    "python.linting.ruffEnabled": true,
     "python.formatting.provider": "black",
     "python.testing.pytestEnabled": true,
     "python.testing.unittestEnabled": false,
     "python.testing.nosetestsEnabled": false,
+    
+    // Rust
+    "rust-analyzer.check.command": "clippy",
+    "rust-analyzer.cargo.loadOutDirsFromCheck": true,
+    "rust-analyzer.procMacro.enable": true,
+    "rust-analyzer.completion.addCallParentheses": true,
+    
+    // Go
+    "go.formatTool": "goimports",
+    "go.useLanguageServer": true,
+    "go.toolsManagement.autoUpdate": true,
+    "gopls": {
+        "ui.semanticTokens": true,
+        "formatting.gofumpt": true
+    },
+    
+    // Java
+    "java.configuration.updateBuildConfiguration": "automatic",
+    "java.compile.nullAnalysis.mode": "automatic",
+    "java.format.settings.url": "https://raw.githubusercontent.com/google/styleguide/gh-pages/eclipse-java-google-style.xml",
+    
+    // C/C++
+    "C_Cpp.default.cppStandard": "c++17",
+    "C_Cpp.default.cStandard": "c11",
+    "C_Cpp.default.intelliSenseMode": "macos-clang-x64",
+    "C_Cpp.formatting": "vcFormat",
+    "C_Cpp.autocomplete": "Disabled",
+    "C_Cpp.errorSquiggles": "Disabled",
+    
+    // Docker
+    "docker.enableDockerComposeLanguageService": true,
+    "docker.showStartPage": false,
+    
     "javascript.updateImportsOnFileMove.enabled": "always",
     "typescript.updateImportsOnFileMove.enabled": "always",
     "typescript.preferences.importModuleSpecifier": "relative",
@@ -175,5 +251,19 @@
     "css.lint.validProperties": [
         "composes"
     ],
-    "docker.languageserver.formatter.ignoreMultilineInstructions": true
+    "docker.languageserver.formatter.ignoreMultilineInstructions": true,
+    
+    // Vim configuration
+    "vim.easymotion": true,
+    "vim.incsearch": true,
+    "vim.useSystemClipboard": true,
+    "vim.useCtrlKeys": true,
+    "vim.hlsearch": true,
+    "vim.leader": "<space>",
+    "vim.insertModeKeyBindings": [
+        {
+            "before": ["j", "j"],
+            "after": ["<Esc>"]
+        }
+    ]
 }
