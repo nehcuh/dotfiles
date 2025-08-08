@@ -1,8 +1,33 @@
-# Simple Dotfiles
+# 🏠 Dotfiles
 
-一个简洁、轻量的 Linux 和 macOS dotfiles 配置。
+一个全面的跨平台 dotfiles 配置，支持 **macOS** 和 **Linux** 系统，具备智能环境检测和自动配置功能。
 
-## 快速开始
+## ⚡ 一键安装
+
+```bash
+curl -fsSL https://raw.githubusercontent.com/nehcuh/dotfiles/main/scripts/unified-install.sh | bash
+```
+
+> 🎆 支持 macOS 和 Linux，自动检测操作系统并进行智能配置！
+
+## 🚀 快速开始
+
+### ⚡ 统一一键安装（推荐）
+```bash
+# 适用于 macOS 和 Linux，自动检测系统
+curl -fsSL https://raw.githubusercontent.com/nehcuh/dotfiles/main/scripts/unified-install.sh | bash
+
+# 安装所有开发环境
+DEV_ALL=true curl -fsSL https://raw.githubusercontent.com/nehcuh/dotfiles/main/scripts/unified-install.sh | bash
+
+# 非交互式安装（适用于自动化）
+NON_INTERACTIVE=true DEV_ALL=true curl -fsSL https://raw.githubusercontent.com/nehcuh/dotfiles/main/scripts/unified-install.sh | bash
+
+# 只安装指定配置包
+INSTALL_PACKAGES="git vim tmux zsh" curl -fsSL https://raw.githubusercontent.com/nehcuh/dotfiles/main/scripts/unified-install.sh | bash
+```
+
+### 传统安装方法
 
 ### 一键远程安装
 ```bash
@@ -203,47 +228,43 @@ make update
 - GNU Stow（如果没有会自动安装）
 - Zsh（可选，但推荐）
 
-## 支持的系统
+## 🌟 跨平台支持
 
-- **macOS**: 所有近期版本 (main 分支)
-- **Linux**: Ubuntu、Debian、Arch、Fedora 及其衍生版本
+✅ **统一代码库** - 单个仓库支持两个操作系统  
+✅ **智能检测** - 自动检测并为您的操作系统配置  
+✅ **平台特定优化** - 为每个系统量身定制的配置  
 
-### Linux 支持
+### 支持的系统
 
-🐧 **专门的 Linux 支持，请使用 `linux` 分支：**
+| 操作系统 | 版本 | 包管理器 | 字体安装 | 开发工具 |
+|-----------|------|------------|------------|----------|
+| **macOS** | 10.15+ (Catalina+) | Homebrew | Homebrew Casks | 全面支持 |
+| **Linux** | Ubuntu 20.04+, Fedora 35+, Arch 等 | Homebrew + 原生 | 直接下载 | 全面支持 |
 
-#### 远程安装（推荐）
+### Linux 特定功能
+
+🐧 **main 分支现在包含完整的 Linux 支持：**
+
+- ✅ **自动字体安装** - 下载并安装 Nerd Fonts 和 Google Fonts
+- ✅ **Homebrew for Linux** - CLI 工具加智能原生包管理器回退
+- ✅ **原生包管理器支持** - 支持 apt, dnf, pacman, zypper
+- ✅ **智能依赖检测** - 自动安装缺少的依赖
+- ✅ **跨平台 Shell 配置** - 统一的 zsh 设置加操作系统特定优化
+
+### 安装（适用于两个系统）
+
 ```bash
-# 一键 Linux 优化安装
-curl -fsSL https://raw.githubusercontent.com/nehcuh/dotfiles/linux/remote-install-linux.sh | bash
+# 一键安装（自动检测操作系统）
+curl -fsSL https://raw.githubusercontent.com/nehcuh/dotfiles/main/scripts/unified-install.sh | bash
 
-# 安装所有开发环境
-curl -fsSL https://raw.githubusercontent.com/nehcuh/dotfiles/linux/remote-install-linux.sh | bash -s -- --dev-all
-
-# 非交互式安装
-NON_INTERACTIVE=true curl -fsSL https://raw.githubusercontent.com/nehcuh/dotfiles/linux/remote-install-linux.sh | bash -s -- --dev-all
-
-# 安装特定开发环境
-curl -fsSL https://raw.githubusercontent.com/nehcuh/dotfiles/linux/remote-install-linux.sh | bash -s -- python java
-```
-
-#### 手动安装
-```bash
-# 克隆并切换到 Linux 分支
+# 本地安装
 git clone https://github.com/nehcuh/dotfiles.git ~/.dotfiles
 cd ~/.dotfiles
-git checkout linux
 ./install.sh
+
+# 包含开发环境
+./install.sh --dev-all
 ```
-
-Linux 分支提供：
-- ✅ **Homebrew for Linux** (仅 CLI 工具，无 cask)
-- ✅ **原生包管理器支持** (apt, dnf, pacman, zypper)
-- ✅ **官方应用安装** (VS Code, Zed, Chrome)
-- ✅ **发行版特定优化**
-- ✅ **Microsoft 仓库 GPG 错误修复**
-
-📖 **详细的 Linux 文档请查看 [README-Linux.md](https://github.com/nehcuh/dotfiles/blob/linux/README-Linux.md)**
 
 ## 文件结构
 
