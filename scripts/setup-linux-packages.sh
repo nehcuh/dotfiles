@@ -151,6 +151,18 @@ install_homebrew() {
 install_homebrew_packages() {
     local brewfile_path="$HOME/.Brewfile.linux"
     
+    # Ensure Homebrew is available in current session
+    if [ -d "/home/linuxbrew/.linuxbrew" ]; then
+        eval "$(/home/linuxbrew/.linuxbrew/bin/brew shellenv)"
+    fi
+    
+    # Verify brew command is available
+    if ! command -v brew >/dev/null 2>&1; then
+        log_error "Homebrew not found in PATH. Please ensure Homebrew is properly installed."
+        log_info "Try running: source ~/.profile or restart your terminal"
+        return 1
+    fi
+    
     if [ ! -f "$brewfile_path" ]; then
         log_warning "Linux Brewfile not found at $brewfile_path"
         return
