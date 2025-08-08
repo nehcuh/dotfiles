@@ -215,11 +215,16 @@ make update
 #### 远程安装（推荐）
 ```bash
 # 一键 Linux 优化安装
-curl -fsSL https://raw.githubusercontent.com/nehcuh/dotfiles/main/remote-install-linux.sh | bash
+curl -fsSL https://raw.githubusercontent.com/nehcuh/dotfiles/linux/remote-install-linux.sh | bash
 
-# 使用环境变量
-NON_INTERACTIVE=true curl -fsSL https://raw.githubusercontent.com/nehcuh/dotfiles/main/remote-install-linux.sh | bash
-DEV_ALL=true curl -fsSL https://raw.githubusercontent.com/nehcuh/dotfiles/main/remote-install-linux.sh | bash
+# 安装所有开发环境
+curl -fsSL https://raw.githubusercontent.com/nehcuh/dotfiles/linux/remote-install-linux.sh | bash -s -- --dev-all
+
+# 非交互式安装
+NON_INTERACTIVE=true curl -fsSL https://raw.githubusercontent.com/nehcuh/dotfiles/linux/remote-install-linux.sh | bash -s -- --dev-all
+
+# 安装特定开发环境
+curl -fsSL https://raw.githubusercontent.com/nehcuh/dotfiles/linux/remote-install-linux.sh | bash -s -- python java
 ```
 
 #### 手动安装

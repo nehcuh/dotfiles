@@ -215,11 +215,16 @@ Create these files for personal settings (they won't be tracked by git):
 #### Remote Installation (Recommended)
 ```bash
 # One-line Linux-optimized installation
-curl -fsSL https://raw.githubusercontent.com/nehcuh/dotfiles/main/remote-install-linux.sh | bash
+curl -fsSL https://raw.githubusercontent.com/nehcuh/dotfiles/linux/remote-install-linux.sh | bash
 
-# With environment variables
-NON_INTERACTIVE=true curl -fsSL https://raw.githubusercontent.com/nehcuh/dotfiles/main/remote-install-linux.sh | bash
-DEV_ALL=true curl -fsSL https://raw.githubusercontent.com/nehcuh/dotfiles/main/remote-install-linux.sh | bash
+# Install with all development environments
+curl -fsSL https://raw.githubusercontent.com/nehcuh/dotfiles/linux/remote-install-linux.sh | bash -s -- --dev-all
+
+# Non-interactive installation
+NON_INTERACTIVE=true curl -fsSL https://raw.githubusercontent.com/nehcuh/dotfiles/linux/remote-install-linux.sh | bash -s -- --dev-all
+
+# Install specific development environments
+curl -fsSL https://raw.githubusercontent.com/nehcuh/dotfiles/linux/remote-install-linux.sh | bash -s -- python java
 ```
 
 #### Manual Installation

@@ -44,16 +44,16 @@
 ### 1. 一键远程安装（推荐）
 ```bash
 # 一键 Linux 优化安装
-curl -fsSL https://raw.githubusercontent.com/nehcuh/dotfiles/main/remote-install-linux.sh | bash
+curl -fsSL https://raw.githubusercontent.com/nehcuh/dotfiles/linux/remote-install-linux.sh | bash
+
+# 安装所有开发环境
+curl -fsSL https://raw.githubusercontent.com/nehcuh/dotfiles/linux/remote-install-linux.sh | bash -s -- --dev-all
 
 # 非交互式安装（用于自动化）
-NON_INTERACTIVE=true curl -fsSL https://raw.githubusercontent.com/nehcuh/dotfiles/main/remote-install-linux.sh | bash
+NON_INTERACTIVE=true curl -fsSL https://raw.githubusercontent.com/nehcuh/dotfiles/linux/remote-install-linux.sh | bash -s -- --dev-all
 
-# 安装并设置所有开发环境
-DEV_ALL=true curl -fsSL https://raw.githubusercontent.com/nehcuh/dotfiles/main/remote-install-linux.sh | bash
-
-# 自定义安装包
-INSTALL_PACKAGES="git zsh nvim tmux" curl -fsSL https://raw.githubusercontent.com/nehcuh/dotfiles/main/remote-install-linux.sh | bash
+# 安装特定开发环境
+curl -fsSL https://raw.githubusercontent.com/nehcuh/dotfiles/linux/remote-install-linux.sh | bash -s -- python java go
 ```
 
 ### 2. 手动安装
