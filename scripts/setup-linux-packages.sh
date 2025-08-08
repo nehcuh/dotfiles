@@ -165,14 +165,15 @@ install_homebrew_packages() {
         local total_packages=0
         
         while IFS= read -r line; do
-            if [[ $line =~ ^brew\s+"([^"]+)" ]]; then
-                local package_name="${BASH_REMATCH[1]}"
+            if echo "$line" | grep -q "^brew "; then
+                # Extract package name from line like 'brew "package-name"'
+                local package_name=$(echo "$line" | sed 's/^brew "\([^"]*\)".*/\1/')
                 ((total_packages++))
                 if brew list "$package_name" &>/dev/null; then
                     ((existing_count++))
                 fi
             fi
-        done < <(grep -v "^cask " "$brewfile_path" | grep -E "^brew\s")
+        done < <(grep -v "^cask " "$brewfile_path" | grep -E "^brew ")
         
         if [ $existing_count -gt 0 ]; then
             log_info "Found $existing_count already installed packages out of $total_packages total packages"
