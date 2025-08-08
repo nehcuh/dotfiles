@@ -192,6 +192,19 @@ log_warning "Failed to install $package (conflicts detected)"
     done
 }
 
+# Install Linux packages
+install_linux_packages() {
+    local linux_script="$DOTFILES_DIR/scripts/setup-linux-packages.sh"
+    
+    if [ -f "$linux_script" ]; then
+        log_info "Setting up Linux packages..."
+        chmod +x "$linux_script"
+        "$linux_script"
+    else
+        log_error "Linux package setup script not found: $linux_script"
+    fi
+}
+
 # Install Brewfile packages
 install_brewfile() {
     if [[ "$OS" == "macos" ]] && command -v brew &> /dev/null; then
@@ -351,7 +364,14 @@ main() {
     check_sudo
     check_prerequisites
     install_packages "${packages[@]}"
-    install_brewfile
+    
+    # Install OS-specific packages
+    if [[ "$OS" == "macos" ]]; then
+        install_brewfile
+    elif [[ "$OS" == "linux" ]]; then
+        install_linux_packages
+    fi
+    
     setup_shell
     
     # Setup development environments if requested

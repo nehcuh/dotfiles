@@ -10,6 +10,11 @@ if [[ "$OSTYPE" == "darwin"* ]]; then
     if [[ -f "$DOTFILES/stow-packs/macos/.zshrc.macos" ]]; then
         source "$DOTFILES/stow-packs/macos/.zshrc.macos"
     fi
+elif [[ "$OSTYPE" == "linux-gnu"* ]]; then
+    # Linux-specific configuration
+    if [[ -f "$HOME/.config/linux/linux.sh" ]]; then
+        source "$HOME/.config/linux/linux.sh"
+    fi
 fi
 
 # Initialize starship prompt
