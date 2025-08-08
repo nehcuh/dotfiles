@@ -220,6 +220,55 @@ install_linux_packages() {
     else
         log_error "Linux package setup script not found: $linux_script"
     fi
+    
+    # Install fonts for Linux
+    install_linux_fonts
+}
+
+# Install Linux fonts
+install_linux_fonts() {
+    local font_script="$DOTFILES_DIR/scripts/install-fonts-linux.sh"
+    
+    if [ -f "$font_script" ]; then
+        # Skip if explicitly requested
+        if [ "${SKIP_FONTS:-false}" = "true" ]; then
+            log_info "Skipping font installation (SKIP_FONTS=true)"
+            return
+        fi
+        
+        log_info "Installing fonts for Linux..."
+        
+        # Ask for confirmation unless in non-interactive mode
+        if [ "${NON_INTERACTIVE:-false}" != "true" ]; then
+            echo
+            log_info "The font installer will download and install:"
+            log_info "• FiraCode Nerd Font (programming font with ligatures)"
+            log_info "• Hack Nerd Font (alternative programming font)"
+            log_info "• Source Code Pro (monospace font, similar to SF Mono)"
+            log_info "• Roboto and Roboto Mono (Google fonts)"
+            echo
+            read -p "Do you want to install fonts? (Y/n): " -n 1 -r
+            echo
+            
+            if [[ $REPLY =~ ^[Nn]$ ]]; then
+                log_info "Skipping font installation"
+                log_info "You can install fonts later with: $font_script"
+                return
+            fi
+        else
+            log_info "Non-interactive mode: installing fonts automatically"
+        fi
+        
+        chmod +x "$font_script"
+        if "$font_script"; then
+            log_success "Fonts installed successfully"
+        else
+            log_warning "Font installation encountered some issues"
+            log_info "You can retry with: $font_script"
+        fi
+    else
+        log_warning "Linux font installation script not found: $font_script"
+    fi
 }
 
 # Install Brewfile packages
