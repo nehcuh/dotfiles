@@ -270,8 +270,26 @@ setup_shell() {
     if command -v zsh &> /dev/null; then
         if [ "$SHELL" != "$(command -v zsh)" ]; then
             log_info "Changing shell to zsh..."
-            chsh -s "$(command -v zsh)"
-            log_success "Shell changed to zsh (restart terminal to take effect)"
+            
+            # Try to change shell, with error handling
+            if chsh -s "$(command -v zsh)" 2>/dev/null; then
+                log_success "Shell changed to zsh (restart terminal to take effect)"
+            else
+                log_warning "Failed to change shell automatically"
+                log_info "You can manually change your shell to zsh later with:"
+                log_info "  chsh -s $(command -v zsh)"
+                log_info "Or add this to your current shell's rc file:"
+                log_info "  exec zsh"
+                
+                # On some systems, we need to ensure zsh is in /etc/shells
+                local zsh_path="$(command -v zsh)"
+                if [ -f /etc/shells ] && ! grep -q "^$zsh_path$" /etc/shells; then
+                    log_warning "Zsh may not be in /etc/shells. You might need to add it:"
+                    log_info "  echo '$zsh_path' | sudo tee -a /etc/shells"
+                fi
+            fi
+        else
+            log_success "Shell is already set to zsh"
         fi
     else
         log_warning "Zsh not found, keeping current shell"

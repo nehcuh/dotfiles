@@ -222,6 +222,7 @@ install_native_packages() {
                 curl \
                 wget \
                 git \
+                zsh \
                 build-essential \
                 software-properties-common \
                 apt-transport-https \
@@ -235,6 +236,7 @@ install_native_packages() {
                 curl \
                 wget \
                 git \
+                zsh \
                 @development-tools \
                 dnf-plugins-core
             ;;
@@ -244,6 +246,7 @@ install_native_packages() {
                 curl \
                 wget \
                 git \
+                zsh \
                 base-devel
             ;;
         opensuse|sles)
@@ -252,6 +255,7 @@ install_native_packages() {
                 curl \
                 wget \
                 git \
+                zsh \
                 -t pattern devel_basis
             ;;
         *)
