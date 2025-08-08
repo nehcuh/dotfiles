@@ -200,6 +200,12 @@ install_linux_packages() {
         log_info "Setting up Linux packages..."
         chmod +x "$linux_script"
         "$linux_script"
+        
+        # After Linux packages installation, ensure Homebrew is available for current session
+        if [ -d "/home/linuxbrew/.linuxbrew" ]; then
+            eval "$(/home/linuxbrew/.linuxbrew/bin/brew shellenv)"
+            log_info "Homebrew environment loaded for current session"
+        fi
     else
         log_error "Linux package setup script not found: $linux_script"
     fi

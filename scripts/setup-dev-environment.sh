@@ -27,6 +27,12 @@ elif [[ "$OSTYPE" == "darwin"* ]]; then
     OS="macos"
 fi
 
+# Ensure Homebrew is available on Linux
+if [[ "$OS" == "linux" ]] && [ -d "/home/linuxbrew/.linuxbrew" ]; then
+    eval "$(/home/linuxbrew/.linuxbrew/bin/brew shellenv)"
+    log_info "Homebrew environment loaded for development setup"
+fi
+
 echo "========================================"
 echo "    Development Environment Setup      "
 echo "========================================"
