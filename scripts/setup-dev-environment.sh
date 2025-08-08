@@ -367,19 +367,12 @@ install_cpp() {
 install_vscode() {
     log_header "Setting up VS Code extensions"
     
-    # Check if VS Code is installed
-    if ! command -v code &> /dev/null; then
-        log_warning "VS Code not found, skipping extension installation"
-        log_info "Install VS Code with: brew install --cask visual-studio-code"
-        return 0
-    fi
-    
     # Find and run the VS Code extensions script
     local script_path=""
     local possible_paths=(
-        "$(dirname "${BASH_SOURCE[0]}")/setup-vscode-extensions.sh"
-        "./scripts/setup-vscode-extensions.sh"
-        "$HOME/.dotfiles/scripts/setup-vscode-extensions.sh"
+        "$(dirname "${BASH_SOURCE[0]}")/install-vscode-extensions.sh"
+        "./scripts/install-vscode-extensions.sh"
+        "$HOME/.dotfiles/scripts/install-vscode-extensions.sh"
     )
     
     for path in "${possible_paths[@]}"; do
@@ -391,10 +384,15 @@ install_vscode() {
     
     if [[ -n "$script_path" ]]; then
         log_info "Running VS Code extensions installation..."
-        bash "$script_path"
+        chmod +x "$script_path"
+        "$script_path"
     else
-        log_warning "VS Code extensions script not found"
-        log_info "You can manually install extensions later"
+        log_warning "VS Code extensions script not found at any of these locations:"
+        for path in "${possible_paths[@]}"; do
+            log_info "  $path"
+        done
+        log_info "You can manually install extensions with:"
+        log_info "  ./scripts/install-vscode-extensions.sh"
     fi
 }
 
