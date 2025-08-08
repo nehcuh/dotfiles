@@ -205,8 +205,29 @@ Create these files for personal settings (they won't be tracked by git):
 
 ## Supported Systems
 
-- **macOS**: All recent versions
+- **macOS**: All recent versions (main branch)
 - **Linux**: Ubuntu, Debian, Arch, Fedora, and derivatives
+
+### Linux Support
+
+🐧 **For dedicated Linux support, use the `linux` branch:**
+
+```bash
+# Clone and switch to Linux branch
+git clone https://github.com/nehcuh/dotfiles.git ~/.dotfiles
+cd ~/.dotfiles
+git checkout linux
+./install.sh
+```
+
+The Linux branch provides:
+- ✅ **Homebrew for Linux** (CLI tools only, no cask)
+- ✅ **Native package manager support** (apt, dnf, pacman, zypper)
+- ✅ **Official app installations** (VS Code, Zed, Chrome)
+- ✅ **Distribution-specific optimizations**
+- ✅ **GPG error fixes** for Microsoft repositories
+
+📖 **See [README-Linux.md](https://github.com/nehcuh/dotfiles/blob/linux/README-Linux.md) for detailed Linux documentation.**
 
 ## Files Structure
 

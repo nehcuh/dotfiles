@@ -205,8 +205,29 @@ make update
 
 ## 支持的系统
 
-- **macOS**: 所有近期版本
+- **macOS**: 所有近期版本 (main 分支)
 - **Linux**: Ubuntu、Debian、Arch、Fedora 及其衍生版本
+
+### Linux 支持
+
+🐧 **专门的 Linux 支持，请使用 `linux` 分支：**
+
+```bash
+# 克隆并切换到 Linux 分支
+git clone https://github.com/nehcuh/dotfiles.git ~/.dotfiles
+cd ~/.dotfiles
+git checkout linux
+./install.sh
+```
+
+Linux 分支提供：
+- ✅ **Homebrew for Linux** (仅 CLI 工具，无 cask)
+- ✅ **原生包管理器支持** (apt, dnf, pacman, zypper)
+- ✅ **官方应用安装** (VS Code, Zed, Chrome)
+- ✅ **发行版特定优化**
+- ✅ **Microsoft 仓库 GPG 错误修复**
+
+📖 **详细的 Linux 文档请查看 [README-Linux.md](https://github.com/nehcuh/dotfiles/blob/linux/README-Linux.md)**
 
 ## 文件结构
 
