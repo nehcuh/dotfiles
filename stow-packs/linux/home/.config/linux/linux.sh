@@ -49,21 +49,9 @@ if [ -d "$HOME/.local/bin" ]; then
     export PATH="$HOME/.local/bin:$PATH"
 fi
 
-# Python development on Linux
-if [ -d "$HOME/.pyenv" ]; then
-    export PYENV_ROOT="$HOME/.pyenv"
-    export PATH="$PYENV_ROOT/bin:$PATH"
-    eval "$(pyenv init -)"
-fi
-
-# Node.js development on Linux
-export NVM_DIR="$HOME/.nvm"
-if [ -s "$HOME/.nvm/nvm.sh" ]; then
-    source "$HOME/.nvm/nvm.sh"
-fi
-if [ -s "$HOME/.nvm/bash_completion" ]; then
-    source "$HOME/.nvm/bash_completion"
-fi
+# Note: Python (pyenv) and Node.js (NVM) development tools are configured
+# in the main .zshenv and .zshrc files for cross-platform consistency.
+# This avoids duplication and ensures consistent behavior across all systems.
 
 # Rust development
 if [ -f "$HOME/.cargo/env" ]; then

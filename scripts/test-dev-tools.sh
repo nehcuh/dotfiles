@@ -113,11 +113,25 @@ test_nvm() {
 test_other_tools() {
     log_header "Testing Other Development Tools"
     
+    # Detect OS
+    local os="unknown"
+    if [[ "$OSTYPE" == "linux-gnu"* ]]; then
+        os="linux"
+    elif [[ "$OSTYPE" == "darwin"* ]]; then
+        os="macos"
+    fi
+    
+    log_info "Detected OS: $os"
+    
     # Test Homebrew
     if command -v brew >/dev/null 2>&1; then
         log_success "Homebrew available: $(brew --version | head -1)"
     else
-        log_warning "Homebrew not found"
+        if [[ "$os" == "linux" ]]; then
+            log_info "Homebrew not found (optional on Linux)"
+        else
+            log_warning "Homebrew not found (recommended on macOS)"
+        fi
     fi
     
     # Test Go

@@ -51,12 +51,35 @@ export PATH=$HOME/.cargo/bin:$PATH
 # uv (Python package manager)
 export PATH="$HOME/.local/bin:$PATH"
 
-# Java (if installed via Homebrew)
+# Java configuration (cross-platform)
 if [[ "$OSTYPE" == "darwin"* ]] && command -v brew &> /dev/null; then
+    # macOS: Java via Homebrew
     JAVA_HOME_BREW="$(brew --prefix)/opt/openjdk"
     if [[ -d "$JAVA_HOME_BREW" ]]; then
+        export JAVA_HOME="$JAVA_HOME_BREW"
         export PATH="$JAVA_HOME_BREW/bin:$PATH"
         export CPPFLAGS="-I$JAVA_HOME_BREW/include"
+    fi
+elif [[ "$OSTYPE" == "linux-gnu"* ]]; then
+    # Linux: Java via system package managers (try various common paths)
+    if [[ -d "/usr/lib/jvm/default-java" ]]; then
+        export JAVA_HOME="/usr/lib/jvm/default-java"
+    elif [[ -d "/usr/lib/jvm/java-17-openjdk-amd64" ]]; then
+        export JAVA_HOME="/usr/lib/jvm/java-17-openjdk-amd64"
+    elif [[ -d "/usr/lib/jvm/java-17-openjdk" ]]; then
+        export JAVA_HOME="/usr/lib/jvm/java-17-openjdk"
+    elif [[ -d "/usr/lib/jvm/java-11-openjdk-amd64" ]]; then
+        export JAVA_HOME="/usr/lib/jvm/java-11-openjdk-amd64"
+    elif [[ -d "/usr/lib/jvm/java-11-openjdk" ]]; then
+        export JAVA_HOME="/usr/lib/jvm/java-11-openjdk"
+    elif [[ -d "/usr/lib/jvm/java-8-openjdk-amd64" ]]; then
+        export JAVA_HOME="/usr/lib/jvm/java-8-openjdk-amd64"
+    elif [[ -d "/usr/lib/jvm/java-8-openjdk" ]]; then
+        export JAVA_HOME="/usr/lib/jvm/java-8-openjdk"
+    fi
+    # Add JAVA_HOME/bin to PATH if JAVA_HOME is set
+    if [[ -n "$JAVA_HOME" && -d "$JAVA_HOME/bin" ]]; then
+        export PATH="$JAVA_HOME/bin:$PATH"
     fi
 fi
 
