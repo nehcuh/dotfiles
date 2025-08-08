@@ -1,6 +1,6 @@
-# Simple Dotfiles
+# 🏠 Dotfiles
 
-A clean, minimal dotfiles setup for Linux and macOS.
+A comprehensive, cross-platform dotfiles configuration supporting both **macOS** and **Linux** systems with intelligent environment detection and automatic setup.
 
 ## Quick Start
 
@@ -203,47 +203,43 @@ Create these files for personal settings (they won't be tracked by git):
 - GNU Stow (automatically installed if missing)
 - Zsh (optional, but recommended)
 
-## Supported Systems
+## 🌟 Cross-Platform Support
 
-- **macOS**: All recent versions (main branch)
-- **Linux**: Ubuntu, Debian, Arch, Fedora, and derivatives
+✅ **Unified codebase** - Single repository supporting both operating systems  
+✅ **Intelligent detection** - Automatically detects and configures for your OS  
+✅ **Platform-specific optimizations** - Tailored configurations for each system  
 
-### Linux Support
+### Supported Systems
 
-🐧 **For dedicated Linux support, use the `linux` branch:**
+| OS | Version | Package Manager | Font Installation | Development Tools |
+|----|---------|-----------------|-------------------|-------------------|
+| **macOS** | 10.15+ (Catalina+) | Homebrew | Homebrew Casks | Full Support |
+| **Linux** | Ubuntu 20.04+, Fedora 35+, Arch, etc. | Homebrew + Native | Direct Download | Full Support |
 
-#### Remote Installation (Recommended)
+### Linux-Specific Features
+
+🐧 **The main branch now includes full Linux support:**
+
+- ✅ **Automatic Font Installation** - Downloads and installs Nerd Fonts and Google Fonts
+- ✅ **Homebrew for Linux** - CLI tools with intelligent fallback to native packages
+- ✅ **Native Package Manager Support** - Works with apt, dnf, pacman, zypper
+- ✅ **Smart Dependency Detection** - Automatically installs missing dependencies
+- ✅ **Cross-Platform Shell Configuration** - Unified zsh setup with OS-specific optimizations
+
+### Installation (Works on Both Systems)
+
 ```bash
-# One-line Linux-optimized installation
-curl -fsSL https://raw.githubusercontent.com/nehcuh/dotfiles/linux/remote-install-linux.sh | bash
+# One-line installation (auto-detects OS)
+curl -fsSL https://raw.githubusercontent.com/nehcuh/dotfiles/main/remote-install.sh | bash
 
-# Install with all development environments
-curl -fsSL https://raw.githubusercontent.com/nehcuh/dotfiles/linux/remote-install-linux.sh | bash -s -- --dev-all
-
-# Non-interactive installation
-NON_INTERACTIVE=true curl -fsSL https://raw.githubusercontent.com/nehcuh/dotfiles/linux/remote-install-linux.sh | bash -s -- --dev-all
-
-# Install specific development environments
-curl -fsSL https://raw.githubusercontent.com/nehcuh/dotfiles/linux/remote-install-linux.sh | bash -s -- python java
-```
-
-#### Manual Installation
-```bash
-# Clone and switch to Linux branch
+# Local installation
 git clone https://github.com/nehcuh/dotfiles.git ~/.dotfiles
 cd ~/.dotfiles
-git checkout linux
 ./install.sh
+
+# With development environments
+./install.sh --dev-all
 ```
-
-The Linux branch provides:
-- ✅ **Homebrew for Linux** (CLI tools only, no cask)
-- ✅ **Native package manager support** (apt, dnf, pacman, zypper)
-- ✅ **Official app installations** (VS Code, Zed, Chrome)
-- ✅ **Distribution-specific optimizations**
-- ✅ **GPG error fixes** for Microsoft repositories
-
-📖 **See [README-Linux.md](https://github.com/nehcuh/dotfiles/blob/linux/README-Linux.md) for detailed Linux documentation.**
 
 ## Files Structure
 
