@@ -27,6 +27,20 @@ elif [[ "$OSTYPE" == "darwin"* ]]; then
     OS="macos"
 fi
 
+# Ensure Homebrew is available on macOS
+if [[ "$OS" == "macos" ]]; then
+    # Check for Homebrew in common locations
+    if [ -f "/opt/homebrew/bin/brew" ]; then
+        # Apple Silicon Mac
+        eval "$(/opt/homebrew/bin/brew shellenv)"
+        log_info "Homebrew environment loaded: Apple Silicon"
+    elif [ -f "/usr/local/bin/brew" ]; then
+        # Intel Mac
+        eval "$(/usr/local/bin/brew shellenv)"
+        log_info "Homebrew environment loaded: Intel"
+    fi
+fi
+
 echo "========================================"
 echo "    Development Environment Setup      "
 echo "========================================"
