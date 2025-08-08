@@ -92,25 +92,58 @@ detect_distro() {
 # Install Homebrew for Linux
 install_homebrew() {
     if command -v brew &> /dev/null; then
-        log_info "Homebrew already installed"
+        log_info "Homebrew already installed: $(brew --version | head -1)"
         return
     fi
     
     log_info "Installing Homebrew for Linux..."
     
+    # Install required dependencies first
+    case $OS in
+        ubuntu|debian)
+            sudo apt update && sudo apt install -y curl git
+            ;;
+        fedora)
+            sudo dnf install -y curl git
+            ;;
+        arch|manjaro)
+            sudo pacman -S --noconfirm curl git
+            ;;
+    esac
+    
     # Download and run the official Homebrew installation script
     NONINTERACTIVE=1 /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
     
-    # Add Homebrew to PATH
-    echo 'eval "$(/home/linuxbrew/.linuxbrew/bin/brew shellenv)"' >> ~/.profile
-    eval "$(/home/linuxbrew/.linuxbrew/bin/brew shellenv)"
+    # Add Homebrew to PATH for current session and future sessions
+    if [ -d "/home/linuxbrew/.linuxbrew" ]; then
+        eval "$(/home/linuxbrew/.linuxbrew/bin/brew shellenv)"
+        
+        # Add to shell profile files
+        for profile in ~/.profile ~/.bashrc ~/.zshrc; do
+            if [ -f "$profile" ]; then
+                if ! grep -q "linuxbrew" "$profile"; then
+                    echo '' >> "$profile"
+                    echo '# Homebrew for Linux' >> "$profile"
+                    echo 'eval "$(/home/linuxbrew/.linuxbrew/bin/brew shellenv)"' >> "$profile"
+                fi
+            fi
+        done
+        
+        # Create .profile if it doesn't exist
+        if [ ! -f ~/.profile ]; then
+            echo '# Homebrew for Linux' > ~/.profile
+            echo 'eval "$(/home/linuxbrew/.linuxbrew/bin/brew shellenv)"' >> ~/.profile
+        fi
+    fi
     
     # Verify installation
     if command -v brew &> /dev/null; then
-        log_success "Homebrew installed successfully"
+        log_success "Homebrew installed successfully: $(brew --version | head -1)"
+        log_info "Homebrew location: $(which brew)"
     else
         log_error "Failed to install Homebrew"
-        exit 1
+        log_error "Please check the installation logs above"
+        return 1
     fi
 }
 
