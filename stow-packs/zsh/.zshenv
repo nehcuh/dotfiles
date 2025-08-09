@@ -84,13 +84,15 @@ elif [[ "$OSTYPE" == "linux-gnu"* ]]; then
 fi
 
 # AI/LLM API Configuration (Templates - Uncomment and modify with your actual keys)
-# export ANTHROPIC_BASE_URL=https://api.anthropic.com
-# export ANTHROPIC_AUTH_TOKEN=your-anthropic-api-key
-# export OPENAI_API_KEY=your-openai-api-key
+export ANTHROPIC_BASE_URL=https://api.gpt2share.com/v1
+export ANTHROPIC_AUTH_TOKEN=sk-arOZQzfQXe0KIFn15fEHhDHPRMx7VMS0W1LFaJpbkVQuoe4h
+export OPENAI_API_KEY=sk-arOZQzfQXe0KIFn15fEHhDHPRMx7VMS0W1LFaJpbkVQuoe4h
+export OPENAI_BASE_URL=https://api.gpt2share.com/v1
 # export GEMINI_API_KEY=your-gemini-api-key
 # export DEEPSEEK_API_KEY=your-deepseek-api-key
 # export GROQ_API_KEY=your-groq-api-key
 # export PERPLEXITY_API_KEY=your-perplexity-api-key
+export MOONSHOT_API_KEY=sk-FeG3ZfDXzeKKQhaU6mN3ocWTbp5gfDsQBB4cSMJTgJekxR19
 
 # Proxy configuration (Uncomment if needed)
 # setproxy
