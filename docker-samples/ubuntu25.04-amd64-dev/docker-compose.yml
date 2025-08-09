@@ -50,8 +50,8 @@ services:
     volumes:
       # Mount your host home; read/write
       - ${HOME}:/host-home
-      # Mount host Projects directory into container workspace
-      - ${HOME}/Projects:/home/dev/Projects
+      # Mount host Projects directory into container user home
+      - ${HOME}/Projects:/home/huchen/Projects
     extra_hosts:
       - "host.docker.internal:host-gateway"
     cap_add:

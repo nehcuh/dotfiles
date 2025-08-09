@@ -11,7 +11,7 @@
 - ✅ **完整开发环境**: Python, Node.js, Go, Rust, Java
 - ✅ **SSH 支持**: 可通过 SSH 连接到容器 (端口 22, 用户: huchen, 密码: 123456)
 - ✅ **自动重启**: 系统重启后自动启动，保留容器内配置
-- ✅ **数据持久化**: `~/Projects` 目录与主机同步
+- ✅ **数据持久化**: `~/Projects` 目录与主机同步到容器 `/home/huchen/Projects`
 - ✅ **数据库支持**: PostgreSQL, Redis, MongoDB 4.4, ClickHouse
 - ✅ **固定容器名**: 容器名固定为 `devbox`
 
