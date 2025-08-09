@@ -363,16 +363,16 @@ install_cpp() {
     fi
 }
 
-# Install VS Code extensions
-install_vscode() {
-    log_header "Setting up VS Code extensions"
+# Install Docker development environment
+install_docker() {
+    log_header "Setting up Docker development environment"
     
-    # Find and run the VS Code extensions script
+    # Find and run the Docker setup script
     local script_path=""
     local possible_paths=(
-        "$(dirname "${BASH_SOURCE[0]}")/install-vscode-extensions.sh"
-        "./scripts/install-vscode-extensions.sh"
-        "$HOME/.dotfiles/scripts/install-vscode-extensions.sh"
+        "$(dirname "${BASH_SOURCE[0]}")/setup-docker-env.sh"
+        "./scripts/setup-docker-env.sh"
+        "$HOME/.dotfiles/scripts/setup-docker-env.sh"
     )
     
     for path in "${possible_paths[@]}"; do
@@ -381,6 +381,40 @@ install_vscode() {
             break
         fi
     done
+    
+    if [[ -n "$script_path" ]]; then
+        log_info "Running Docker environment setup..."
+        chmod +x "$script_path"
+        "$script_path"
+    else
+        log_warning "Docker setup script not found at any of these locations:"
+        for path in "${possible_paths[@]}"; do
+            log_info "  $path"
+        done
+        log_info "You can manually setup Docker with:"
+        log_info "  ./scripts/setup-docker-env.sh"
+    fi
+}
+
+# Install VS Code extensions
+install_vscode() {
+    log_header "Setting up VS Code extensions"
+    
+    # Find and run the VS Code extensions script
+    local script_path=""
+    local possible_paths=(
+        "$(dirname "${BASH_SOURCE[0]}")/setup-vscode-extensions.sh"
+        "./scripts/setup-vscode-extensions.sh"
+        "$HOME/.dotfiles/scripts/setup-vscode-extensions.sh"
+    )
+    
+    for path in "${possible_paths[@]}"; do
+        if [[ -f "$path" ]]; then
+            script_path="$path"
+            break
+        fi
+    done
+    
     
     if [[ -n "$script_path" ]]; then
         log_info "Running VS Code extensions installation..."
@@ -392,7 +426,7 @@ install_vscode() {
             log_info "  $path"
         done
         log_info "You can manually install extensions with:"
-        log_info "  ./scripts/install-vscode-extensions.sh"
+        log_info "  ./scripts/setup-vscode-extensions.sh"
     fi
 }
 
@@ -412,6 +446,7 @@ show_help() {
     echo "  java              Java (OpenJDK) with Maven and Gradle"
     echo "  node, nodejs      Node.js with NVM and common tools"
     echo "  cpp, c++          C/C++ with build tools"
+    echo "  docker            Docker and Docker Compose with aliases"
     echo "  vscode            VS Code extensions from extensions.json"
     echo ""
     echo "Examples:"
@@ -437,7 +472,7 @@ main() {
                 install_all=true
                 shift
                 ;;
-            rust|python|go|golang|java|node|nodejs|cpp|c++|vscode)
+            rust|python|go|golang|java|node|nodejs|cpp|c++|docker|vscode)
                 languages+=("$1")
                 shift
                 ;;
@@ -457,7 +492,7 @@ main() {
     
     # Install all if requested
     if [[ $install_all == true ]]; then
-        languages=("rust" "python" "go" "java" "node" "cpp" "vscode")
+        languages=("rust" "python" "go" "java" "node" "cpp" "docker" "vscode")
     fi
     
     # Install requested languages
@@ -480,6 +515,9 @@ main() {
                 ;;
             cpp|c++)
                 install_cpp
+                ;;
+            docker)
+                install_docker
                 ;;
             vscode)
                 install_vscode
