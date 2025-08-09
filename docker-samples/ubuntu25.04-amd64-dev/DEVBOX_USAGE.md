@@ -97,10 +97,10 @@ docker exec -it devbox clickhouse-client --host clickhouse
 ### 检查挂载目录
 ```bash
 # 查看 Projects 目录挂载
-docker exec devbox ls -la /home/dev/Projects
+docker exec devbox ls -la /home/huchen/Projects
 
 # 验证与主机同步
-docker exec devbox touch /home/dev/Projects/test-file
+docker exec devbox touch /home/huchen/Projects/test-file
 ls -la ~/Projects/test-file
 ```
 

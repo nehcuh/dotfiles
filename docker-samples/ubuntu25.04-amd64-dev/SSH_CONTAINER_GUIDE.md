@@ -37,7 +37,7 @@ docker-compose exec devbox zsh
 - **功能**: 可以通过 SSH 客户端连接，支持远程开发
 
 ### ✅ 挂载配置
-- **主机 ~/Projects** → **容器 /home/dev/Projects**
+- **主机 ~/Projects** → **容器 /home/huchen/Projects**
 - **主机整个 HOME** → **容器 /host-home** (备用访问)
 
 ## 开发环境工具
