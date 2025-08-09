@@ -102,6 +102,33 @@ DEV_ENV=true curl -fsSL https://raw.githubusercontent.com/nehcuh/dotfiles/main/r
 
 **📖 For detailed development environment documentation, see [DEVELOPMENT_ENVIRONMENTS.md](DEVELOPMENT_ENVIRONMENTS.md)**
 
+## 🐳 Docker Development Environments
+
+For those who prefer containerized development environments, this repository also includes pre-configured Docker environments with full development stacks:
+
+### Features
+- **Complete Development Stack**: Python, Node.js, Go, Rust, Java pre-installed
+- **Database Support**: PostgreSQL, Redis, MongoDB, ClickHouse
+- **SSH Access**: Connect to containers via SSH for remote development
+- **Data Persistence**: Your `~/Projects` directory synced with containers
+- **Auto-restart**: Containers automatically restart to preserve configurations
+
+### Quick Start
+```bash
+# Navigate to Docker environments
+cd ~/.dotfiles/docker-samples/ubuntu25.04-amd64-dev
+
+# Start the complete development environment
+docker-compose up -d
+
+# Connect to the development container
+docker exec -it devbox zsh
+# OR via SSH
+ssh huchen@localhost -p 22  # password: 123456
+```
+
+**📖 For detailed Docker environment documentation, see [docker-samples/README.md](docker-samples/README.md)**
+
 ## Environment Variables
 
 The installer supports several environment variables for automation and customization:

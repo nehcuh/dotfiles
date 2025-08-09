@@ -1,0 +1,45 @@
+# Docker ignore file for dotfiles Docker builds
+# Exclude version control
+.git/
+.gitignore
+.gitmodules
+
+# Exclude unnecessary files
+node_modules/
+npm-debug.log
+.env
+.env.*
+.nyc_output
+coverage/
+.vscode/
+.DS_Store
+*.log
+
+# Exclude documentation (except essential ones)
+README*.md
+LICENSE
+DOCUMENTATION.md
+MILESTONE_*.md
+CROSS_PLATFORM.md
+DEVELOPMENT_ENVIRONMENTS.md
+LINUX_DEV_SETUP.md
+
+# Exclude scripts that might trigger installs
+install.sh
+uninstall.sh
+remote-install*.sh
+fix-installation.sh
+Makefile
+
+# Exclude build artifacts
+*.pyc
+__pycache__/
+.pytest_cache/
+.coverage
+dist/
+build/
+
+# Keep essential stow-packs and scripts but exclude install scripts
+scripts/install-*.sh
+scripts/setup-*.sh
+scripts/unified-install.sh
