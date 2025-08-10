@@ -118,22 +118,56 @@ install_homebrew() {
     if [ -d "/home/linuxbrew/.linuxbrew" ]; then
         eval "$(/home/linuxbrew/.linuxbrew/bin/brew shellenv)"
         
-        # Add to shell profile files
-        for profile in ~/.profile ~/.bashrc ~/.zshrc; do
-            if [ -f "$profile" ]; then
-                if ! grep -q "linuxbrew" "$profile"; then
-                    echo '' >> "$profile"
-                    echo '# Homebrew for Linux' >> "$profile"
-                    echo 'eval "$(/home/linuxbrew/.linuxbrew/bin/brew shellenv)"' >> "$profile"
-                fi
-            fi
-        done
+        log_info "Setting up Homebrew environment for future sessions..."
         
-        # Create .profile if it doesn't exist
-        if [ ! -f ~/.profile ]; then
-            echo '# Homebrew for Linux' > ~/.profile
-            echo 'eval "$(/home/linuxbrew/.linuxbrew/bin/brew shellenv)"' >> ~/.profile
+        # Check if we have dotfiles managed by stow (check for symlinked zsh configs)
+        local has_stow_zsh=false
+        if [ -L ~/.zshenv ] || [ -L ~/.zprofile ] || [ -L ~/.zshrc ]; then
+            has_stow_zsh=true
+            log_info "Detected stow-managed zsh configuration"
         fi
+        
+        if [ "$has_stow_zsh" = true ]; then
+            # If using stow-managed dotfiles, create a local override file
+            local zsh_local_file="$HOME/.zshrc.local"
+            
+            # Only add if not already present
+            if [ ! -f "$zsh_local_file" ] || ! grep -q "linuxbrew" "$zsh_local_file"; then
+                log_info "Adding Homebrew setup to $zsh_local_file"
+                echo '' >> "$zsh_local_file"
+                echo '# Homebrew for Linux (added by setup script)' >> "$zsh_local_file"
+                echo 'if [[ -d "/home/linuxbrew/.linuxbrew" ]]; then' >> "$zsh_local_file"
+                echo '    eval "$(/home/linuxbrew/.linuxbrew/bin/brew shellenv)"' >> "$zsh_local_file"
+                echo 'fi' >> "$zsh_local_file"
+                log_info "✓ Homebrew environment setup added to $zsh_local_file"
+            else
+                log_info "Homebrew setup already exists in $zsh_local_file"
+            fi
+        else
+            # Traditional approach for non-stow managed configs
+            # Add to shell profile files
+            for profile in ~/.profile ~/.bashrc ~/.zshrc; do
+                if [ -f "$profile" ] && [ ! -L "$profile" ]; then
+                    if ! grep -q "linuxbrew" "$profile"; then
+                        echo '' >> "$profile"
+                        echo '# Homebrew for Linux' >> "$profile"
+                        echo 'eval "$(/home/linuxbrew/.linuxbrew/bin/brew shellenv)"' >> "$profile"
+                        log_info "✓ Homebrew setup added to $profile"
+                    fi
+                fi
+            done
+            
+            # Create .profile if it doesn't exist
+            if [ ! -f ~/.profile ]; then
+                echo '# Homebrew for Linux' > ~/.profile
+                echo 'eval "$(/home/linuxbrew/.linuxbrew/bin/brew shellenv)"' >> ~/.profile
+                log_info "✓ Created ~/.profile with Homebrew setup"
+            fi
+        fi
+        
+        log_success "Homebrew environment configured for future sessions"
+        log_info "To use Homebrew in current session, run: eval \"\$(/home/linuxbrew/.linuxbrew/bin/brew shellenv)\""
+        log_info "Or restart your terminal to apply changes automatically"
     fi
     
     # Verify installation
