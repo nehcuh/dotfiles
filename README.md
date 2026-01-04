@@ -1,326 +1,76 @@
-# 🏠 Dotfiles
+# Dotfiles
 
-A comprehensive, cross-platform dotfiles configuration supporting both **macOS** and **Linux** systems with intelligent environment detection and automatic setup.
+这里是我的个人配置文件仓库，使用 GNU Stow 进行统一管理。
 
-## ⚡ One-Line Install
+## 目录结构
 
-```bash
-curl -fsSL https://raw.githubusercontent.com/nehcuh/dotfiles/main/scripts/unified-install.sh | bash
+这个仓库尽量保持简洁，所有配置文件都位于 `stow-packs/` 目录下，按照软件名称分类。
+
+```
+~/Projects/dotfiles/
+├── README.md           # 你正在阅读的文档
+├── Makefile            # 常用命令快捷方式
+├── stow-packs/         # 核心目录：放置所有的配置文件
+│   ├── git/            # Git 配置
+│   ├── zsh/            # Zsh 配置
+│   ├── vim/            # Vim 配置
+│   ├── nvim/           # Neovim 配置
+│   ├── tmux/           # Tmux 配置
+│   └── ...
+├── scripts/            # 辅助脚本
+└── docs/               # 归档文档
 ```
 
-> 🎆 Works on both macOS and Linux with automatic OS detection and smart configuration!
+## 快速开始
 
-## 🚀 Quick Start
+你需要先安装 `stow` (macOS: `brew install stow`)。然后可以使用 `make` 命令来快速管理配置。
 
-### ⚡ Unified One-Line Installation (Recommended)
+### 安装所有配置
+
 ```bash
-# Works on both macOS and Linux with automatic detection
-curl -fsSL https://raw.githubusercontent.com/nehcuh/dotfiles/main/scripts/unified-install.sh | bash
-
-# Install with all development environments
-DEV_ALL=true curl -fsSL https://raw.githubusercontent.com/nehcuh/dotfiles/main/scripts/unified-install.sh | bash
-
-# Non-interactive installation (perfect for automation)
-NON_INTERACTIVE=true DEV_ALL=true curl -fsSL https://raw.githubusercontent.com/nehcuh/dotfiles/main/scripts/unified-install.sh | bash
-
-# Install specific packages only
-INSTALL_PACKAGES="git vim tmux zsh" curl -fsSL https://raw.githubusercontent.com/nehcuh/dotfiles/main/scripts/unified-install.sh | bash
-```
-
-### Legacy Installation Methods
-```bash
-# Original remote installer (still works)
-curl -fsSL https://raw.githubusercontent.com/nehcuh/dotfiles/main/remote-install.sh | bash
-```
-
-**Note for macOS users:** The installer will automatically install Homebrew if not present, which requires administrator privileges. You may be prompted for your password during installation.
-
-**Brewfile Integration:** On macOS, the installer will automatically detect and offer to install packages from your `~/.Brewfile`. This includes CLI tools, applications, and fonts. You can skip this with `SKIP_BREWFILE=true`.
-
-### Local installation
-```bash
-# Clone and install in one line
-git clone https://github.com/nehcuh/dotfiles.git ~/.dotfiles && cd ~/.dotfiles && ./install.sh
-
-# Or step by step
-git clone https://github.com/nehcuh/dotfiles.git ~/.dotfiles
-cd ~/.dotfiles
-./install.sh
-
-# Or use make
 make install
 ```
 
-## What's included
-
-- **Shell**: Zsh configuration with modern prompt
-- **Git**: Enhanced git aliases and settings  
-- **Editors**: Vim and Neovim configurations
-- **Terminal**: Tmux configuration
-- **Tools**: Modern CLI tools and utilities
-
-## Available Packages
-
-- `system` - System-wide configurations
-- `zsh` - Zsh shell configuration
-- `git` - Git configuration and aliases
-- `vim` - Vim configuration
-- `nvim` - Neovim configuration  
-- `tmux` - Terminal multiplexer configuration
-- `tools` - CLI tools and utilities
-- `vscode` - Visual Studio Code settings
-- `zed` - Zed editor configuration
-- `linux` - Linux-specific configurations
-- `macos` - macOS-specific configurations
-
-## Development Environment Setup
-
-The dotfiles include an optional development environment setup that installs and configures multiple programming languages and tools:
-
-### Supported Languages & Tools
-- **Rust**: Latest stable Rust with cargo
-- **Python**: pyenv + uv for fast Python package management
-- **Go**: Latest Go version with proper GOPATH setup
-- **Java**: OpenJDK with JAVA_HOME configuration
-- **Node.js**: NVM with latest LTS Node.js
-- **C/C++**: Build essentials and common development tools
-
-### Installation
-```bash
-# Install dotfiles with development environments (interactive selection)
-./install.sh --dev-env
-
-# Install all development environments automatically
-./install.sh --dev-all
-
-# One-line remote installation with dev environments
-DEV_ENV=true curl -fsSL https://raw.githubusercontent.com/nehcuh/dotfiles/main/remote-install.sh | bash
-
-# Run dev environment setup separately
-./scripts/setup-dev-environment.sh
-```
-
-**📖 For detailed development environment documentation, see [DEVELOPMENT_ENVIRONMENTS.md](DEVELOPMENT_ENVIRONMENTS.md)**
-
-## 🐳 Docker Development Environments
-
-For those who prefer containerized development environments, this repository also includes pre-configured Docker environments with full development stacks:
-
-### Features
-- **Complete Development Stack**: Python, Node.js, Go, Rust, Java pre-installed
-- **Database Support**: PostgreSQL, Redis, MongoDB, ClickHouse
-- **SSH Access**: Connect to containers via SSH for remote development
-- **Data Persistence**: Your `~/Projects` directory synced with containers
-- **Auto-restart**: Containers automatically restart to preserve configurations
-
-### Quick Start
-```bash
-# Navigate to Docker environments
-cd ~/.dotfiles/docker-samples/ubuntu25.04-amd64-dev
-
-# Start the complete development environment
-docker-compose up -d
-
-# Connect to the development container
-docker exec -it devbox zsh
-# OR via SSH
-ssh huchen@localhost -p 22  # password: 123456
-```
-
-**📖 For detailed Docker environment documentation, see [docker-samples/README.md](docker-samples/README.md)**
-
-## Environment Variables
-
-The installer supports several environment variables for automation and customization:
-
-### Remote Installation Variables
-```bash
-# Skip all confirmation prompts (auto-install everything)
-NON_INTERACTIVE=true curl -fsSL https://raw.githubusercontent.com/nehcuh/dotfiles/main/remote-install.sh | bash
-
-# Skip Brewfile installation
-SKIP_BREWFILE=true curl -fsSL https://raw.githubusercontent.com/nehcuh/dotfiles/main/remote-install.sh | bash
-
-# Install specific packages only
-INSTALL_PACKAGES="git vim zsh" curl -fsSL https://raw.githubusercontent.com/nehcuh/dotfiles/main/remote-install.sh | bash
-
-# Setup development environments
-DEV_ENV=true curl -fsSL https://raw.githubusercontent.com/nehcuh/dotfiles/main/remote-install.sh | bash
-DEV_ALL=true curl -fsSL https://raw.githubusercontent.com/nehcuh/dotfiles/main/remote-install.sh | bash
-
-# Combine multiple options
-NON_INTERACTIVE=true DEV_ALL=true curl -fsSL https://raw.githubusercontent.com/nehcuh/dotfiles/main/remote-install.sh | bash
-```
-
-### Local Installation Variables
-```bash
-# Skip Brewfile installation locally
-SKIP_BREWFILE=true ./install.sh
-
-# Non-interactive local installation
-NON_INTERACTIVE=true ./install.sh
-```
-
-### Available Variables
-- **`NON_INTERACTIVE`**: Set to `true` to skip all confirmation prompts
-- **`SKIP_BREWFILE`**: Set to `true` to skip Homebrew package installation
-- **`INSTALL_PACKAGES`**: Specify packages to install (space-separated)
-- **`DEV_ENV`**: Set to `true` to setup development environments (interactive)
-- **`DEV_ALL`**: Set to `true` to install all development environments
-- **`DOTFILES_REPO`**: Custom repository URL (default: `https://github.com/nehcuh/dotfiles.git`)
-- **`DOTFILES_DIR`**: Custom installation directory (default: `~/.dotfiles`)
-
-## Homebrew Package Management (macOS)
-
-On macOS, the dotfiles include a comprehensive `Brewfile` that installs essential tools and applications:
-
-### What's included in the Brewfile
-- **CLI Tools**: bat, eza, fzf, ripgrep, neovim, git-delta, etc.
-- **Development Tools**: go, rust, pyenv, nvm, maven, gradle, etc.
-- **Applications**: Zed editor, Obsidian, Raycast, Rectangle, etc.
-- **Fonts**: Fira Code, Hack Nerd Font, SF Mono, etc.
-
-### Brewfile Installation
-```bash
-# Automatic installation during dotfiles setup (with confirmation)
-./install.sh
-
-# Skip Brewfile during installation
-SKIP_BREWFILE=true ./install.sh
-
-# Install Brewfile manually later
-brew bundle --global
-
-# Non-interactive remote installation (includes Brewfile)
-NON_INTERACTIVE=true curl -fsSL https://raw.githubusercontent.com/nehcuh/dotfiles/main/remote-install.sh | bash
-```
-
-## Usage
-
-### Install specific packages
-```bash
-./install.sh git vim nvim  # Install only git, vim, and nvim
-```
-
-### List available packages
-```bash
-make list
-# or
-./uninstall.sh list
-```
-
-### Remove dotfiles
-```bash
-./uninstall.sh           # Remove all packages
-./uninstall.sh vim nvim   # Remove specific packages
-make uninstall           # Remove all packages
-```
-
-### Update repository
-```bash
-make update
-```
-
-## Customization
-
-### Local configuration files
-Create these files for personal settings (they won't be tracked by git):
-
-- `~/.gitconfig.local` - Personal git settings
-- `~/.zshrc.local` - Additional zsh configuration
-- `~/.tmux.conf.local` - Personal tmux settings
-
-### Example ~/.gitconfig.local
-```ini
-[user]
-    name = Your Name
-    email = your.email@example.com
-[commit]
-    gpgsign = true
-[user]
-    signingkey = YOUR_GPG_KEY
-```
-
-## Requirements
-
-- Git
-- GNU Stow (automatically installed if missing)
-- Zsh (optional, but recommended)
-
-## 🌟 Cross-Platform Support
-
-✅ **Unified codebase** - Single repository supporting both operating systems  
-✅ **Intelligent detection** - Automatically detects and configures for your OS  
-✅ **Platform-specific optimizations** - Tailored configurations for each system  
-
-### Supported Systems
-
-| OS | Version | Package Manager | Font Installation | Development Tools |
-|----|---------|-----------------|-------------------|-------------------|
-| **macOS** | 10.15+ (Catalina+) | Homebrew | Homebrew Casks | Full Support |
-| **Linux** | Ubuntu 20.04+, Fedora 35+, Arch, etc. | Homebrew + Native | Direct Download | Full Support |
-
-### Linux-Specific Features
-
-🐧 **The main branch now includes full Linux support:**
-
-- ✅ **Automatic Font Installation** - Downloads and installs Nerd Fonts and Google Fonts
-- ✅ **Homebrew for Linux** - CLI tools with intelligent fallback to native packages
-- ✅ **Native Package Manager Support** - Works with apt, dnf, pacman, zypper
-- ✅ **Smart Dependency Detection** - Automatically installs missing dependencies
-- ✅ **Cross-Platform Shell Configuration** - Unified zsh setup with OS-specific optimizations
-
-### Installation (Works on Both Systems)
+### 查看已安装的配置
 
 ```bash
-# One-line installation (auto-detects OS)
-curl -fsSL https://raw.githubusercontent.com/nehcuh/dotfiles/main/remote-install.sh | bash
-
-# Local installation
-git clone https://github.com/nehcuh/dotfiles.git ~/.dotfiles
-cd ~/.dotfiles
-./install.sh
-
-# With development environments
-./install.sh --dev-all
+make status
 ```
 
-## Files Structure
+### 卸载所有配置
 
-```
-~/.dotfiles/
-├── install.sh          # Main installer
-├── uninstall.sh        # Uninstaller  
-├── Makefile            # Make targets
-├── stow-packs/         # Configuration packages
-│   ├── git/           # Git configuration
-│   ├── zsh/           # Zsh configuration
-│   ├── vim/           # Vim configuration
-│   ├── nvim/          # Neovim configuration
-│   ├── tmux/          # Tmux configuration
-│   └── ...
-└── scripts/            # Helper scripts
-```
-
-## Troubleshooting
-
-### Conflicts with existing files
-The installer automatically backs up conflicting files to `~/.dotfiles-backup-TIMESTAMP/`.
-
-### Restore from backup
 ```bash
-# List available backups
-ls -la ~/.dotfiles-backup-*
-
-# Restore manually
-cp ~/.dotfiles-backup-TIMESTAMP/.vimrc ~/.vimrc
+make uninstall
 ```
 
-### Clean old backups
+## 配置指南
+
+### 如何添加新的配置？
+
+1. 在 `stow-packs/` 下创建一个以软件名命名的目录，例如 `my-app`。
+2. 在该目录下按照 Home 目录的结构放置文件。
+   - 例如，如果你想管理 `~/.config/my-app/config.toml`：
+   - 你应该创建文件：`stow-packs/my-app/.config/my-app/config.toml`
+3. 运行 `make install` 或手动运行 `stow` 将其链接到 Home 目录。
+
+### 如何修改现有配置？
+
+所有安装的文件实际上都是指向 `stow-packs` 目录的软链接。你可以：
+
+1. **直接修改生效**：去 `stow-packs/` 目录下找到对应的文件进行修改。
+2. **在原位修改**：直接修改你的 `~/.zshrc` 等文件（如果它已经是指向本仓库的软链），修改会直接同步到本仓库。
+
+### 如何删除某个配置？
+
+如果你想停止管理某个软件的配置（例如 `vim`），可以使用：
+
 ```bash
-make clean  # Removes backups older than 30 days
+cd stow-packs
+stow -D vim
 ```
 
-## License
+## 故障排除
 
-MIT License - see [LICENSE](LICENSE) file.
+如果遇到 "conflict" 错误，说明目标位置已经存在真实文件，Stow 不敢覆盖它。你需要先备份或删除该文件，然后再运行安装命令。
+
+`make install` 脚本通常会自动处理备份，具体的备份逻辑可以查看 `scripts/stow.sh`。

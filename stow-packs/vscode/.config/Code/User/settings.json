@@ -12,7 +12,6 @@
     "editor.scrollBeyondLastLine": true,
     "editor.smoothScrolling": true,
     "editor.cursorSmoothCaretAnimation": "on",
-    "editor.bracketPairColorization.enabled": true,
     "editor.guides.bracketPairs": "active",
     "editor.wordWrap": "on",
     "editor.quickSuggestions": {
@@ -30,9 +29,9 @@
     "editor.autoClosingQuotes": "always",
     "editor.autoSurround": "languageDefined",
     "editor.suggest.insertMode": "replace",
-    "editor.letterSpacing": 0.5,
-    "editor.fontWeight": "400",
     "editor.fontLigatures": true,
+    "editor.fontWeight": "400",
+    "editor.letterSpacing": 0.5,
     "workbench.colorTheme": "Default Dark+",
     "workbench.iconTheme": "vs-seti",
     "workbench.startupEditor": "none",
@@ -52,6 +51,11 @@
     "files.trimTrailingWhitespace": true,
     "files.insertFinalNewline": true,
     "files.trimFinalNewlines": true,
+    "files.watcherExclude": {
+        "**/node_modules/**": true,
+        "**/dist/**": true,
+        "**/build/**": true
+    },
     "search.exclude": {
         "**/node_modules": true,
         "**/bower_components": true,
@@ -65,27 +69,16 @@
         "**/.DS_Store": true,
         "**/Thumbs.db": true
     },
-    "files.watcherExclude": {
-        "**/node_modules/**": true,
-        "**/bower_components/**": true,
-        "**/dist/**": true,
-        "**/build/**": true
-    },
     "git.enableSmartCommit": true,
     "git.autofetch": true,
     "git.confirmSync": false,
-    "terminal.integrated.shell.linux": "/bin/zsh",
-    "terminal.integrated.shell.osx": "/bin/zsh",
-    "terminal.integrated.shell.windows": "C:\\Program Files\\Git\\bin\\bash.exe",
     "terminal.integrated.fontSize": 14,
     "terminal.integrated.fontFamily": "Fira Code, 'Courier New', monospace",
     "terminal.integrated.lineHeight": 1.6,
     "terminal.integrated.cursorStyle": "line",
     "terminal.integrated.cursorBlinking": true,
     "terminal.integrated.copyOnSelection": true,
-    "extensions.ignoreRecommendations": false,
-    "extensions.showRecommendationsOnlyOnDemand": false,
-    "telemetry.enableTelemetry": false,
+    "telemetry.telemetryLevel": "off",
     "update.mode": "none",
     "update.enableWindowsBackgroundUpdates": false,
     "security.workspace.trust.untrustedFiles": "open",
@@ -104,8 +97,6 @@
     "markdown.preview.fontSize": 14,
     "markdown.preview.lineHeight": 1.6,
     "markdown.preview.fontFamily": "Fira Code, 'Courier New', monospace",
-    
-    // Language-specific formatting settings
     "[python]": {
         "editor.defaultFormatter": "ms-python.black-formatter",
         "editor.formatOnSave": true,
@@ -113,77 +104,6 @@
             "source.organizeImports": true
         }
     },
-    "[rust]": {
-        "editor.defaultFormatter": "rust-lang.rust-analyzer",
-        "editor.formatOnSave": true,
-        "editor.codeActionsOnSave": {
-            "source.organizeImports": true
-        }
-    },
-    "[go]": {
-        "editor.defaultFormatter": "golang.go",
-        "editor.formatOnSave": true,
-        "editor.codeActionsOnSave": {
-            "source.organizeImports": true
-        }
-    },
-    "[java]": {
-        "editor.defaultFormatter": "redhat.java",
-        "editor.formatOnSave": true,
-        "editor.codeActionsOnSave": {
-            "source.organizeImports": true
-        }
-    },
-    "[c]": {
-        "editor.defaultFormatter": "ms-vscode.cpptools",
-        "editor.formatOnSave": true
-    },
-    "[cpp]": {
-        "editor.defaultFormatter": "ms-vscode.cpptools",
-        "editor.formatOnSave": true
-    },
-    "[dockerfile]": {
-        "editor.defaultFormatter": "ms-azuretools.vscode-docker",
-        "editor.formatOnSave": true
-    },
-    "[toml]": {
-        "editor.defaultFormatter": "tamasfe.even-better-toml",
-        "editor.formatOnSave": true
-    },
-    "[ini]": {
-        "editor.insertSpaces": true,
-        "editor.tabSize": 4
-    },
-    "[javascript]": {
-        "editor.defaultFormatter": "esbenp.prettier-vscode",
-        "editor.formatOnSave": true
-    },
-    "[typescript]": {
-        "editor.defaultFormatter": "esbenp.prettier-vscode",
-        "editor.formatOnSave": true
-    },
-    "[json]": {
-        "editor.defaultFormatter": "esbenp.prettier-vscode",
-        "editor.formatOnSave": true
-    },
-    "[yaml]": {
-        "editor.defaultFormatter": "esbenp.prettier-vscode",
-        "editor.formatOnSave": true
-    },
-    "[html]": {
-        "editor.defaultFormatter": "esbenp.prettier-vscode",
-        "editor.formatOnSave": true
-    },
-    "[css]": {
-        "editor.defaultFormatter": "esbenp.prettier-vscode",
-        "editor.formatOnSave": true
-    },
-    "[markdown]": {
-        "editor.defaultFormatter": "esbenp.prettier-vscode",
-        "editor.formatOnSave": true
-    },
-    
-    // Python - Use basedpyright as language server
     "python.defaultInterpreterPath": "python3",
     "python.languageServer": "None",
     "basedpyright.analysis.typeCheckingMode": "strict",
@@ -192,68 +112,38 @@
     "basedpyright.analysis.diagnosticMode": "workspace",
     "basedpyright.analysis.stubPath": "./typings",
     "basedpyright.analysis.extraPaths": [],
-    "python.linting.enabled": true,
-    "python.linting.pylintEnabled": false,
-    "python.linting.ruffEnabled": true,
-    "python.formatting.provider": "black",
     "python.testing.pytestEnabled": true,
     "python.testing.unittestEnabled": false,
     "python.testing.nosetestsEnabled": false,
-    
-    // Rust
+    "[rust]": {
+        "editor.defaultFormatter": "rust-lang.rust-analyzer",
+        "editor.formatOnSave": true,
+        "editor.codeActionsOnSave": {
+            "source.organizeImports": true
+        }
+    },
     "rust-analyzer.check.command": "clippy",
     "rust-analyzer.cargo.loadOutDirsFromCheck": true,
     "rust-analyzer.procMacro.enable": true,
     "rust-analyzer.completion.addCallParentheses": true,
-    
-    // Go
-    "go.formatTool": "goimports",
-    "go.useLanguageServer": true,
-    "go.toolsManagement.autoUpdate": true,
-    "gopls": {
-        "ui.semanticTokens": true,
-        "formatting.gofumpt": true
+    "[toml]": {
+        "editor.defaultFormatter": "tamasfe.even-better-toml",
+        "editor.formatOnSave": true
     },
-    
-    // Java
-    "java.configuration.updateBuildConfiguration": "automatic",
-    "java.compile.nullAnalysis.mode": "automatic",
-    "java.format.settings.url": "https://raw.githubusercontent.com/google/styleguide/gh-pages/eclipse-java-google-style.xml",
-    
-    // C/C++
-    "C_Cpp.default.cppStandard": "c++17",
-    "C_Cpp.default.cStandard": "c11",
-    "C_Cpp.default.intelliSenseMode": "macos-clang-x64",
-    "C_Cpp.formatting": "vcFormat",
-    "C_Cpp.autocomplete": "Disabled",
-    "C_Cpp.errorSquiggles": "Disabled",
-    
-    // Docker
-    "docker.enableDockerComposeLanguageService": true,
-    "docker.showStartPage": false,
-    
-    "javascript.updateImportsOnFileMove.enabled": "always",
-    "typescript.updateImportsOnFileMove.enabled": "always",
-    "typescript.preferences.importModuleSpecifier": "relative",
-    "typescript.suggest.autoImports": true,
-    "typescript.suggest.completeFunctionCalls": true,
-    "json.schemas": [],
-    "yaml.schemas": {},
-    "emmet.includeLanguages": {
-        "javascript": "javascriptreact",
-        "typescript": "typescriptreact",
-        "vue-html": "html"
+    "[markdown]": {
+        "editor.formatOnSave": false,
+        "editor.wordWrap": "on"
     },
-    "emmet.triggerExpansionOnTab": true,
-    "html.format.indentInnerHtml": true,
-    "html.format.indentHandlebars": true,
-    "css.lint.unknownProperties": "warning",
-    "css.lint.validProperties": [
-        "composes"
-    ],
-    "docker.languageserver.formatter.ignoreMultilineInstructions": true,
-    
-    // Vim configuration
+    "[ini]": {
+        "editor.insertSpaces": true,
+        "editor.tabSize": 4
+    },
+    "[json]": {
+        "editor.formatOnSave": true
+    },
+    "[yaml]": {
+        "editor.formatOnSave": true
+    },
     "vim.easymotion": true,
     "vim.incsearch": true,
     "vim.useSystemClipboard": true,
@@ -262,8 +152,17 @@
     "vim.leader": "<space>",
     "vim.insertModeKeyBindings": [
         {
-            "before": ["j", "j"],
-            "after": ["<Esc>"]
+            "before": [
+                "j",
+                "j"
+            ],
+            "after": [
+                "<Esc>"
+            ]
         }
-    ]
+    ],
+    "errorLens.enabled": true,
+    "errorLens.fontSize": "12",
+    "errorLens.fontStyle": "italic",
+    "errorLens.margin": "4px"
 }

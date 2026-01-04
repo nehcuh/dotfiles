@@ -1,0 +1,55 @@
+# Minimal development environment - compose only what you need
+# Good taste: start simple, add complexity only when required
+version: "3.8"
+
+name: dotfiles-dev
+
+networks:
+  devnet:
+    driver: bridge
+
+services:
+  devbox:
+    container_name: devbox
+    image: devbox:latest
+    restart: unless-stopped
+
+    build:
+      context: .
+      dockerfile: Dockerfile
+      args:
+        USERNAME: ${USER:-devuser}
+        USER_UID: ${UID:-1000}
+        USER_GID: ${GID:-1000}
+
+    environment:
+      # Define once, use consistently
+      TZ: Asia/Shanghai
+      LANG: en_US.UTF-8
+      LC_ALL: en_US.UTF-8
+
+    # Port mappings for Apple Container (doesn't support 127.0.0.1 binding)
+    ports:
+      - "2222:22"    # SSH on 2222 to avoid conflicts
+      - "8080:8080"  # App port
+
+    # Mount projects directory
+    volumes:
+      - ${HOME}/Projects:/home/${USER:-devuser}/Projects
+
+    # Enable ptrace for debugging
+    cap_add:
+      - SYS_PTRACE
+    security_opt:
+      - seccomp:unconfined
+
+    # Access host from container
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+
+    networks:
+      - devnet
+
+volumes:
+  devbox_home:
+    driver: local

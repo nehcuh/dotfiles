@@ -68,3 +68,8 @@ cache.db
 
 # Temporary directories
 /tmp/
+
+# Neovim (AstroNvim framework and plugins are auto-downloaded)
+.local/share/nvim/
+.local/state/nvim/
+.cache/nvim/

@@ -1,78 +1,30 @@
 {
     "recommendations": [
-        // General
-        "ms-vscode.vscode-json",
-        "redhat.vscode-yaml",
-        "ms-vscode.vscode-markdown",
-        "streetsidesoftware.code-spell-checker",
-        
-        // Python (with basedpyright)
+        // Vim - Essential keybindings
+        "vscodevim.vim",
+
+        // Python - basedpyright (Language Server)
         "ms-python.python",
         "detachhead.basedpyright",
         "ms-python.black-formatter",
-        "ms-python.isort",
-        "charliermarsh.ruff",
-        
-        // JavaScript/TypeScript
-        "ms-vscode.vscode-typescript-next",
-        "esbenp.prettier-vscode",
-        "dbaeumer.vscode-eslint",
-        
-        // Git
-        "eamodio.gitlens",
-        "mhutchie.git-graph",
-        "donjayamanne.githistory",
-        
-        // Docker
-        "ms-azuretools.vscode-docker",
-        
-        // Remote Development
-        "ms-vscode-remote.remote-ssh",
-        "ms-vscode-remote.remote-containers",
-        "ms-vscode-remote.remote-wsl",
-        
-        // Theme
-        "vscode-icons-team.vscode-icons",
-        "zhuangtongfa.material-theme",
-        
-        // Productivity
-        "github.copilot",
-        "github.copilot-chat",
-        "bradlc.vscode-tailwindcss",
-        "ms-vscode.vscode-css",
-        
-        // Vim support
-        "vscodevim.vim",
-        
-        // Testing
-        "ms-vscode.test-adapter-converter",
-        "hbenl.vscode-test-explorer",
-        
-        // Debugging
-        "ms-vscode.js-debug",
-        "ms-python.debugpy",
-        
-        // Other Languages
+
+        // Python - autodocstring
+        "njp.vscode-auto-docstring",
+
+        // Rust - rust-analyzer
         "rust-lang.rust-analyzer",
-        "golang.go",
-        "ms-dotnettools.csharp",
-        "redhat.java",
-        "ms-vscode.cpptools",
-        
-        // Configuration Files
+
+        // TOML - Even Better TOML
         "tamasfe.even-better-toml",
-        "bungcip.better-toml",
-        "ms-vscode.vscode-ini",
-        "redhat.vscode-xml",
-        "dotjoshjohnson.xml",
-        
-        // Utilities
-        "ms-vscode.vscode-keybindings",
-        "wakatime.vscode-wakatime",
-        "gruntfuggly.todo-tree",
+
+        // Markdown - Preview Enhanced + Mermaid
+        "shd101wyy.markdown-preview-enhanced",
+        "bierner.markdown-mermaid",
+
+        // Utilities - Error lines (inline error display)
         "usernamehw.errorlens",
-        "ms-vscode.vscode-github-issue-notebooks",
-        "github.vscode-github-actions",
-        "github.vscode-pull-request-github"
+
+        // Git - Basic Git integration (built-in enhancement)
+        "eamodio.gitlens"
     ]
 }

@@ -1,0 +1,52 @@
+# Less common services - only load when you actually need them
+# Use: docker-compose -f docker-compose.yml -f docker-compose.db.yml -f docker-compose.extra.yml up
+version: "3.8"
+
+networks:
+  devnet:
+    name: dotfiles-dev_devnet
+    external: true
+
+volumes:
+  mongo_data:
+  clickhouse_data:
+  clickhouse_logs:
+
+services:
+  # MongoDB - document database
+  mongo:
+    image: mongo:8.0-rc
+    container_name: devbox-mongo
+    restart: unless-stopped
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: root
+      MONGO_INITDB_ROOT_PASSWORD: rootpass
+    volumes:
+      - mongo_data:/data/db
+    ports:
+      - "27017:27017"
+    networks:
+      - devnet
+
+  # ClickHouse - analytics database
+  clickhouse:
+    image: clickhouse/clickhouse-server:24.7
+    container_name: devbox-clickhouse
+    restart: unless-stopped
+    ulimits:
+      nofile:
+        soft: 262144
+        hard: 262144
+    environment:
+      - CLICKHOUSE_DB=default
+      - CLICKHOUSE_USER=default
+      - CLICKHOUSE_PASSWORD=
+      - CLICKHOUSE_DEFAULT_ACCESS_MANAGEMENT=1
+    volumes:
+      - clickhouse_data:/var/lib/clickhouse
+      - clickhouse_logs:/var/log/clickhouse-server
+    ports:
+      - "8123:8123"   # HTTP
+      - "9000:9000"   # Native TCP
+    networks:
+      - devnet
