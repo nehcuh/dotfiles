@@ -42,9 +42,35 @@ logs/
 .bash_history
 .history
 
-# Sensitive dotfiles (managed by stow but not versioned)
-stow-packs/sensitive/*
-!stow-packs/sensitive/.gitkeep
+# Sensitive and personal dotfiles (managed by stow but selectively versioned)
+# Sensitive package - contains secrets, never commit
+stow-packs/sensitive/home/*
+stow-packs/sensitive/config/*
+!stow-packs/sensitive/home/.gitignore
+!stow-packs/sensitive/home/.gitkeep
+!stow-packs/sensitive/home/.ssh/.gitkeep
+!stow-packs/sensitive/**/*.README.md
+!stow-packs/sensitive/**/README.md
+
+# Personal package - contains personal preferences (safe to commit)
+# Uncomment the line below if you want to exclude personal configs from git
+# stow-packs/personal/home/*
+# !stow-packs/personal/home/.gitkeep
+
+# Additional sensitive files that might accidentally be added
+home/.gitconfig_local
+home/.zshrc.local
+home/.claude.json
+home/.ssh/id_*
+home/.ssh/*_rsa*
+home/.ssh/*.pem
+config/gh/config.yml
+config/aws/credentials
+config/git/config.local
+*.local
+*.personal
+.env
+*.env.local
 
 # User-specific cache and state files
 .viminfo

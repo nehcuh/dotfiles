@@ -17,6 +17,7 @@ source "$SCRIPT_DIR/steps/prerequisites.sh"
 source "$SCRIPT_DIR/steps/packages.sh"
 source "$SCRIPT_DIR/steps/shell.sh"
 source "$SCRIPT_DIR/steps/brewfile.sh"
+source "$SCRIPT_DIR/steps/terminal-font.sh"
 
 # Show help
 show_help() {
@@ -70,6 +71,7 @@ main() {
     # OS-specific steps
     if [[ "$OS" == "macos" ]]; then
         install_brewfile
+        configure_terminal_font
     fi
 
     setup_shell

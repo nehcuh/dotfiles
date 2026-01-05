@@ -6,7 +6,7 @@ install_brewfile() {
     command -v brew &> /dev/null || return
 
     local brewfile="$HOME/.Brewfile"
-    local repo_brewfile="$DOTFILES_DIR/stow-packs/system/home/.Brewfile"
+    local repo_brewfile="$DOTFILES_DIR/stow-packs/system/.Brewfile"
 
     [[ -f "$brewfile" || -f "$repo_brewfile" ]] || {
         log_info "No Brewfile found, skipping"
@@ -21,6 +21,16 @@ install_brewfile() {
 
     log_info "Installing Homebrew packages..."
 
+    # Determine which Brewfile to use
+    local brewfile_to_use="$([[ -f "$brewfile" ]] && echo "$brewfile" || echo "$repo_brewfile")"
+
+    # Check if running in non-interactive mode (e.g., from make)
+    if [[ ! -t 0 ]]; then
+        log_info "Non-interactive environment detected, skipping Brewfile"
+        log_info "Install later with: brew bundle --file='$brewfile_to_use'"
+        return
+    fi
+
     # Interactive prompt
     if [[ "${NON_INTERACTIVE:-false}" != "true" ]]; then
         echo
@@ -31,9 +41,6 @@ install_brewfile() {
             return
         }
     fi
-
-    # Install packages
-    local brewfile_to_use="$([[ -f "$brewfile" ]] && echo "$brewfile" || echo "$repo_brewfile")"
 
     if brew bundle --file="$brewfile_to_use"; then
         log_success "Brewfile packages installed"
