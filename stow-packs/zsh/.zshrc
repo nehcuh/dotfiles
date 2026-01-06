@@ -27,5 +27,6 @@ CONFIG_DIR="$HOME/.config/zsh"
 
 # Optional: Load local customizations
 # These files are NOT tracked by git - use them for personal settings
+[[ -f "$CONFIG_DIR/local.zsh" ]] && source "$CONFIG_DIR/local.zsh"
 [[ -f "$CONFIG_DIR/proxy.zsh" ]] && source "$CONFIG_DIR/proxy.zsh"
 [[ -f "$HOME/.zshrc.local" ]] && source "$HOME/.zshrc.local"
