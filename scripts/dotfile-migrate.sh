@@ -214,41 +214,6 @@ get_category() {
         fi
     done
 
-    for app in "${PERSONAL_APPS[@]}"; do
-        if [[ "$relative_path" == "$app"* ]] || [[ "$filename" == "$app" ]]; then
-            echo "personal"
-            return
-        fi
-    done
-
-    for app in "${SYSTEM_APPS[@]}"; do
-        if [[ "$relative_path" == "$app"* ]] || [[ "$filename" == "$app" ]]; then
-            echo "system"
-            return
-        fi
-    done
-
-    for app in "${GIT_APPS[@]}"; do
-        if [[ "$relative_path" == "$app"* ]] || [[ "$filename" == "$app" ]]; then
-            echo "git"
-            return
-        fi
-    done
-
-    for app in "${TOOLS_APPS[@]}"; do
-        if [[ "$relative_path" == "$app"* ]] || [[ "$filename" == "$app" ]]; then
-            echo "tools"
-            return
-        fi
-    done
-
-    for app in "${EDITOR_APPS[@]}"; do
-        if [[ "$relative_path" == "$app"* ]] || [[ "$filename" == "$app" ]]; then
-            echo "editor"
-            return
-        fi
-    done
-
     for app in "${NVIM_APPS[@]}"; do
         if [[ "$relative_path" == "$app"* ]] || [[ "$filename" == "$app" ]]; then
             echo "nvim"
@@ -273,6 +238,41 @@ get_category() {
     for app in "${TMUX_APPS[@]}"; do
         if [[ "$relative_path" == "$app"* ]] || [[ "$filename" == "$app" ]]; then
             echo "tmux"
+            return
+        fi
+    done
+
+    for app in "${GIT_APPS[@]}"; do
+        if [[ "$relative_path" == "$app"* ]] || [[ "$filename" == "$app" ]]; then
+            echo "git"
+            return
+        fi
+    done
+
+    for app in "${SYSTEM_APPS[@]}"; do
+        if [[ "$relative_path" == "$app"* ]] || [[ "$filename" == "$app" ]]; then
+            echo "system"
+            return
+        fi
+    done
+
+    for app in "${TOOLS_APPS[@]}"; do
+        if [[ "$relative_path" == "$app"* ]] || [[ "$filename" == "$app" ]]; then
+            echo "tools"
+            return
+        fi
+    done
+
+    for app in "${PERSONAL_APPS[@]}"; do
+        if [[ "$relative_path" == "$app"* ]] || [[ "$filename" == "$app" ]]; then
+            echo "personal"
+            return
+        fi
+    done
+
+    for app in "${EDITOR_APPS[@]}"; do
+        if [[ "$relative_path" == "$app"* ]] || [[ "$filename" == "$app" ]]; then
+            echo "editor"
             return
         fi
     done
@@ -326,12 +326,6 @@ scan_dotfiles() {
     local found_files=()
     local count=0
 
-    # 常见的配置文件位置
-    local search_paths=(
-        "$HOME/.[!.]*"              # 主目录隐藏文件
-        "$HOME/.config/[^.]*/"      # .config 目录
-    )
-
     echo
     echo -e "${BOLD}发现以下未管理的配置文件:${NC}"
     echo "══════════════════════════════════════════════════════════════"
@@ -346,6 +340,9 @@ scan_dotfiles() {
 
         # 跳过特殊目录
         case "$(basename "$file")" in
+            .config)
+                continue
+                ;;
             .|..|.local|.cache|.npm|.yarn|.nvm|.Trash|Applications|Desktop|Documents|Downloads|Library|Movies|Music|Pictures|Public)
                 continue
                 ;;
@@ -367,7 +364,30 @@ scan_dotfiles() {
         printf "  说明: %s\n" "$description"
 
         found_files+=("$file")
-        ((count++))
+        ((count+=1))
+    done
+
+    # 扫描已知的“嵌套文件”（稳定配置文件，而非整个目录）
+    local known_nested_files=(
+        "$HOME/.ssh/config"
+        "$HOME/.gitconfig_local"
+        "$HOME/.zshrc.local"
+    )
+
+    for file in "${known_nested_files[@]}"; do
+        [[ -e "$file" ]] || continue
+        is_managed "$file" && continue
+
+        local category=$(get_category "$file")
+        local description=$(get_description "$file")
+        local relative_path="${file#$HOME/}"
+
+        printf "\n${CYAN}▸ %s${NC}\n" "$relative_path"
+        printf "  类型: ${YELLOW}%s${NC}\n" "$category"
+        printf "  说明: %s\n" "$description"
+
+        found_files+=("$file")
+        ((count+=1))
     done
 
     # 扫描 .config 目录
@@ -387,7 +407,7 @@ scan_dotfiles() {
             printf "  说明: %s\n" "$description"
 
             found_files+=("$dir")
-            ((count++))
+            ((count+=1))
         done
     fi
 
@@ -451,6 +471,13 @@ migrate_file() {
 
     local relative_path="${source#$HOME/}"
     local target_dir="$DOTFILES_DIR/stow-packs/$category"
+
+    if [[ ! -d "$target_dir" ]]; then
+        log_warning "未找到分类包目录: stow-packs/$category，回退到 sensitive"
+        category="sensitive"
+        target_dir="$DOTFILES_DIR/stow-packs/$category"
+        mkdir -p "$target_dir"
+    fi
 
     # 确定目标路径
     if [[ "$relative_path" == .config/* ]]; then
@@ -542,10 +569,28 @@ interactive_migrate() {
 
         # 跳过特殊文件
         case "$(basename "$file")" in
+            .config)
+                continue
+                ;;
             .|..|.local|.cache|.npm|.yarn|.nvm|.Trash|.DS_Store|.CFUserTextEncoding|.localized|Applications)
                 continue
                 ;;
         esac
+
+        files_to_migrate+=("$file")
+        categories+=("$(get_category "$file")")
+    done
+
+    # 收集已知的“嵌套文件”（稳定配置文件，而非整个目录）
+    local known_nested_files=(
+        "$HOME/.ssh/config"
+        "$HOME/.gitconfig_local"
+        "$HOME/.zshrc.local"
+    )
+
+    for file in "${known_nested_files[@]}"; do
+        [[ -e "$file" ]] || continue
+        is_managed "$file" && continue
 
         files_to_migrate+=("$file")
         categories+=("$(get_category "$file")")
@@ -595,18 +640,18 @@ interactive_migrate() {
                 ;;
             n|N|no)
                 log_warning "跳过此文件"
-                ((skipped++))
+                ((skipped+=1))
                 ;;
             y|Y|yes|"")
                 if migrate_file "$file" "$category"; then
-                    ((migrated++))
+                    ((migrated+=1))
                 else
-                    ((skipped++))
+                    ((skipped+=1))
                 fi
                 ;;
             *)
                 log_warning "无效选择，跳过"
-                ((skipped++))
+                ((skipped+=1))
                 ;;
         esac
     done
@@ -643,6 +688,9 @@ auto_migrate() {
         is_managed "$file" && continue
 
         case "$(basename "$file")" in
+            .config)
+                continue
+                ;;
             .|..|.local|.cache|.npm|.yarn|.nvm|.Trash|.DS_Store|.CFUserTextEncoding|.localized|Applications)
                 continue
                 ;;
@@ -651,10 +699,31 @@ auto_migrate() {
         local category=$(get_category "$file")
         if migrate_file "$file" "$category" "$dry_run"; then
             if [[ "$dry_run" != "true" ]]; then
-                ((migrated++))
+                ((migrated+=1))
             fi
         else
-            ((failed++))
+            ((failed+=1))
+        fi
+    done
+
+    # 迁移已知的“嵌套文件”（稳定配置文件，而非整个目录）
+    local known_nested_files=(
+        "$HOME/.ssh/config"
+        "$HOME/.gitconfig_local"
+        "$HOME/.zshrc.local"
+    )
+
+    for file in "${known_nested_files[@]}"; do
+        [[ -e "$file" ]] || continue
+        is_managed "$file" && continue
+
+        local category=$(get_category "$file")
+        if migrate_file "$file" "$category" "$dry_run"; then
+            if [[ "$dry_run" != "true" ]]; then
+                ((migrated+=1))
+            fi
+        else
+            ((failed+=1))
         fi
     done
 
@@ -667,10 +736,10 @@ auto_migrate() {
             local category=$(get_category "$dir")
             if migrate_file "$dir" "$category" "$dry_run"; then
                 if [[ "$dry_run" != "true" ]]; then
-                    ((migrated++))
+                    ((migrated+=1))
                 fi
             else
-                ((failed++))
+                ((failed+=1))
             fi
         done
     fi
@@ -698,12 +767,12 @@ show_status() {
     # 统计已管理的文件
     for file in ~/.* ~/.config/*; do
         [[ -e "$file" ]] || continue
-        ((total++))
+        ((total+=1))
 
         if is_managed "$file"; then
-            ((managed++))
+            ((managed+=1))
         else
-            ((unmanaged++))
+            ((unmanaged+=1))
         fi
     done 2>/dev/null
 

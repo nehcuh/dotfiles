@@ -124,126 +124,72 @@ move_file() {
     local source_file="$1"
     local file_type="$2"
 
+    source_file="${source_file/#\~\//$HOME/}"
+
     # 检查源文件是否存在
     if [[ ! -e "$source_file" ]]; then
         log_error "文件不存在: $source_file"
         return 1
     fi
 
-    # 获取文件名
-    local filename="$(basename "$source_file")"
-    local dirname="$(dirname "$source_file")"
+    # 只允许移动 $HOME 下的文件，且保持原始相对路径
+    if [[ "$source_file" != "$HOME/"* ]]; then
+        log_error "仅支持移动主目录下的文件: $source_file"
+        return 1
+    fi
 
-    # 确定目标包和路径
-    local target_package=""
-    local target_path=""
+    local relative_path="${source_file#$HOME/}"
 
-    case "$file_type" in
-        sensitive)
-            target_package="sensitive"
-            if [[ "$dirname" == "$HOME/.config" ]]; then
-                target_path="$DOTFILES_DIR/stow-packs/sensitive/.config/$filename"
-            else
-                target_path="$DOTFILES_DIR/stow-packs/sensitive/$filename"
-            fi
-            ;;
-        personal)
-            target_package="personal"
-            if [[ "$dirname" == "$HOME/.config" ]]; then
-                target_path="$DOTFILES_DIR/stow-packs/personal/.config/$filename"
-            else
-                target_path="$DOTFILES_DIR/stow-packs/personal/$filename"
-            fi
-            ;;
-        system)
-            target_package="system"
-            if [[ "$dirname" == "$HOME/.config" ]]; then
-                target_path="$DOTFILES_DIR/stow-packs/system/.config/$filename"
-            else
-                target_path="$DOTFILES_DIR/stow-packs/system/$filename"
-            fi
-            ;;
-        git)
-            target_package="git"
-            if [[ "$dirname" == "$HOME/.config" ]]; then
-                target_path="$DOTFILES_DIR/stow-packs/git/.config/$filename"
-            else
-                target_path="$DOTFILES_DIR/stow-packs/git/$filename"
-            fi
-            ;;
-        zsh)
-            target_package="zsh"
-            if [[ "$dirname" == "$HOME/.config" ]]; then
-                target_path="$DOTFILES_DIR/stow-packs/zsh/.config/$filename"
-            else
-                target_path="$DOTFILES_DIR/stow-packs/zsh/$filename"
-            fi
-            ;;
-        tools)
-            target_package="tools"
-            if [[ "$dirname" == "$HOME/.config" ]]; then
-                target_path="$DOTFILES_DIR/stow-packs/tools/.config/$filename"
-            else
-                target_path="$DOTFILES_DIR/stow-packs/tools/$filename"
-            fi
-            ;;
-        *)
-            log_error "未知的文件类型: $file_type"
-            log_info "支持的类型: sensitive, personal, system, git, zsh, tools"
-            return 1
-            ;;
-    esac
+    # 目标包（优先使用 stow-packs 下真实存在的包名）
+    local target_package="$file_type"
+    if [[ -z "$target_package" ]]; then
+        log_error "缺少目标包名"
+        return 1
+    fi
+
+    if [[ ! -d "$DOTFILES_DIR/stow-packs/$target_package" ]]; then
+        log_error "目标包不存在: $target_package"
+        log_info "可用包: $(ls -1 "$DOTFILES_DIR/stow-packs" 2>/dev/null | tr '\n' ' ')"
+        return 1
+    fi
+
+    local target_path="$DOTFILES_DIR/stow-packs/$target_package/$relative_path"
 
     # 创建目标目录
     local target_dir="$(dirname "$target_path")"
     mkdir -p "$target_dir"
 
     # 移动文件
-    log_info "移动 $filename 到 $target_package 包..."
+    log_info "移动 $relative_path 到 $target_package 包..."
 
-    if mv "$source_file" "$target_path"; then
+    if mv -- "$source_file" "$target_path"; then
         log_success "文件已移动"
 
         # 重新 stow 该包
         log_info "重新链接 $target_package 包..."
         cd "$DOTFILES_DIR"
 
-        # 尝试 stow
-        if stow -d stow-packs -t ~ -R "$target_package" 2>/dev/null; then
-            log_success "包已重新链接"
-        else
-            log_warning "Stow 自动链接失败，手动创建符号链接..."
-
-            # 手动创建符号链接
-            cd "$HOME"
-            if [[ "$dirname" == "$HOME/.config" ]]; then
-                # .config 目录下的文件
-                link_path=".config/$filename"
-                link_target="../.dotfiles/stow-packs/$target_package/.config/$filename"
-            else
-                # 主目录下的文件
-                link_path="$filename"
-                link_target=".dotfiles/stow-packs/$target_package/$filename"
-            fi
-
-            # 创建符号链接
-            if ln -sf "$link_target" "$link_path"; then
-                log_success "✓ 手动创建符号链接成功"
-
-                # 验证链接
-                local symlink_path="$HOME/$link_path"
-                if [[ -L "$symlink_path" ]]; then
-                    log_success "✓ $link_path 现在是一个符号链接"
-                    return 0
-                else
-                    log_warning "符号链接未创建，请手动检查"
-                    return 1
-                fi
-            else
-                log_error "手动创建符号链接失败"
-                return 1
-            fi
+        if ! command -v stow >/dev/null 2>&1; then
+            log_error "GNU Stow 未安装，无法创建链接"
+            log_info "macOS: brew install stow"
+            return 1
         fi
+
+        if ! stow -d stow-packs -t "$HOME" -R "$target_package"; then
+            log_error "Stow 链接失败（可能存在冲突文件/目录）"
+            log_info "建议：先移除冲突项或用 'stow -d stow-packs -t \"$HOME\" -R $target_package -v' 查看细节"
+            return 1
+        fi
+
+        log_success "包已重新链接"
+
+        if [[ -L "$source_file" ]]; then
+            log_success "✓ $relative_path 现在是一个符号链接"
+            return 0
+        fi
+
+        log_warning "符号链接未创建，请手动检查"
+        return 1
     else
         log_error "移动文件失败"
         return 1

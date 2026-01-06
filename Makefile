@@ -75,23 +75,7 @@ update:
 
 .PHONY: status
 status:
-	@echo "$(BLUE)Current management status:$(NC)"
-	@echo ""
-	@if command -v stow >/dev/null 2>&1; then \
-		stow -d "$(DOTFILES_DIR)" -nv . 2>&1 | grep -E "(LINK:|Unlinked)" || echo "  No packages currently installed"; \
-	else \
-		echo "  $(YELLOW)GNU Stow not installed$(NC)"; \
-		echo "  Install with: brew install stow"; \
-	fi
-	@echo ""
-	@echo "$(BLUE)Package status:$(NC)"
-	@for pkg in $$(ls -d stow-packs/*/ 2>/dev/null | xargs -n1 basename); do \
-		if stow -d "$(DOTFILES_DIR)" -n "$$pkg" >/dev/null 2>&1; then \
-			echo "  $(GREEN)✓$$pkg$(NC) (linked)"; \
-		else \
-			echo "  $(YELLOW)○$$pkg$(NC) (not linked)"; \
-		fi \
-	done
+	@bash ./scripts/status.sh
 
 # ============================================================================
 # 文件迁移

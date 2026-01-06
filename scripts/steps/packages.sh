@@ -8,7 +8,7 @@ install_packages() {
         local mirror_package="${DOTFILES_MIRROR_PACKAGE:-}"
         [[ -z "$mirror_package" ]] && mirror_package="$([[ "${IN_CHINA:-false}" == "true" ]] && echo "mirrors-china" || echo "mirrors-international")"
 
-        packages=("system" "zsh" "git" "$mirror_package" "tools" "vim" "nvim" "tmux")
+        packages=("system" "zsh" "git" "$mirror_package" "tools" "nvim" "tmux")
         [[ "$OS" == "linux" ]] && packages+=("linux")
         [[ "$OS" == "macos" ]] && packages+=("macos")
     fi

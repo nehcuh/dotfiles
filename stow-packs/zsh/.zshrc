@@ -12,9 +12,6 @@ elif [[ "$OSTYPE" == "linux-gnu"* ]]; then
     [[ -f "$HOME/.config/linux/linux.sh" ]] && source "$HOME/.config/linux/linux.sh"
 fi
 
-# Initialize Starship prompt
-eval "$(starship init zsh)"
-
 # Source modular configurations
 CONFIG_DIR="$HOME/.config/zsh"
 [[ -d "$CONFIG_DIR" ]] && {
@@ -24,6 +21,9 @@ CONFIG_DIR="$HOME/.config/zsh"
     source "$CONFIG_DIR/git.zsh"
     source "$CONFIG_DIR/aliases.zsh"
 }
+
+# Initialize Starship prompt (optional)
+command -v starship >/dev/null 2>&1 && eval "$(starship init zsh)"
 
 # Optional: Load local customizations
 # These files are NOT tracked by git - use them for personal settings
