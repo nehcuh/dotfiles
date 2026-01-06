@@ -69,6 +69,7 @@ copy_repo() {
         if ! rsync -a --no-specials --no-devices \
             --exclude "/.git/" \
             --exclude "/stow-packs/sensitive/" \
+            --exclude "/stow-packs/personal/.config/iterm2/sockets/" \
             "$REPO_ROOT/" "$TMP_REPO/" \
             >/dev/null 2>"$rsync_err"; then
             cat "$rsync_err" >&2 || true

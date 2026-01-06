@@ -1,0 +1,109 @@
+tracked:
+  - package: git
+    path: .config/git/ignore
+  - package: git
+    path: .gitconfig_global
+  - package: git
+    path: .gitconfig_local.template
+  - package: git
+    path: .gitignore_global
+  - package: git
+    path: .platform-specific/gitconfig_cygwin
+  - package: git
+    path: .platform-specific/gitconfig_linux
+  - package: git
+    path: .platform-specific/gitconfig_local.template
+  - package: git
+    path: .platform-specific/gitconfig_macOS
+  - package: git
+    path: config/git/config
+  - package: git
+    path: config/git/ignore
+
+  - package: macos
+    path: .zshrc.macos
+  - package: macos
+    path: Library/Hack-Nerd-Font.terminal
+
+  - package: mirrors-china
+    path: .config/cargo.toml
+  - package: mirrors-china
+    path: .gemrc
+  - package: mirrors-china
+    path: .npmrc
+  - package: mirrors-china
+    path: .pip.conf
+
+  - package: mirrors-international
+    path: .config/cargo.toml
+  - package: mirrors-international
+    path: .gemrc
+  - package: mirrors-international
+    path: .npmrc
+  - package: mirrors-international
+    path: .pip.conf
+
+  - package: personal
+    path: README.md
+
+  - package: sensitive
+    path: .gitkeep
+  - package: sensitive
+    path: README.md
+
+  - package: system
+    path: .Brewfile
+  - package: system
+    path: .config/starship.toml
+
+  - package: tmux
+    path: .tmux.conf
+
+  - package: tools
+    path: .lessfilter
+  - package: tools
+    path: .markdownlintrc
+
+  - package: vscode
+    path: .config/Code/User/extensions.json
+  - package: vscode
+    path: .config/Code/User/keybindings.json
+  - package: vscode
+    path: .config/Code/User/settings.json
+
+  - package: zed
+    path: .config/zed/.gitignore
+  - package: zed
+    path: .config/zed/keymap.json
+  - package: zed
+    path: .config/zed/settings.json
+
+  - package: zsh
+    path: .config/zsh/aliases.zsh
+  - package: zsh
+    path: .config/zsh/aliases/docker.zsh
+  - package: zsh
+    path: .config/zsh/dev.zsh
+  - package: zsh
+    path: .config/zsh/fzf.zsh
+  - package: zsh
+    path: .config/zsh/git.zsh
+  - package: zsh
+    path: .config/zsh/local.zsh
+  - package: zsh
+    path: .config/zsh/plugins.zsh
+  - package: zsh
+    path: .config/zsh/proxy.zsh.example
+  - package: zsh
+    path: .zprofile
+  - package: zsh
+    path: .zshenv
+  - package: zsh
+    path: .zshrc
+  - package: zsh
+    path: .zshrc.local.template
+
+untracked:
+  # Example sensitive stable config (usually stored under stow-packs/sensitive/)
+  - package: sensitive
+    path: .ssh/config
