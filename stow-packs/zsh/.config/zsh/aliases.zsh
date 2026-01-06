@@ -18,6 +18,13 @@ elif (( $+commands[exa] )); then
     alias l='ls -lhF'
     alias la='ls -lahF'
     alias tree='ls --tree'
+else
+    # Fallback: GNU ls if available, otherwise system ls
+    if (( $+commands[gls] )); then
+        alias ls='gls --color=tty --group-directories-first'
+    else
+        alias ls='ls --color=tty --group-directories-first'
+    fi
 fi
 
 (( $+commands[bat] )) && alias cat='bat -p --wrap character'
@@ -79,9 +86,4 @@ elif [[ $OSTYPE == linux* ]]; then
     fi
 fi
 
-# LS with color
-if (( $+commands[gls] )); then
-    alias ls='gls --color=tty --group-directories-first'
-else
-    alias ls='ls --color=tty --group-directories-first'
-fi
+# Note: ls is defined above with preference order: eza/exa > gls > ls

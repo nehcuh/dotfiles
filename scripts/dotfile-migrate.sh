@@ -419,7 +419,7 @@ scan_dotfiles() {
     else
         log_info "共发现 ${BOLD}$count${NC} 个未管理的配置文件"
         echo
-        log_info "下一步: 运行 '$(basename "$0") migrate' 来迁移这些文件"
+        log_info "下一步: 运行 'make migrate' 或 '$(basename "$0") migrate' 来迁移这些文件"
     fi
 }
 
