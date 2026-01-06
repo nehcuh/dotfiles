@@ -94,6 +94,7 @@ setup_home_fixture() {
     mkdir -p "$TMP_HOME/.config/nvim"
     mkdir -p "$TMP_HOME/.config/zed"
     mkdir -p "$TMP_HOME/.config/Code"
+    mkdir -p "$TMP_HOME/.config/configstore"
     mkdir -p "$TMP_HOME/.ssh"
     echo "host github.com" >"$TMP_HOME/.ssh/config"
 }
@@ -116,6 +117,7 @@ scan_plain="$(strip_ansi "$scan_output")"
 # - scan should not suggest migrating the ".config" root itself
 # - scan should still include managed subdirs like ".config/gh/"
 echo "$scan_plain" | grep -Fxq "▸ .config" && fail "expected scan output NOT to contain standalone entry: ▸ .config"
+echo "$scan_plain" | grep -Fxq "▸ .config/configstore/" && fail "expected scan output NOT to contain entry: ▸ .config/configstore/"
 echo "$scan_plain" | grep -Fxq "▸ .config/gh/" || fail "expected scan output to contain entry: ▸ .config/gh/"
 echo "$scan_plain" | grep -Fxq "▸ .ssh/config" || fail "expected scan output to contain entry: ▸ .ssh/config"
 assert_entry_category "$scan_plain" ".config/nvim/" "nvim"

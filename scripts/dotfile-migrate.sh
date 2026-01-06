@@ -392,11 +392,22 @@ scan_dotfiles() {
 
     # 扫描 .config 目录
     if [[ -d "$HOME/.config" ]]; then
+        # 如果 ~/.config 本身已被 dotfiles 管理（例如 folding 整目录链接到仓库），则无需再扫描其子目录
+        if is_managed "$HOME/.config"; then
+            log_info "~/.config 已被 dotfiles 管理，跳过 .config 子目录扫描"
+        else
         for dir in "$HOME/.config"/*/; do
             [[ -d "$dir" ]] || continue
 
             # 跳过已管理的
             is_managed "$dir" && continue
+
+            # 跳过明显的运行时/缓存目录（non-goals）
+            case "$(basename "${dir%/}")" in
+                configstore)
+                    continue
+                    ;;
+            esac
 
             local category=$(get_category "$dir")
             local description=$(get_description "$dir")
@@ -409,6 +420,7 @@ scan_dotfiles() {
             found_files+=("$dir")
             ((count+=1))
         done
+        fi
     fi
 
     echo
@@ -598,13 +610,23 @@ interactive_migrate() {
 
     # 收集 .config 目录
     if [[ -d "$HOME/.config" ]]; then
+        if is_managed "$HOME/.config"; then
+            :
+        else
         for dir in "$HOME/.config"/*/; do
             [[ -d "$dir" ]] || continue
             is_managed "$dir" && continue
 
+            case "$(basename "${dir%/}")" in
+                configstore)
+                    continue
+                    ;;
+            esac
+
             files_to_migrate+=("$dir")
             categories+=("$(get_category "$dir")")
         done
+        fi
     fi
 
     if [[ ${#files_to_migrate[@]} -eq 0 ]]; then
@@ -729,9 +751,18 @@ auto_migrate() {
 
     # 迁移 .config 目录
     if [[ -d "$HOME/.config" ]]; then
+        if is_managed "$HOME/.config"; then
+            :
+        else
         for dir in "$HOME/.config"/*/; do
             [[ -d "$dir" ]] || continue
             is_managed "$dir" && continue
+
+            case "$(basename "${dir%/}")" in
+                configstore)
+                    continue
+                    ;;
+            esac
 
             local category=$(get_category "$dir")
             if migrate_file "$dir" "$category" "$dry_run"; then
@@ -742,6 +773,7 @@ auto_migrate() {
                 ((failed+=1))
             fi
         done
+        fi
     fi
 
     echo
