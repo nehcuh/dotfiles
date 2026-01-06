@@ -21,10 +21,8 @@ log_error() { echo -e "${RED}[ERROR]${NC} $1"; }
 DOTFILES_REPO="${DOTFILES_REPO:-https://github.com/nehcuh/dotfiles.git}"
 DOTFILES_DIR="${DOTFILES_DIR:-$HOME/.dotfiles}"
 INSTALL_PACKAGES="${INSTALL_PACKAGES:-}"  # Empty means default packages
-NON_INTERACTIVE="${NON_INTERACTIVE:-false}"  # Set to true to skip confirmation prompts
-DEV_ENV="${DEV_ENV:-false}"  # Set to true to setup development environments
-DEV_ALL="${DEV_ALL:-false}"  # Set to true to setup all development environments
-SKIP_BREWFILE="${SKIP_BREWFILE:-false}"  # Set to true to skip Brewfile installation
+DOTFILES_NON_INTERACTIVE="${DOTFILES_NON_INTERACTIVE:-false}"  # Set to true to skip confirmation prompts
+DOTFILES_SKIP_BREWFILE="${DOTFILES_SKIP_BREWFILE:-false}"  # Set to true to skip Brewfile installation
 USE_LINUX_BRANCH="${USE_LINUX_BRANCH:-false}"  # Set to true to use the Linux branch
 
 echo "========================================"
@@ -104,10 +102,10 @@ else
     log_info "• Homebrew will be automatically installed if not present"
 fi
 log_info "• You may be prompted for your password during installation"
-log_info "• The installation is safe and will backup any conflicting files"
+log_info "• Conflicts: install aborts by default; use DOTFILES_CONFLICT_OVERWRITE=true to backup and overwrite conflicts"
 echo
 
-if [ "$NON_INTERACTIVE" != "true" ]; then
+if [ "$DOTFILES_NON_INTERACTIVE" != "true" ]; then
     log_info "Press Ctrl+C to cancel, or any key to continue..."
     read -n 1 -s
     echo
@@ -115,11 +113,10 @@ else
     log_info "Non-interactive mode: proceeding automatically..."
 fi
 
-# For Brewfile installation, we need to ensure proper TTY handling
 # When running through pipe (curl | bash), stdin might not be available for prompts
-if [ ! -t 0 ] && [ "$NON_INTERACTIVE" != "true" ]; then
-    log_warning "Detected piped input - setting non-interactive mode for Brewfile installation"
-    export NON_INTERACTIVE="true"
+if [ ! -t 0 ] && [ "$DOTFILES_NON_INTERACTIVE" != "true" ]; then
+    log_warning "Detected piped input - setting non-interactive mode for prompts"
+    export DOTFILES_NON_INTERACTIVE="true"
 fi
 
 # Build install command with appropriate options
@@ -130,23 +127,24 @@ if [ -n "$INSTALL_PACKAGES" ]; then
     install_cmd="$install_cmd $INSTALL_PACKAGES"
 fi
 
-# Add development environment options
-if [ "$DEV_ALL" = "true" ]; then
-    install_cmd="$install_cmd --dev-all"
-elif [ "$DEV_ENV" = "true" ]; then
-    install_cmd="$install_cmd --dev-env"
-fi
-
 # Set environment variables for the install script
-export NON_INTERACTIVE="$NON_INTERACTIVE"
-export SKIP_BREWFILE="$SKIP_BREWFILE"
+export DOTFILES_NON_INTERACTIVE="${DOTFILES_NON_INTERACTIVE}"
+export DOTFILES_SKIP_BREWFILE="${DOTFILES_SKIP_BREWFILE}"
+export DOTFILES_CONFLICT_OVERWRITE="${DOTFILES_CONFLICT_OVERWRITE:-false}"
+export DOTFILES_BREWFILE_INSTALL="${DOTFILES_BREWFILE_INSTALL:-false}"
+export DOTFILES_SET_DEFAULT_SHELL="${DOTFILES_SET_DEFAULT_SHELL:-false}"
+export DOTFILES_SKIP_MIRROR_DETECT="${DOTFILES_SKIP_MIRROR_DETECT:-}"
+export DOTFILES_FORCE_CHINA_MIRROR="${DOTFILES_FORCE_CHINA_MIRROR:-false}"
+export DOTFILES_FORCE_NO_MIRROR="${DOTFILES_FORCE_NO_MIRROR:-false}"
+export DOTFILES_HOMEBREW_USE_CHINA_INSTALLER="${DOTFILES_HOMEBREW_USE_CHINA_INSTALLER:-false}"
+export DOTFILES_HOMEBREW_TAP_CHINA_MIRRORS="${DOTFILES_HOMEBREW_TAP_CHINA_MIRRORS:-false}"
 
 # Run installation
 log_info "Running installation command: $install_cmd"
 eval "$install_cmd"
 
 echo
-log_success "🎉 Remote installation completed!"
+log_success "Remote installation completed!"
 log_info "Dotfiles are now installed in: $DOTFILES_DIR"
 log_info "Please restart your terminal or run 'source ~/.zshrc' to apply changes"
 echo

@@ -29,6 +29,10 @@
   - Stow 工作原理
   - 安全最佳实践
 
+- **[INSTALL_FLAGS.md](./config/INSTALL_FLAGS.md)** - 安装环境变量速查
+  - `DOTFILES_*` 变量说明
+  - 冲突覆盖、Brewfile、镜像与 Homebrew 选项
+
 - **[TERMINAL_FONT_CONFIG.md](./config/TERMINAL_FONT_CONFIG.md)** - 终端字体配置指南 ⭐
   - Nerd Fonts 安装
   - 各终端字体配置

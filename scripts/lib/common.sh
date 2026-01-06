@@ -1,6 +1,7 @@
 #!/bin/sh
 # Common functions for dotfiles scripts
 # POSIX-compliant shell library for cross-platform compatibility
+# NOTE: This file is not used by the current installer pipeline (`scripts/install.sh`).
 
 # Ensure this script is sourced, not executed
 if [ "$(basename "$0")" = "common.sh" ]; then

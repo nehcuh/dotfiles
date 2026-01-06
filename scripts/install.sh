@@ -29,7 +29,7 @@ show_help() {
     echo "  $0 git vim          # Install only git and vim"
     echo ""
     echo "Available packages:"
-    echo "  system, zsh, git, tools, vim, nvim, tmux, vscode, zed, linux, macos"
+    echo "  system, zsh, git, mirrors-china, mirrors-international, tools, vim, nvim, tmux, vscode, zed, linux, macos"
 }
 
 # Main installation

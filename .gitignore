@@ -44,12 +44,9 @@ logs/
 
 # Sensitive and personal dotfiles (managed by stow but selectively versioned)
 # Sensitive package - contains secrets, never commit
-stow-packs/sensitive/home/*
-stow-packs/sensitive/config/*
-!stow-packs/sensitive/home/.gitignore
-!stow-packs/sensitive/home/.gitkeep
-!stow-packs/sensitive/home/.ssh/.gitkeep
-!stow-packs/sensitive/**/*.README.md
+stow-packs/sensitive/**
+!stow-packs/sensitive/.gitkeep
+!stow-packs/sensitive/README.md
 !stow-packs/sensitive/**/README.md
 
 # Personal package - contains personal preferences (safe to commit)
@@ -85,6 +82,12 @@ config/git/config.local
 .rediscli_history
 cache.db
 *.cache
+
+# Local-only / machine-specific configs that should not be committed
+stow-packs/tools/.config/nvim/
+stow-packs/editor/
+stow-packs/personal/.config/iterm2/
+stow-packs/git/.config/git/git/
 
 # SSH keys and config (if any accidentally placed in dotfiles)
 .ssh/id_*

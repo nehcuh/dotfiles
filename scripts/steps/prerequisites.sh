@@ -4,6 +4,12 @@
 check_prerequisites() {
     log_info "Checking prerequisites..."
 
+    # Detect network environment and configure mirrors
+    source "$SCRIPT_DIR/lib/china-mirror.sh"
+    detect_china
+    configure_homebrew_mirror
+    configure_package_mirrors
+
     # Check git
     if ! command -v git &> /dev/null; then
         log_error "Git is not installed"
@@ -36,17 +42,7 @@ check_prerequisites() {
                 ;;
             macos)
                 if ! command -v brew &> /dev/null; then
-                    log_info "Installing Homebrew..."
-                    /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
-
-                    # Add Homebrew to PATH
-                    if [[ -f "/opt/homebrew/bin/brew" ]]; then
-                        export PATH="/opt/homebrew/bin:$PATH"
-                        eval "$(/opt/homebrew/bin/brew shellenv)"
-                    elif [[ -f "/usr/local/bin/brew" ]]; then
-                        export PATH="/usr/local/bin:$PATH"
-                        eval "$(/usr/local/bin/brew shellenv)"
-                    fi
+                    install_homebrew
                 fi
                 brew install stow
                 ;;

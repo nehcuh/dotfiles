@@ -35,7 +35,9 @@ make install
 - 创建符号链接到主目录
 - 跳过 Brewfile 安装（在非交互式环境）
 
-**提示**：使用 `SKIP_BREWFILE=true make install` 跳过 Brewfile
+常用环境变量见 `docs/config/INSTALL_FLAGS.md`。
+
+**冲突处理**：如果目标路径已存在且不是符号链接（例如已有 `~/.zshrc`），安装会失败并输出冲突清单。强制覆盖/备份行为见 `docs/config/INSTALL_FLAGS.md`。
 
 ### `make uninstall`
 卸载所有配置包。

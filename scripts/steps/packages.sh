@@ -5,7 +5,10 @@ install_packages() {
     local packages=("$@")
 
     if [[ ${#packages[@]} -eq 0 ]]; then
-        packages=("system" "zsh" "git" "tools" "vim" "nvim" "tmux")
+        local mirror_package="${DOTFILES_MIRROR_PACKAGE:-}"
+        [[ -z "$mirror_package" ]] && mirror_package="$([[ "${IN_CHINA:-false}" == "true" ]] && echo "mirrors-china" || echo "mirrors-international")"
+
+        packages=("system" "zsh" "git" "$mirror_package" "tools" "vim" "nvim" "tmux")
         [[ "$OS" == "linux" ]] && packages+=("linux")
         [[ "$OS" == "macos" ]] && packages+=("macos")
     fi

@@ -14,8 +14,8 @@ install_brewfile() {
     }
 
     # Skip if requested
-    [[ "${SKIP_BREWFILE:-false}" == "true" ]] && {
-        log_info "Skipping Brewfile (SKIP_BREWFILE=true)"
+    [[ "${DOTFILES_SKIP_BREWFILE:-false}" == "true" ]] && {
+        log_info "Skipping Brewfile (DOTFILES_SKIP_BREWFILE=true)"
         return
     }
 
@@ -24,20 +24,24 @@ install_brewfile() {
     # Determine which Brewfile to use
     local brewfile_to_use="$([[ -f "$brewfile" ]] && echo "$brewfile" || echo "$repo_brewfile")"
 
-    # Check if running in non-interactive mode (e.g., from make)
-    if [[ ! -t 0 ]]; then
+    local is_tty=true
+    [[ ! -t 0 ]] && is_tty=false
+
+    # Default behavior: never run brew bundle without a TTY unless explicitly opted-in.
+    if [[ "$is_tty" == "false" && "${DOTFILES_BREWFILE_INSTALL:-false}" != "true" ]]; then
         log_info "Non-interactive environment detected, skipping Brewfile"
-        log_info "Install later with: brew bundle --file='$brewfile_to_use'"
+        log_info "To run anyway: DOTFILES_BREWFILE_INSTALL=true brew bundle --file='$brewfile_to_use'"
+        log_info "Or install later with: brew bundle --file='$brewfile_to_use'"
         return
     fi
 
     # Interactive prompt
-    if [[ "${NON_INTERACTIVE:-false}" != "true" ]]; then
+    if [[ "$is_tty" == "true" && "${DOTFILES_NON_INTERACTIVE:-false}" != "true" && "${DOTFILES_BREWFILE_INSTALL:-false}" != "true" ]]; then
         echo
         read -p "Install Brewfile packages? (y/N): " -n 1 -r
         echo
         [[ ! $REPLY =~ ^[Yy]$ ]] && {
-            log_info "Skipped. Install later with: brew bundle --global"
+            log_info "Skipped. Install later with: brew bundle --file='$brewfile_to_use'"
             return
         }
     fi

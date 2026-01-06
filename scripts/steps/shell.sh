@@ -17,6 +17,13 @@ setup_shell() {
         return
     fi
 
+    # Default behavior: do not change login shell automatically.
+    if [[ "${DOTFILES_SET_DEFAULT_SHELL:-false}" != "true" ]]; then
+        log_info "Skipping default shell change (DOTFILES_SET_DEFAULT_SHELL=true to enable)"
+        log_info "To change manually: chsh -s $zsh_path"
+        return
+    fi
+
     # Change shell
     log_info "Changing shell to zsh..."
     if chsh -s "$zsh_path" 2>/dev/null; then

@@ -23,6 +23,7 @@
 ├── scripts/                    # 管理脚本
 │   ├── install.sh              # 安装脚本
 │   ├── uninstall.sh            # 卸载脚本
+│   ├── manage-mirrors.sh       # 镜像源管理工具 🚀
 │   ├── dotfile-manager.sh      # 文件管理工具 ⭐
 │   └── dotfile-migrate.sh      # 迁移工具 ⭐
 └── docs/                       # 📚 文档目录
@@ -31,6 +32,7 @@
     │   └── MIGRATION_GUIDE.md  # 迁移指南
     ├── config/                 # 配置说明
     │   ├── DOTFILES_MANAGEMENT.md
+    │   ├── MIRROR_CONFIG.md     # 镜像源配置指南 🚀
     │   └── TERMINAL_FONT_CONFIG.md
     └── tools/                  # 工具文档
         ├── MAKEFILE_COMMANDS.md
@@ -45,6 +47,7 @@
 - 🔒 **安全隔离**: 敏感文件不会被 Git 跟踪
 - 🔄 **易于同步**: 配置文件可在多台机器间同步
 - 🛠️ **自动化**: 提供完整的管理脚本和工具
+- 🚀 **智能加速**: 自动检测中国网络环境，使用国内镜像源加速安装
 
 ## 快速开始
 
@@ -66,6 +69,25 @@ sudo yum install stow  # RHEL/CentOS
 ```bash
 make install
 ```
+
+**智能镜像源配置**：
+- 系统会自动检测你的网络环境
+- 如果在中国，会自动使用国内镜像源（Homebrew、pip、npm、gem、cargo）
+- 如果在其他地区，使用官方源
+- 也可以手动控制：
+	  ```bash
+	  # 强制使用中国镜像
+	  DOTFILES_FORCE_CHINA_MIRROR=true make install
+	
+	  # 强制使用官方源
+	  DOTFILES_FORCE_NO_MIRROR=true make install
+
+  # 查看当前镜像配置
+  ~/.dotfiles/scripts/manage-mirrors.sh status
+  ```
+
+详见 [镜像配置指南](docs/config/MIRROR_CONFIG.md)
+安装环境变量速查见 [INSTALL_FLAGS.md](docs/config/INSTALL_FLAGS.md)
 
 ### 3. 迁移外部应用配置（新功能！）
 
@@ -211,9 +233,9 @@ stow -D stow-packs/package-name
 
 如果遇到 "conflict" 错误，说明目标位置已存在真实文件。解决方法：
 
-1. **自动备份**（推荐）：
+1. **强制备份并覆盖**（推荐）：
    ```bash
-   make install  # 脚本会自动备份冲突文件
+   DOTFILES_CONFLICT_OVERWRITE=true make install  # 备份冲突文件后再安装
    ```
 
 2. **手动处理**：
