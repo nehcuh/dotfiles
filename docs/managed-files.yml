@@ -16,9 +16,7 @@ tracked:
   - package: git
     path: .platform-specific/gitconfig_macOS
   - package: git
-    path: config/git/config
-  - package: git
-    path: config/git/ignore
+    path: .config/git/config
 
   - package: macos
     path: .zshrc.macos

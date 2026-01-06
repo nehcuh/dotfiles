@@ -285,7 +285,7 @@ ls -la ~/.alma  # 应该显示为符号链接
 | `~/.claude.json` | `stow-packs/sensitive/home/.claude.json` |
 | `~/.config/gh/` | `stow-packs/sensitive/config/gh/` |
 | `~/.alma` | `stow-packs/personal/home/.alma` |
-| `~/.config/git/` | `stow-packs/git/config/git/` |
+| `~/.config/git/` | `stow-packs/git/.config/git/` |
 
 ### 安全机制
 

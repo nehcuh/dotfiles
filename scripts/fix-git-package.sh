@@ -5,17 +5,21 @@ set -e
 
 echo "Fixing git package structure..."
 
-# Check if .config/git exists in git package
-if [[ ! -d "stow-packs/git/.config" ]]; then
-    echo "Creating .config directory in git package..."
-    mkdir -p "stow-packs/git/.config"
+mkdir -p "stow-packs/git/.config"
 
-    # If there's content in config/ dir, move it
-    if [[ -d "stow-packs/git/config" ]]; then
-        echo "Moving files from config/ to .config/..."
-        mv "stow-packs/git/config/"* "stow-packs/git/.config/" 2>/dev/null
-        rmdir "stow-packs/git/config" 2>/dev/null
+# If there's legacy content in config/ dir, move it into .config/
+if [[ -d "stow-packs/git/config" ]]; then
+    echo "Migrating legacy stow-packs/git/config/ -> stow-packs/git/.config/..."
+    mkdir -p "stow-packs/git/.config/git"
+    if [[ -f "stow-packs/git/config/git/config" ]] && [[ ! -f "stow-packs/git/.config/git/config" ]]; then
+        mv "stow-packs/git/config/git/config" "stow-packs/git/.config/git/config"
     fi
+    if [[ -f "stow-packs/git/config/git/ignore" ]]; then
+        cat "stow-packs/git/config/git/ignore" >>"stow-packs/git/.config/git/ignore" 2>/dev/null || true
+        rm -f "stow-packs/git/config/git/ignore"
+    fi
+    rmdir "stow-packs/git/config/git" 2>/dev/null || true
+    rmdir "stow-packs/git/config" 2>/dev/null || true
 fi
 
 # Create empty .config/git directory if needed
