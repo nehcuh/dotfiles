@@ -396,14 +396,14 @@ scan_dotfiles() {
         if is_managed "$HOME/.config"; then
             log_info "~/.config 已被 dotfiles 管理，跳过 .config 子目录扫描"
         else
-        for dir in "$HOME/.config"/*/; do
+        for dir in "$HOME/.config"/*; do
             [[ -d "$dir" ]] || continue
 
             # 跳过已管理的
             is_managed "$dir" && continue
 
             # 跳过明显的运行时/缓存目录（non-goals）
-            case "$(basename "${dir%/}")" in
+            case "$(basename "$dir")" in
                 configstore)
                     continue
                     ;;
@@ -413,7 +413,7 @@ scan_dotfiles() {
             local description=$(get_description "$dir")
             local relative_path="${dir#$HOME/}"
 
-            printf "\n${CYAN}▸ %s${NC}\n" "$relative_path"
+            printf "\n${CYAN}▸ %s${NC}\n" "$relative_path/"
             printf "  类型: ${YELLOW}%s${NC}\n" "$category"
             printf "  说明: %s\n" "$description"
 
@@ -613,11 +613,11 @@ interactive_migrate() {
         if is_managed "$HOME/.config"; then
             :
         else
-        for dir in "$HOME/.config"/*/; do
+        for dir in "$HOME/.config"/*; do
             [[ -d "$dir" ]] || continue
             is_managed "$dir" && continue
 
-            case "$(basename "${dir%/}")" in
+            case "$(basename "$dir")" in
                 configstore)
                     continue
                     ;;
@@ -754,11 +754,11 @@ auto_migrate() {
         if is_managed "$HOME/.config"; then
             :
         else
-        for dir in "$HOME/.config"/*/; do
+        for dir in "$HOME/.config"/*; do
             [[ -d "$dir" ]] || continue
             is_managed "$dir" && continue
 
-            case "$(basename "${dir%/}")" in
+            case "$(basename "$dir")" in
                 configstore)
                     continue
                     ;;
