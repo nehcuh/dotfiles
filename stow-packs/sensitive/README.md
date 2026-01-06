@@ -26,15 +26,16 @@
 
 ```
 stow-packs/sensitive/
-├── home/           # 主目录文件（~）
-│   ├── .ssh/       # SSH 配置和密钥
-│   ├── .gitconfig_local
-│   ├── .zshrc.local
-│   └── .claude.json
-└── config/         # .config 目录文件（~/.config）
+├── .ssh/              # SSH 配置和密钥
+├── .gitconfig_local   # Git 本地配置
+├── .zshrc.local       # Zsh 本地配置
+├── .claude.json       # Claude API 配置
+└── config/            # .config 目录文件（~/.config）
     ├── gh/
     └── aws/
 ```
+
+**重要**：文件直接放在 `stow-packs/sensitive/` 根目录下，GNU Stow 会将它们链接到 `~`（主目录）。
 
 ## 使用方法
 
@@ -47,17 +48,17 @@ cp ~/.zshrc.local.template ~/.zshrc.local
 ### 2. 移动现有敏感文件到这个包
 ```bash
 # 移动 SSH 配置
-mv ~/.ssh/config ~/.dotfiles/stow-packs/sensitive/home/.ssh/
+mv ~/.ssh/config ~/.dotfiles/stow-packs/sensitive/.ssh/
 
 # 移动 Claude 配置
-mv ~/.claude.json ~/.dotfiles/stow-packs/sensitive/home/
+mv ~/.claude.json ~/.dotfiles/stow-packs/sensitive/
 
 # 移动 GitHub CLI 配置
 mv ~/.config/gh ~/.dotfiles/stow-packs/sensitive/config/
 
 # 使用 stow 创建链接
-cd ~/.dotfiles
-stow -R stow-packs/sensitive
+cd ~/.dotfiles/stow-packs
+stow -R sensitive
 ```
 
 ### 3. 验证链接
