@@ -1,0 +1,42 @@
+# Optional database services
+# Use: docker-compose -f docker-compose.yml -f docker-compose.db.yml up
+version: "3.8"
+
+networks:
+  devnet:
+    name: dotfiles-dev_devnet
+    external: true
+
+volumes:
+  postgres_data:
+  redis_data:
+
+services:
+  # PostgreSQL - most commonly used
+  postgres:
+    image: postgres:16-alpine
+    container_name: devbox-postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: dev
+      POSTGRES_PASSWORD: devpass
+      POSTGRES_DB: devdb
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    ports:
+      - "5432:5432"
+    networks:
+      - devnet
+
+  # Redis - simple and fast
+  redis:
+    image: redis:7-alpine
+    container_name: devbox-redis
+    restart: unless-stopped
+    command: ["redis-server", "--appendonly", "yes"]
+    volumes:
+      - redis_data:/data
+    ports:
+      - "6379:6379"
+    networks:
+      - devnet

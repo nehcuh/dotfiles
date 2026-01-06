@@ -1,168 +1,33 @@
 {
-  "theme": "Catppuccin Mocha",
-  "buffer_font_family": "Google Sans Code",
-  "buffer_font_size": 14,
-  "ui_font_size": 16,
-  "tab_size": 4,
-  "soft_wrap": "editor_width",
-  "show_whitespaces": "selection",
-  "remove_trailing_whitespace_on_save": true,
-  "ensure_final_newline_on_save": true,
-  "format_on_save": "on",
-  "autosave": "on_focus_change",
-  
-  // Git integration
-  "git": {
-    "git_gutter": "tracked_files",
-    "inline_blame": {
-      "enabled": true
-    }
-  },
-  
-  // Terminal
-  "terminal": {
-    "shell": {
-      "program": "zsh"
-    },
-    "font_family": "JetBrainsMono Nerd Font",
-    "font_size": 14,
-    "font_weight": 400
-  },
-  
-  // Language servers
-  "lsp": {
-    "rust-analyzer": {
-      "initialization_options": {
-        "check": {
-          "command": "clippy"
+    "ui_font_size": 16,
+    "buffer_font_family": "Fira Code",
+    "buffer_font_size": 14,
+    "buffer_line_height": "comfortable",
+    "tab_size": 2,
+    "soft_wrap": "editor_width",
+    "show_whitespaces": "selection",
+    "remove_trailing_whitespace_on_save": true,
+    "ensure_final_newline_on_save": true,
+    "format_on_save": "on",
+    "autosave": "on_focus_change",
+    "theme": "Catppuccin Mocha",
+    "vim_mode": true,
+    "terminal": {
+        "shell": {
+            "program": "zsh"
         },
-        "diagnostics": {
-          "enable": true
-        }
-      }
+        "font_family": "Fira Code",
+        "font_size": 14,
+        "font_weight": 400
     },
-    "gopls": {
-      "initialization_options": {
-        "gofumpt": true,
-        "staticcheck": true
-      }
+    "git": {
+        "inline_blame": {
+            "enabled": true
+        },
+        "git_gutter": "tracked_files"
     },
-    "pyright": {
-      "settings": {
-        "python": {
-          "analysis": {
-            "typeCheckingMode": "strict"
-          }
-        }
-      }
-    },
-    "basedpyright": {
-      "settings": {
-        "python": {
-          "analysis": {
-            "typeCheckingMode": "strict"
-          }
-        }
-      }
-    },
-    "pyrefly": {
-      "initialization_options": {
-        "settings": {
-          "python": {
-            "analysis": {
-              "typeCheckingMode": "strict"
-            }
-          }
-        }
-      }
+    "telemetry": {
+        "diagnostics": false,
+        "metrics": false
     }
-  },
-  
-  // Language-specific settings
-  "languages": {
-    "Python": {
-      "format_on_save": {
-        "external": {
-          "command": "black",
-          "arguments": ["-"]
-        }
-      },
-      "formatter": {
-        "external": {
-          "command": "black",
-          "arguments": ["-"]
-        }
-      },
-      "language_servers": ["pyrefly", "basedpyright"]
-    },
-    "Rust": {
-      "format_on_save": "on",
-      "formatter": "language_server"
-    },
-    "Go": {
-      "format_on_save": "on",
-      "formatter": "language_server"
-    },
-    "JavaScript": {
-      "format_on_save": "on",
-      "formatter": {
-        "external": {
-          "command": "prettier",
-          "arguments": ["--stdin-filepath", "{buffer_path}"]
-        }
-      }
-    },
-    "TypeScript": {
-      "format_on_save": "on",
-      "formatter": {
-        "external": {
-          "command": "prettier",
-          "arguments": ["--stdin-filepath", "{buffer_path}"]
-        }
-      }
-    },
-    "Java": {
-      "format_on_save": "on",
-      "formatter": "language_server"
-    }
-  },
-  
-  // File associations
-  "file_types": {
-    "Dockerfile": ["Dockerfile", "*.dockerfile"],
-    "YAML": ["*.yml", "*.yaml"],
-    "TOML": ["*.toml"],
-    "JSON": ["*.json", "*.jsonc"]
-  },
-  
-  // Project panel
-  "project_panel": {
-    "dock": "left",
-    "default_width": 240
-  },
-  
-  // Outline panel
-  "outline_panel": {
-    "dock": "right",
-    "default_width": 240
-  },
-  
-  // Collaboration
-  "collaboration_panel": {
-    "dock": "left"
-  },
-  
-  // Features
-  "features": {
-    "copilot": true
-  },
-  
-  // Vim mode
-  "vim_mode": true,
-  
-  // Telemetry
-  "telemetry": {
-    "diagnostics": false,
-    "metrics": false
-  }
 }

@@ -1,0 +1,61 @@
+.PHONY: help up down restart shell logs status clean rebuild
+
+help: ## Show this help
+	@echo "Apple Container Development Environment"
+	@echo ""
+	@echo "Targets:"
+	@grep -E '^[a-zA-Z_-]+:.*?## .*$$' $(MAKEFILE_LIST) | awk 'BEGIN {FS = ":.*?## "}; {printf "  %-15s %s\n", $$1, $$2}'
+
+up: ## Start devbox container
+	@echo "Starting devbox..."
+	container-compose up -d
+	@echo ""
+	@echo "Waiting for container to be ready..."
+	@sleep 3
+	@echo ""
+	@container list | grep -q devbox && echo "✅ devbox is running" || echo "❌ devbox failed to start"
+	@echo ""
+	@echo "Enter with: make shell"
+
+down: ## Stop devbox container
+	@echo "Stopping devbox..."
+	container-compose down
+
+restart: down up ## Restart devbox
+
+shell: ## Enter devbox shell
+	container exec devbox zsh
+
+logs: ## Show devbox logs
+	container logs devbox -f
+
+status: ## Show container status
+	@echo "=== Container Status ==="
+	@container list
+	@echo ""
+	@echo "=== Container Info ==="
+	@container inspect devbox 2>/dev/null | grep -A2 '"STATE"\|"ADDR"' || echo "Container not running"
+
+clean: down ## Stop and remove containers
+	container-compose down
+	container rm -f devbox 2>/dev/null || true
+
+rebuild: ## Rebuild the devbox image
+	@echo "Rebuilding devbox image..."
+	container build -t devbox:latest .
+	@echo "Restarting container..."
+	$(MAKE) restart
+
+test: ## Test container functionality
+	@echo "=== Testing Container ==="
+	@echo "User: $$(container exec devbox whoami)"
+	@echo "Work Dir: $$(container exec devbox pwd)"
+	@echo ""
+	@echo "=== Projects ==="
+	@container exec devbox /bin/bash -c "ls ~/Projects | head -5"
+	@echo ""
+	@echo "=== Tools ==="
+	@container exec devbox git --version
+	@container exec devbox go version | head -1
+	@echo ""
+	@echo "✅ All tests passed"

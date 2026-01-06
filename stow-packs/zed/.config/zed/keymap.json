@@ -10,8 +10,6 @@
       "cmd-shift-j": "workspace::ToggleRightDock"
     }
   },
-  
-  // Editor operations
   {
     "context": "Editor",
     "bindings": {
@@ -25,16 +23,12 @@
       "cmd-shift-u": "editor::RedoSelection"
     }
   },
-  
-  // Terminal
   {
     "context": "Workspace",
     "bindings": {
       "ctrl-`": "terminal_panel::ToggleFocus"
     }
   },
-  
-  // Navigation
   {
     "context": "Editor",
     "bindings": {

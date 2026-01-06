@@ -1,0 +1,15 @@
+# Proxy configuration
+# Copy this file to ~/.config/zsh/proxy.zsh and uncomment to use
+
+# Proxy settings
+PROXY=http://127.0.0.1:7897
+NO_PROXY=10.*.*.*,192.168.*.*,*.local,localhost,127.0.0.1
+
+# Proxy aliases
+alias showproxy='echo "proxy=$http_proxy"'
+alias setproxy='export http_proxy=$PROXY; export https_proxy=$PROXY; export all_proxy=$PROXY; export no_proxy=$NO_PROXY; showproxy'
+alias unsetproxy='export http_proxy=; export https_proxy=; export all_proxy=; export no_proxy=; showproxy'
+alias toggleproxy='if [ -n "$http_proxy" ]; then unsetproxy; else setproxy; fi'
+
+# Uncomment to enable proxy by default
+# setproxy
