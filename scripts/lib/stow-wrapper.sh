@@ -38,7 +38,7 @@ backup_and_stow() {
 
     # Dry-run first: never modify $HOME unless we're confident it will succeed.
     if stow -n -v -t "$HOME" "$package" >/dev/null 2>&1; then
-        if stow -v -t "$HOME" "$package"; then
+        if stow -R -v -t "$HOME" "$package"; then
             log_success "✓ $package installed"
             return 0
         fi
@@ -89,7 +89,7 @@ backup_and_stow() {
         return 1
     fi
 
-    if stow -v -t "$HOME" "$package"; then
+    if stow -R -v -t "$HOME" "$package"; then
         log_success "✓ $package installed (backed up conflicts)"
         return 0
     fi
