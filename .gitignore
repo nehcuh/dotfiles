@@ -102,3 +102,30 @@ stow-packs/git/.config/git/git/
 .local/share/nvim/
 .local/state/nvim/
 .cache/nvim/
+
+# Cargo cache and registry (auto-generated)
+stow-packs/tools/.cargo/advisory-db/
+stow-packs/tools/.cargo/registry/
+stow-packs/tools/.cargo/git/
+stow-packs/tools/.cargo/bin/
+stow-packs/tools/.cargo/.crates.toml
+stow-packs/tools/.cargo/.crates2.json
+stow-packs/tools/.cargo/.global-cache
+stow-packs/tools/.cargo/.package-cache*
+stow-packs/tools/.cargo/advisory-db..lock
+
+# Docker CLI state and cache
+stow-packs/tools/.docker/buildx/
+stow-packs/tools/.docker/cli-plugins/
+stow-packs/tools/.docker/contexts/
+stow-packs/tools/.docker/.token_seed*
+stow-packs/tools/.docker/config.json
+
+# Gemini AI tool cache and state
+stow-packs/tools/.gemini/antigravity/
+stow-packs/tools/.gemini/antigravity-browser-profile/
+
+# Wakatime CLI and cache
+stow-packs/personal/.wakatime/wakatime-cli*
+stow-packs/personal/.wakatime/*.zip
+stow-packs/personal/.wakatime/wakatime-internal.cfg

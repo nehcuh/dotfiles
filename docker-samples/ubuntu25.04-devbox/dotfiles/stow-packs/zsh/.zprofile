@@ -1,1 +1,0 @@
-# .zprofile for Apple Container

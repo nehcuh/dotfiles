@@ -333,7 +333,6 @@ scan_dotfiles() {
     # 扫描主目录
     for file in $HOME/.[!.]*; do
         [[ -e "$file" ]] || continue
-        [[ -d "$file" ]] && [[ "$file" != *"/.config" ]] && continue
 
         # 跳过已管理的
         is_managed "$file" && continue
@@ -344,6 +343,18 @@ scan_dotfiles() {
                 continue
                 ;;
             .|..|.local|.cache|.npm|.yarn|.nvm|.Trash|Applications|Desktop|Documents|Downloads|Library|Movies|Music|Pictures|Public)
+                continue
+                ;;
+            # 跳过 dotfiles 项目和备份目录
+            .dotfiles|.dotfiles-backup-*)
+                continue
+                ;;
+            # 跳过 shell 缓存和临时文件
+            .zsh_history|.zsh_sessions|.zcompcache|.zcompdump|.zcompcache)
+                continue
+                ;;
+            # 跳过其他缓存目录
+            .cache*|.DS_Store|.CFUserTextEncoding|.localized)
                 continue
                 ;;
         esac
@@ -576,7 +587,6 @@ interactive_migrate() {
     # 收集主目录文件
     for file in $HOME/.[!.]*; do
         [[ -e "$file" ]] || continue
-        [[ -d "$file" ]] && [[ "$file" != *"/.config" ]] && continue
         is_managed "$file" && continue
 
         # 跳过特殊文件
@@ -585,6 +595,18 @@ interactive_migrate() {
                 continue
                 ;;
             .|..|.local|.cache|.npm|.yarn|.nvm|.Trash|.DS_Store|.CFUserTextEncoding|.localized|Applications)
+                continue
+                ;;
+            # 跳过 dotfiles 项目和备份目录
+            .dotfiles|.dotfiles-backup-*)
+                continue
+                ;;
+            # 跳过 shell 缓存和临时文件
+            .zsh_history|.zsh_sessions|.zcompcache|.zcompdump|.zcompcache)
+                continue
+                ;;
+            # 跳过其他缓存目录
+            .cache*|.DS_Store|.CFUserTextEncoding|.localized)
                 continue
                 ;;
         esac
@@ -706,7 +728,6 @@ auto_migrate() {
     # 迁移主目录文件
     for file in $HOME/.[!.]*; do
         [[ -e "$file" ]] || continue
-        [[ -d "$file" ]] && [[ "$file" != *"/.config" ]] && continue
         is_managed "$file" && continue
 
         case "$(basename "$file")" in
@@ -714,6 +735,18 @@ auto_migrate() {
                 continue
                 ;;
             .|..|.local|.cache|.npm|.yarn|.nvm|.Trash|.DS_Store|.CFUserTextEncoding|.localized|Applications)
+                continue
+                ;;
+            # 跳过 dotfiles 项目和备份目录
+            .dotfiles|.dotfiles-backup-*)
+                continue
+                ;;
+            # 跳过 shell 缓存和临时文件
+            .zsh_history|.zsh_sessions|.zcompcache|.zcompdump|.zcompcache)
+                continue
+                ;;
+            # 跳过其他缓存目录
+            .cache*|.DS_Store|.CFUserTextEncoding|.localized)
                 continue
                 ;;
         esac
