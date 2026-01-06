@@ -22,6 +22,9 @@ else
     # Fallback: GNU ls if available, otherwise system ls
     if (( $+commands[gls] )); then
         alias ls='gls --color=tty --group-directories-first'
+    elif [[ $OSTYPE == darwin* ]]; then
+        # macOS's ls doesn't support --group-directories-first or --color
+        alias ls='ls'
     else
         alias ls='ls --color=tty --group-directories-first'
     fi
