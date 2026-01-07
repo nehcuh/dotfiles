@@ -16,7 +16,7 @@
         "shell": {
             "program": "zsh"
         },
-        "font_family": "Fira Code",
+        "font_family": "Hack Nerd Font Propo",
         "font_size": 14,
         "font_weight": 400
     },
