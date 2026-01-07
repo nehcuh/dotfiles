@@ -1,24 +1,10 @@
-# Zsh profile for login shells (noninteractive)
-# This file is sourced for login shells, including noninteractive ones
+# Zsh profile for login shells
+# This file is sourced for login shells (both interactive and noninteractive)
+#
+# Note: Most configuration should be in .zshenv or .zshrc instead:
+# - .zshenv: Environment variables (always sourced)
+# - .zshrc: Interactive shell configuration (aliases, functions, prompts)
+# - .zprofile: Login shell initialization (rarely needed)
 
-# Homebrew setup for login shells
-if [[ "$OSTYPE" == "darwin"* ]]; then
-    if [ -f "/opt/homebrew/bin/brew" ]; then
-        eval "$(/opt/homebrew/bin/brew shellenv)"
-    elif [ -f "/usr/local/bin/brew" ]; then
-        eval "$(/usr/local/bin/brew shellenv)"
-    fi
-elif [[ "$OSTYPE" == "linux-gnu"* ]] && [ -d "/home/linuxbrew/.linuxbrew" ]; then
-    eval "$(/home/linuxbrew/.linuxbrew/bin/brew shellenv)"
-fi
-
-# Pyenv for noninteractive login shells
-export PYENV_ROOT="$HOME/.pyenv"
-[[ -d $PYENV_ROOT/bin ]] && export PATH="$PYENV_ROOT/bin:$PATH"
-if command -v pyenv >/dev/null 2>&1; then
-    eval "$(pyenv init --path)"
-fi
-
-# Added by OrbStack: command-line tools and integration
-# This won't be added again if you remove it.
-source ~/.orbstack/shell/init.zsh 2>/dev/null || :
+# This file is intentionally left empty
+# All essential configuration has been moved to .zshenv for broader compatibility

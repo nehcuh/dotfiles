@@ -31,7 +31,12 @@ command -v starship >/dev/null 2>&1 && eval "$(starship init zsh)"
 [[ -f "$CONFIG_DIR/proxy.zsh" ]] && source "$CONFIG_DIR/proxy.zsh"
 [[ -f "$HOME/.zshrc.local" ]] && source "$HOME/.zshrc.local"
 
-# Nvm
-export NVM_DIR="$HOME/.nvm"
+# OrbStack integration (for interactive shells)
+source ~/.orbstack/shell/init.zsh 2>/dev/null || :
+
+# Nvm (NVM_DIR is already set in .zshenv)
 [ -s "/opt/homebrew/opt/nvm/nvm.sh" ] && \. "/opt/homebrew/opt/nvm/nvm.sh"  # This loads nvm
 [ -s "/opt/homebrew/opt/nvm/etc/bash_completion.d/nvm" ] && \. "/opt/homebrew/opt/nvm/etc/bash_completion.d/nvm"  # This loads nvm bash_completion
+
+# Ensure home dir
+cd ~
