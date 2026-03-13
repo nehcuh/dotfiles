@@ -121,11 +121,12 @@ stow-packs/tools/.docker/contexts/
 stow-packs/tools/.docker/.token_seed*
 stow-packs/tools/.docker/config.json
 
-# Gemini AI tool cache and state
-stow-packs/tools/.gemini/antigravity/
-stow-packs/tools/.gemini/antigravity-browser-profile/
+# Gemini AI tool cache, state, and credentials (never commit)
+stow-packs/tools/.gemini/
 
-# Wakatime CLI and cache
-stow-packs/personal/.wakatime/wakatime-cli*
-stow-packs/personal/.wakatime/*.zip
-stow-packs/personal/.wakatime/wakatime-internal.cfg
+# Secrets files (never commit)
+**/secrets.zsh
+
+# Zed settings with tokens (use settings.template.json instead)
+stow-packs/zed/.config/zed/settings.json
+!stow-packs/zed/.config/zed/settings.template.json

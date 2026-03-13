@@ -1,4 +1,4 @@
 *
 !.gitignore
-!settings.json
+!settings.template.json
 !keymap.json

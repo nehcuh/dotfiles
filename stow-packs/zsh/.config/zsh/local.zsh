@@ -1,18 +1,24 @@
 # Local customizations
-# These are machine-specific configurations that shouldn't be tracked by git
+# Machine-specific tool paths — tracked by git, uses $HOME for portability.
+# For secrets (API keys, tokens), use ~/.config/zsh/secrets.zsh (not tracked).
 
 # LM Studio CLI
-export PATH="$PATH:/Users/huchen/.lmstudio/bin"
+[[ -d "$HOME/.lmstudio/bin" ]] && export PATH="$PATH:$HOME/.lmstudio/bin"
 
 # OpenCode
-export PATH=/Users/huchen/.opencode/bin:$PATH
+[[ -d "$HOME/.opencode/bin" ]] && export PATH="$HOME/.opencode/bin:$PATH"
 
 # Bun
 export BUN_INSTALL="$HOME/.bun"
-export PATH="$BUN_INSTALL/bin:$PATH"
+[[ -d "$BUN_INSTALL/bin" ]] && export PATH="$BUN_INSTALL/bin:$PATH"
+[[ -s "$HOME/.bun/_bun" ]] && source "$HOME/.bun/_bun"
 
-# Bun completions
-[ -s "/Users/huchen/.bun/_bun" ] && source "/Users/huchen/.bun/_bun"
+# Antigravity
+[[ -d "$HOME/.antigravity/antigravity/bin" ]] && export PATH="$HOME/.antigravity/antigravity/bin:$PATH"
+
+# OpenClaw completion
+[[ -f "$HOME/.openclaw/completions/openclaw.zsh" ]] && source "$HOME/.openclaw/completions/openclaw.zsh"
 
 # Kiro terminal integration
 [[ "$TERM_PROGRAM" == "kiro" ]] && . "$(kiro --locate-shell-integration-path zsh)"
+
