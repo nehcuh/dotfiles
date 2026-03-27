@@ -146,7 +146,7 @@ install_homebrew() {
         # Install script source (default to official; opt-in to third-party installer)
         if is_truthy "${DOTFILES_HOMEBREW_USE_CHINA_INSTALLER:-}"; then
             log_warning "Using third-party Homebrew installer (DOTFILES_HOMEBREW_USE_CHINA_INSTALLER=true)"
-            /bin/bash -c "$(curl -fsSL https://gitee.com/ineo6/homebrew-install/raw/master/install.sh)" || \
+            /bin/bash -c "$(curl -fsSL https://gitee.com/ineo6/homebrew-install/raw/HEAD/install.sh)" || \
             /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
         else
             /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"

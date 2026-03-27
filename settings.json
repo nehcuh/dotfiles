@@ -1,0 +1,29 @@
+{
+  "permissions": {
+    "defaultMode": "default",
+    "disableBypassPermissionsMode": "disable",
+    "ask": [
+      "Bash(curl:*)",
+      "Bash(wget:*)",
+      "Bash(scp:*)",
+      "Bash(rsync:*)",
+      "Bash(git push:*)",
+      "Bash(npm publish:*)",
+      "Bash(base64:*)",
+      "Bash(eval:*)",
+      "Bash(exec:*)",
+      "WebFetch",
+      "Write(./production/**)"
+    ],
+    "deny": [
+      "Bash(rm -rf:*)",
+      "Bash(shred:*)",
+      "Read(./.env)",
+      "Read(./.env.*)",
+      "Read(./secrets/**)",
+      "Read(./**/*.key)",
+      "Write(./**/.env*)",
+      "Write(./**/*.key)"
+    ]
+  }
+}

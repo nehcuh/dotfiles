@@ -60,7 +60,7 @@ if (( $+commands[nvim] )); then
 fi
 
 # Upgrade aliases
-alias upgrade_repo='git pull --rebase --stat origin master'
+alias upgrade_repo='git pull --rebase --stat origin main'
 alias upgrade_dotfiles='cd $DOTFILES && upgrade_repo; cd - >/dev/null'
 alias upgrade_nvim='nvim --headless "+Lazy sync" +qa'
 alias upgrade_omt='cd $HOME/.tmux && upgrade_repo; cd - >/dev/null'

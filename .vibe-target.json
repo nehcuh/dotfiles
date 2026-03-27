@@ -1,0 +1,19 @@
+{
+  "schema_version": 5,
+  "mode": "apply",
+  "source_repo": ".",
+  "destination_root": "/Users/huchen/.dotfiles",
+  "generated_output": "generated/claude-code",
+  "target": "claude-code",
+  "profile": "claude-code-default",
+  "profile_mapping": {
+    "critical_reasoner": "claude.opus-class",
+    "workhorse_coder": "claude.sonnet-class",
+    "fast_router": "claude.haiku-class",
+    "independent_verifier": "second-model.cross-family",
+    "cheap_local": "local.ollama-class"
+  },
+  "overlay": null,
+  "effective_policy_count": 8,
+  "applied_at": "2026-03-27T06:24:44Z"
+}

@@ -31,3 +31,10 @@ command -v starship >/dev/null 2>&1 && eval "$(starship init zsh)"
 [[ -f "$CONFIG_DIR/proxy.zsh" ]] && source "$CONFIG_DIR/proxy.zsh"
 [[ -f "$HOME/.zshrc.local" ]] && source "$HOME/.zshrc.local"
 
+
+# bun completions
+[ -s "/Users/huchen/.bun/_bun" ] && source "/Users/huchen/.bun/_bun"
+
+# bun
+export BUN_INSTALL="$HOME/.bun"
+export PATH="$BUN_INSTALL/bin:$PATH"
