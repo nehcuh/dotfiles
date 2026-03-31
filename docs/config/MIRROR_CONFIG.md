@@ -110,8 +110,8 @@ Package Manager Sources:
 
 Homebrew Configuration:
 -----------------------
-  Bottles:    https://mirrors.ustc.edu.cn/homebrew-bottles
-  Core:       https://mirrors.ustc.edu.cn/homebrew-core.git
+  Bottles:    https://mirrors.tuna.tsinghua.edu.cn/homebrew-bottles
+  Brew Git:   https://mirrors.tuna.tsinghua.edu.cn/git/homebrew/brew.git
 ```
 
 ## Mirror Sources
@@ -120,9 +120,8 @@ Homebrew Configuration:
 
 | Package Manager | Mirror Source | Location |
 |----------------|---------------|----------|
-| Homebrew (bottles) | USTC | https://mirrors.ustc.edu.cn/homebrew-bottles |
-| Homebrew (core) | USTC | https://mirrors.ustc.edu.cn/homebrew-core.git |
-| Homebrew (cask) | USTC | https://mirrors.ustc.edu.cn/homebrew-cask.git |
+| Homebrew (bottles) | Tsinghua | https://mirrors.tuna.tsinghua.edu.cn/homebrew-bottles |
+| Homebrew (brew git) | Tsinghua | https://mirrors.tuna.tsinghua.edu.cn/git/homebrew/brew.git |
 | pip | Aliyun | https://mirrors.aliyun.com/pypi/simple/ |
 | npm | npmmirror (Taobao) | https://registry.npmmirror.com |
 | gem | Aliyun | http://mirrors.aliyun.com/rubygems/ |
@@ -179,9 +178,9 @@ When `IN_CHINA=true`, the installer sets these environment variables for speed:
 
 ```bash
 # Sets environment variables for faster download
-export HOMEBREW_BREW_GIT_REMOTE="https://mirrors.ustc.edu.cn/brew.git"
-export HOMEBREW_CORE_GIT_REMOTE="https://mirrors.ustc.edu.cn/homebrew-core.git"
-export HOMEBREW_BOTTLE_DOMAIN="https://mirrors.ustc.edu.cn/homebrew-bottles"
+# Note: Modern Homebrew uses API by default, so HOMEBREW_CORE_GIT_REMOTE is not needed
+export HOMEBREW_BREW_GIT_REMOTE="https://mirrors.tuna.tsinghua.edu.cn/git/homebrew/brew.git"
+export HOMEBREW_BOTTLE_DOMAIN="https://mirrors.tuna.tsinghua.edu.cn/homebrew-bottles"
 
 # By default it still uses the official Homebrew install script.
 # To opt-in to a third-party China installer:
@@ -308,7 +307,7 @@ make install
 | `DOTFILES_FORCE_NO_MIRROR` | `true`/`false` | Force international mirrors |
 | `HOMEBREW_BOTTLE_DOMAIN` | URL | Homebrew binary mirror |
 | `HOMEBREW_BREW_GIT_REMOTE` | URL | Homebrew git repository |
-| `HOMEBREW_CORE_GIT_REMOTE` | URL | Homebrew Core git repository |
+| `HOMEBREW_INSTALL_FROM_API` | `1`/unset | Use API instead of cloning core repo (default in modern Homebrew) |
 | `DOTFILES_HOMEBREW_TAP_CHINA_MIRRORS` | boolean | Switch brew tap remotes to China mirrors (opt-in) |
 
 ## See Also

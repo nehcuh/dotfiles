@@ -398,10 +398,11 @@ install_homebrew() {
   
   if [ "${use_tsinghua_mirror}" = "y" ] || [ "${use_tsinghua_mirror}" = "Y" ]; then
     log_info "Using Tsinghua mirror for Homebrew installation..."
-    
+
     # Set environment variables for Tsinghua mirror
+    # Note: Modern Homebrew uses API by default (HOMEBREW_INSTALL_FROM_API=1),
+    # so HOMEBREW_CORE_GIT_REMOTE is not needed.
     export HOMEBREW_BREW_GIT_REMOTE="https://mirrors.tuna.tsinghua.edu.cn/git/homebrew/brew.git"
-    export HOMEBREW_CORE_GIT_REMOTE="https://mirrors.tuna.tsinghua.edu.cn/git/homebrew/homebrew-core.git"
     export HOMEBREW_INSTALL_FROM_API=1
     
     # Create a temporary directory for installation
@@ -440,7 +441,6 @@ install_homebrew() {
         {
           echo '# Homebrew Tsinghua mirror configuration'
           echo 'export HOMEBREW_BREW_GIT_REMOTE="https://mirrors.tuna.tsinghua.edu.cn/git/homebrew/brew.git"'
-          echo 'export HOMEBREW_CORE_GIT_REMOTE="https://mirrors.tuna.tsinghua.edu.cn/git/homebrew/homebrew-core.git"'
           echo 'export HOMEBREW_INSTALL_FROM_API=1'
           echo 'export HOMEBREW_API_DOMAIN="https://mirrors.tuna.tsinghua.edu.cn/homebrew-bottles/api"'
           echo 'export HOMEBREW_BOTTLE_DOMAIN="https://mirrors.tuna.tsinghua.edu.cn/homebrew-bottles"'
@@ -452,7 +452,6 @@ install_homebrew() {
         {
           echo '# Homebrew Tsinghua mirror configuration'
           echo 'export HOMEBREW_BREW_GIT_REMOTE="https://mirrors.tuna.tsinghua.edu.cn/git/homebrew/brew.git"'
-          echo 'export HOMEBREW_CORE_GIT_REMOTE="https://mirrors.tuna.tsinghua.edu.cn/git/homebrew/homebrew-core.git"'
           echo 'export HOMEBREW_INSTALL_FROM_API=1'
           echo 'export HOMEBREW_API_DOMAIN="https://mirrors.tuna.tsinghua.edu.cn/homebrew-bottles/api"'
           echo 'export HOMEBREW_BOTTLE_DOMAIN="https://mirrors.tuna.tsinghua.edu.cn/homebrew-bottles"'

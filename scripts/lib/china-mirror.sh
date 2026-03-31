@@ -105,7 +105,7 @@ configure_homebrew_mirror() {
     log_info "Configuring Homebrew mirrors for China..."
 
     # Set Homebrew bottle mirror (binary packages)
-    local bottle_mirror="https://mirrors.ustc.edu.cn/homebrew-bottles"
+    local bottle_mirror="https://mirrors.tuna.tsinghua.edu.cn/homebrew-bottles"
 
     # Set for current session only (avoid editing user profiles automatically).
     export HOMEBREW_BOTTLE_DOMAIN="$bottle_mirror"
@@ -120,9 +120,13 @@ configure_homebrew_mirror() {
             return 0
         fi
 
-        brew tap --custom-remote --force homebrew/core https://mirrors.ustc.edu.cn/homebrew-core.git 2>/dev/null || true
-        brew tap --custom-remote --force homebrew/cask https://mirrors.ustc.edu.cn/homebrew-cask.git 2>/dev/null || true
-        brew tap --custom-remote --force homebrew/cask-fonts https://mirrors.ustc.edu.cn/homebrew-cask-fonts.git 2>/dev/null || true
+        log_warning "Note: Modern Homebrew uses API by default (HOMEBREW_INSTALL_FROM_API=1)"
+        log_warning "Tap remotes are only needed for specific use cases and may cause issues"
+        log_warning "Some China mirrors still use the old master branch instead of main"
+
+        # Use Tsinghua mirrors which are on the correct main branch
+        brew tap --custom-remote --force homebrew/core https://mirrors.tuna.tsinghua.edu.cn/git/homebrew/homebrew-core.git 2>/dev/null || true
+        brew tap --custom-remote --force homebrew/cask https://mirrors.tuna.tsinghua.edu.cn/git/homebrew/homebrew-cask.git 2>/dev/null || true
         log_success "Homebrew tap remotes updated to China mirrors"
     else
         log_info "To also switch Homebrew tap remotes (core/cask) to China mirrors, set: DOTFILES_HOMEBREW_TAP_CHINA_MIRRORS=true"
@@ -139,9 +143,11 @@ install_homebrew() {
         log_info "Using China mirror for faster installation..."
 
         # Set environment variables for Homebrew install script
-        export HOMEBREW_BREW_GIT_REMOTE="https://mirrors.ustc.edu.cn/brew.git"
-        export HOMEBREW_CORE_GIT_REMOTE="https://mirrors.ustc.edu.cn/homebrew-core.git"
-        export HOMEBREW_BOTTLE_DOMAIN="https://mirrors.ustc.edu.cn/homebrew-bottles"
+        # Note: Modern Homebrew uses API by default (HOMEBREW_INSTALL_FROM_API=1),
+        # so HOMEBREW_CORE_GIT_REMOTE is not needed and can cause issues with
+        # mirrors still on the old master branch.
+        export HOMEBREW_BREW_GIT_REMOTE="https://mirrors.tuna.tsinghua.edu.cn/git/homebrew/brew.git"
+        export HOMEBREW_BOTTLE_DOMAIN="https://mirrors.tuna.tsinghua.edu.cn/homebrew-bottles"
 
         # Install script source (default to official; opt-in to third-party installer)
         if is_truthy "${DOTFILES_HOMEBREW_USE_CHINA_INSTALLER:-}"; then
