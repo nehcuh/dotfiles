@@ -1,0 +1,23 @@
+# git-secrets allowed patterns
+# These patterns are exempt from security checks
+
+# SSH configuration (legitimate)
+PasswordAuthentication yes
+
+# Base64 encoded data (not secrets)
+^[A-Za-z0-9+/]{50,}={0,2}$
+
+# Docker/container configs
+PasswordAuthentication
+
+# Image/terminal profiles (base64)
+YnBsaXN0MDDUAQIDBAUG
+
+# Claude Code environment
+hasCompletedOnboarding
+autoImportCompletions
+loadOutDirsFromCheck
+
+# Security documentation (code examples in docs/SECURITY.md)
+docs/SECURITY.md:.*Bearer.*
+docs/SECURITY.md:.*password=.*
