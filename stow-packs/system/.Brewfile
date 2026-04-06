@@ -33,6 +33,10 @@ brew "zoxide"
 brew "uv"
 brew "direnv"
 
+# LLM inference server (Apple Silicon)
+tap "jundot/omlx", "https://github.com/jundot/omlx"
+brew "omlx"
+
 # Node.js development
 brew "nvm"  # Note: Requires special configuration in shell (see .zshrc)
 
@@ -59,4 +63,7 @@ cask "google-chrome"
 cask "wechat"
 cask "neteasemusic"
 cask "telegram"
+cask "tencent-meeting"
+cask "ghostty"
 cask "alma"
+cask "clash-party"
