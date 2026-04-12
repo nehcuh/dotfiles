@@ -152,23 +152,47 @@ install_homebrew() {
         # Install script source (default to official; opt-in to third-party installer)
         if is_truthy "${DOTFILES_HOMEBREW_USE_CHINA_INSTALLER:-}"; then
             log_warning "Using third-party Homebrew installer (DOTFILES_HOMEBREW_USE_CHINA_INSTALLER=true)"
-            /bin/bash -c "$(curl -fsSL https://gitee.com/ineo6/homebrew-install/raw/HEAD/install.sh)" || \
-            /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
+            if ! /bin/bash -c "$(curl -fsSL https://gitee.com/ineo6/homebrew-install/raw/HEAD/install.sh)" 2>/dev/null; then
+                log_warning "Third-party installer failed, falling back to official installer..."
+                /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)" || {
+                    log_error "Official installer also failed"
+                    return 1
+                }
+            fi
         else
-            /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
+            if ! /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"; then
+                log_error "Homebrew installation failed"
+                return 1
+            fi
         fi
     else
         # Standard installation
-        /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
+        if ! /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"; then
+            log_error "Homebrew installation failed"
+            return 1
+        fi
+    fi
+
+    # Check if installation succeeded
+    if ! command -v brew &> /dev/null; then
+        log_error "Homebrew installation failed. Please check the error messages above and try again."
+        log_info "You can also try installing manually:"
+        log_info "  /bin/bash -c \"\$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)\""
+        return 1
     fi
 
     # Add Homebrew to PATH
     if [[ -f "/opt/homebrew/bin/brew" ]]; then
         export PATH="/opt/homebrew/bin:$PATH"
         eval "$(/opt/homebrew/bin/brew shellenv)"
+        log_success "Homebrew installed at /opt/homebrew"
     elif [[ -f "/usr/local/bin/brew" ]]; then
         export PATH="/usr/local/bin:$PATH"
         eval "$(/usr/local/bin/brew shellenv)"
+        log_success "Homebrew installed at /usr/local"
+    else
+        log_error "Homebrew installation completed but brew command not found!"
+        return 1
     fi
 }
 
