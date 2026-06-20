@@ -173,25 +173,42 @@ install_homebrew() {
         fi
     fi
 
-    # Check if installation succeeded
-    if ! command -v brew &> /dev/null; then
-        log_error "Homebrew installation failed. Please check the error messages above and try again."
-        log_info "You can also try installing manually:"
-        log_info "  /bin/bash -c \"\$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)\""
+    # Add Homebrew to PATH (must happen BEFORE command -v check, since
+    # a fresh install won't have brew in PATH yet)
+    local brew_bin=""
+    if [[ -f "/opt/homebrew/bin/brew" ]]; then
+        brew_bin="/opt/homebrew/bin/brew"
+    elif [[ -f "/usr/local/bin/brew" ]]; then
+        brew_bin="/usr/local/bin/brew"
+    elif [[ -f "/home/linuxbrew/.linuxbrew/bin/brew" ]]; then
+        brew_bin="/home/linuxbrew/.linuxbrew/bin/brew"
+    fi
+
+    if [[ -n "$brew_bin" ]]; then
+        eval "$("$brew_bin" shellenv)"
+        log_success "Homebrew installed at $(dirname "$brew_bin")"
+
+        # Persist to shell profile so brew is available in future sessions
+        local profile_file=""
+        case "$(basename "$SHELL")" in
+            zsh)  profile_file="$HOME/.zprofile" ;;
+            bash) profile_file="$HOME/.bash_profile" ;;
+        esac
+        if [[ -n "$profile_file" ]] && ! grep -q "brew shellenv" "$profile_file" 2>/dev/null; then
+            echo "eval \"\$($brew_bin shellenv)\"" >> "$profile_file"
+            log_info "Added brew shellenv to $profile_file for future sessions"
+        fi
+    else
+        log_error "Homebrew installation completed but brew binary not found!"
+        log_info "Expected at: /opt/homebrew/bin/brew or /usr/local/bin/brew"
         return 1
     fi
 
-    # Add Homebrew to PATH
-    if [[ -f "/opt/homebrew/bin/brew" ]]; then
-        export PATH="/opt/homebrew/bin:$PATH"
-        eval "$(/opt/homebrew/bin/brew shellenv)"
-        log_success "Homebrew installed at /opt/homebrew"
-    elif [[ -f "/usr/local/bin/brew" ]]; then
-        export PATH="/usr/local/bin:$PATH"
-        eval "$(/usr/local/bin/brew shellenv)"
-        log_success "Homebrew installed at /usr/local"
-    else
-        log_error "Homebrew installation completed but brew command not found!"
+    # Verify brew is now accessible
+    if ! command -v brew &> /dev/null; then
+        log_error "Homebrew installed but still not accessible. Please check the error messages above."
+        log_info "You can also try installing manually:"
+        log_info "  /bin/bash -c \"\$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)\""
         return 1
     fi
 }
