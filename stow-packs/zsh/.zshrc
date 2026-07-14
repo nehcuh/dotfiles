@@ -38,3 +38,9 @@ command -v starship >/dev/null 2>&1 && eval "$(starship init zsh)"
 # bun
 export BUN_INSTALL="$HOME/.bun"
 export PATH="$BUN_INSTALL/bin:$PATH"
+
+# kimi-code
+export PATH="/Users/huchen/.kimi-code/bin:$PATH"
+
+# Direnv
+eval "$(direnv hook zsh)"

@@ -70,6 +70,7 @@ config/git/config.local
 *.env.local
 
 # User-specific cache and state files
+.vibe/
 .viminfo
 .z
 .zcompdump*
