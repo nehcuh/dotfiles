@@ -7,3 +7,7 @@
 [credential "https://gist.github.com"]
 	helper =
 	helper = !gh auth git-credential
+
+# Local overrides (user identity, signing key, etc.) — not tracked by git
+[include]
+	path = ~/.gitconfig_local
