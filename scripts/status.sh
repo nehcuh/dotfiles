@@ -17,16 +17,39 @@ is_linked_to_package() {
     local home_path="$1"
     local package="$2"
 
-    [[ -L "$home_path" ]] || return 1
+    # Case 1: the path itself is a symlink into the package
+    if [[ -L "$home_path" ]]; then
+        local target
+        target="$(readlink "$home_path" 2>/dev/null || true)"
+        if [[ -n "$target" ]] && [[ "$target" == *"stow-packs/$package/"* ]]; then
+            if [[ "$target" == *".dotfiles"* || "$target" == *"$DOTFILES_DIR"* ]]; then
+                return 0
+            fi
+        fi
+    fi
 
-    local target
-    target="$(readlink "$home_path" 2>/dev/null || true)"
-    [[ -n "$target" ]] || return 1
+    # Case 2: the path lives inside a symlinked directory that points into the package.
+    # Walk up the path and stop at the first symlinked parent directory.
+    local dir="$home_path"
+    while [[ "$dir" != "$HOME" && "$dir" != "/" && -n "$dir" ]]; do
+        dir="$(dirname "$dir")"
+        [[ "$dir" == "$HOME" ]] && break
 
-    [[ "$target" == *"stow-packs/$package/"* ]] || return 1
-    [[ "$target" == *".dotfiles"* || "$target" == *"$DOTFILES_DIR"* ]] || return 1
+        if [[ -L "$dir" ]]; then
+            local target
+            target="$(readlink "$dir" 2>/dev/null || true)"
+            if [[ -n "$target" ]] && [[ "$target" == *"stow-packs/$package/"* ]]; then
+                if [[ "$target" == *".dotfiles"* || "$target" == *"$DOTFILES_DIR"* ]]; then
+                    return 0
+                fi
+            fi
+            # If this parent is a symlink but not into the target package, stop walking;
+            # the remaining ancestors are not part of the dotfiles tree we care about.
+            return 1
+        fi
+    done
 
-    return 0
+    return 1
 }
 
 list_packages() {
