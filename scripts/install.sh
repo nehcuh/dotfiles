@@ -16,6 +16,7 @@ source "$SCRIPT_DIR/lib/stow-wrapper.sh"
 source "$SCRIPT_DIR/steps/prerequisites.sh"
 source "$SCRIPT_DIR/steps/packages.sh"
 source "$SCRIPT_DIR/steps/shell.sh"
+source "$SCRIPT_DIR/steps/git-config.sh"
 source "$SCRIPT_DIR/steps/brewfile.sh"
 source "$SCRIPT_DIR/steps/terminal-font.sh"
 
@@ -67,6 +68,7 @@ main() {
     # Installation steps (in order)
     check_prerequisites
     install_packages "${packages[@]}"
+    configure_git_identity
 
     # OS-specific steps
     if [[ "$OS" == "macos" ]]; then
