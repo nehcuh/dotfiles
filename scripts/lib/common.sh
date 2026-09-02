@@ -498,30 +498,35 @@ install_homebrew() {
   fi
   
   # Add Homebrew to PATH based on platform and architecture
+  # Skip ~/.zprofile writes when the profile is managed by dotfiles
+  # (stow-packs/zsh/.zprofile already handles brew shellenv)
+  local skip_zprofile=false
+  if [ -f "${DOTFILES_DIR:-/nonexistent}/stow-packs/zsh/.zprofile" ] || [ -L "$HOME/.zprofile" ]; then
+    skip_zprofile=true
+    log_info "Skipping ~/.zprofile writes: managed by dotfiles"
+  fi
   case "$PLATFORM" in
     macos)
       if [ "$ARCH" = "arm64" ]; then
         # For Apple Silicon Macs
         if [ -d "/opt/homebrew/bin" ]; then
           log_info "Adding Homebrew to PATH for Apple Silicon Mac..."
+          eval "$(/opt/homebrew/bin/brew shellenv)"
           if [ "$SHELL_TYPE" = "zsh" ]; then
-            echo 'eval "$(/opt/homebrew/bin/brew shellenv)"' >> "$HOME/.zprofile"
-            eval "$(/opt/homebrew/bin/brew shellenv)"
+            [ "$skip_zprofile" = false ] && echo 'eval "$(/opt/homebrew/bin/brew shellenv)"' >> "$HOME/.zprofile"
           elif [ "$SHELL_TYPE" = "bash" ]; then
             echo 'eval "$(/opt/homebrew/bin/brew shellenv)"' >> "$HOME/.bash_profile"
-            eval "$(/opt/homebrew/bin/brew shellenv)"
           fi
         fi
       else
         # For Intel Macs
         if [ -d "/usr/local/bin" ]; then
           log_info "Adding Homebrew to PATH for Intel Mac..."
+          eval "$(/usr/local/bin/brew shellenv)"
           if [ "$SHELL_TYPE" = "zsh" ]; then
-            echo 'eval "$(/usr/local/bin/brew shellenv)"' >> "$HOME/.zprofile"
-            eval "$(/usr/local/bin/brew shellenv)"
+            [ "$skip_zprofile" = false ] && echo 'eval "$(/usr/local/bin/brew shellenv)"' >> "$HOME/.zprofile"
           elif [ "$SHELL_TYPE" = "bash" ]; then
             echo 'eval "$(/usr/local/bin/brew shellenv)"' >> "$HOME/.bash_profile"
-            eval "$(/usr/local/bin/brew shellenv)"
           fi
         fi
       fi
@@ -530,14 +535,13 @@ install_homebrew() {
       # For Linux
       if [ -d "/home/linuxbrew/.linuxbrew/bin" ]; then
         log_info "Adding Homebrew to PATH for Linux..."
+        eval "$(/home/linuxbrew/.linuxbrew/bin/brew shellenv)"
         if [ "$SHELL_TYPE" = "zsh" ]; then
-          echo 'eval "$(/home/linuxbrew/.linuxbrew/bin/brew shellenv)"' >> "$HOME/.zprofile"
+          [ "$skip_zprofile" = false ] && echo 'eval "$(/home/linuxbrew/.linuxbrew/bin/brew shellenv)"' >> "$HOME/.zprofile"
           echo 'eval "$(/home/linuxbrew/.linuxbrew/bin/brew shellenv)"' >> "$HOME/.profile"
-          eval "$(/home/linuxbrew/.linuxbrew/bin/brew shellenv)"
         elif [ "$SHELL_TYPE" = "bash" ]; then
           echo 'eval "$(/home/linuxbrew/.linuxbrew/bin/brew shellenv)"' >> "$HOME/.bash_profile"
           echo 'eval "$(/home/linuxbrew/.linuxbrew/bin/brew shellenv)"' >> "$HOME/.profile"
-          eval "$(/home/linuxbrew/.linuxbrew/bin/brew shellenv)"
         fi
       fi
       ;;

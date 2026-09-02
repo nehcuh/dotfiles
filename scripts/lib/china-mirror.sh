@@ -194,7 +194,9 @@ install_homebrew() {
             zsh)  profile_file="$HOME/.zprofile" ;;
             bash) profile_file="$HOME/.bash_profile" ;;
         esac
-        if [[ -n "$profile_file" ]] && ! grep -q "brew shellenv" "$profile_file" 2>/dev/null; then
+        if [[ -n "$profile_file" ]] && [[ -L "$profile_file" || -f "${DOTFILES_DIR:-/nonexistent}/stow-packs/zsh/.zprofile" ]]; then
+            log_info "$profile_file is managed by dotfiles (stow-packs/zsh/.zprofile); skipping brew shellenv write"
+        elif [[ -n "$profile_file" ]] && ! grep -q "brew shellenv" "$profile_file" 2>/dev/null; then
             echo "eval \"\$($brew_bin shellenv)\"" >> "$profile_file"
             log_info "Added brew shellenv to $profile_file for future sessions"
         fi
