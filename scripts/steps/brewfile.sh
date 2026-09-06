@@ -1,27 +1,50 @@
 #!/bin/bash
 # Install Homebrew packages from Brewfile
 
-# Print aggregate download progress while `brew bundle` runs in the
-# background. Homebrew's parallel downloads print little on their own,
-# so watch the download cache directory instead.
+# Print live progress while `brew bundle` runs in the background:
+# - downloading: aggregate speed and file names parsed from the download
+#   cache (files are named "<sha256>--<original-name>.incomplete")
+# - installed: new top-level entries under Cellar (formulae) and Caskroom
+#   (casks) compared against a snapshot taken when monitoring starts.
 show_download_progress() {
     local brew_pid="$1"
-    local cache_dir="$HOME/Library/Caches/Homebrew/downloads"
-    local prev_bytes=0 prev_ts=$SECONDS bytes ts speed_kb
+    local cache_dir="${HOMEBREW_CACHE:-$HOME/Library/Caches/Homebrew}/downloads"
+    local prefix="${HOMEBREW_PREFIX:-$(brew --prefix 2>/dev/null)}"
+    local cellar="$prefix/Cellar" caskroom="$prefix/Caskroom"
+    local prev_bytes=0 prev_ts=$SECONDS seen_installed bytes ts speed_kb
+
+    _progress_installed_names() {
+        find "$cellar" "$caskroom" -maxdepth 1 -mindepth 1 -type d -exec basename {} \; 2>/dev/null | sort -u
+    }
+
+    seen_installed=$(_progress_installed_names)
 
     while kill -0 "$brew_pid" 2>/dev/null; do
         sleep 3
-        bytes=$(find "$cache_dir" -name '*.incomplete' -type f -exec stat -f%z {} + 2>/dev/null | awk '{s+=$1} END {print s+0}')
         ts=$SECONDS
+        bytes=$(find "$cache_dir" -name '*.incomplete' -type f -exec stat -f%z {} + 2>/dev/null | awk '{s+=$1} END {print s+0}')
         if (( bytes > prev_bytes )); then
-            local files
-            files=$(find "$cache_dir" -name '*.incomplete' -type f 2>/dev/null | wc -l | tr -d ' ')
+            local names
+            names=$(find "$cache_dir" -name '*.incomplete' -type f -exec basename {} \; 2>/dev/null \
+                | sed -E 's/^[0-9a-f]{64}--//; s/\.incomplete$//' | sort -u | paste -sd, -)
             speed_kb=$(( (bytes - prev_bytes) / (ts - prev_ts) / 1024 ))
-            printf "${GRAY}  ⇣ %d MB @ %d KB/s (%s downloading)${NC}\n" \
-                $(( bytes / 1048576 )) "$speed_kb" "$files"
+            if [[ -n "$names" ]]; then
+                printf "${GRAY}  ⇣ %d MB @ %d KB/s · downloading: %s${NC}\n" \
+                    $(( bytes / 1048576 )) "$speed_kb" "$names"
+            else
+                printf "${GRAY}  ⇣ %d MB @ %d KB/s${NC}\n" $(( bytes / 1048576 )) "$speed_kb"
+            fi
         fi
         prev_bytes=$bytes
         prev_ts=$ts
+
+        local now_installed newly
+        now_installed=$(_progress_installed_names)
+        newly=$(comm -13 <(printf '%s\n' "$seen_installed") <(printf '%s\n' "$now_installed") | paste -sd, -)
+        if [[ -n "$newly" ]]; then
+            printf "${GRAY}  ✔ installed: %s${NC}\n" "$newly"
+        fi
+        seen_installed=$now_installed
     done
 }
 
