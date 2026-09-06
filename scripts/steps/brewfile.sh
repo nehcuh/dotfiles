@@ -1,6 +1,30 @@
 #!/bin/bash
 # Install Homebrew packages from Brewfile
 
+# Print aggregate download progress while `brew bundle` runs in the
+# background. Homebrew's parallel downloads print little on their own,
+# so watch the download cache directory instead.
+show_download_progress() {
+    local brew_pid="$1"
+    local cache_dir="$HOME/Library/Caches/Homebrew/downloads"
+    local prev_bytes=0 prev_ts=$SECONDS bytes ts speed_kb
+
+    while kill -0 "$brew_pid" 2>/dev/null; do
+        sleep 3
+        bytes=$(find "$cache_dir" -name '*.incomplete' -type f -exec stat -f%z {} + 2>/dev/null | awk '{s+=$1} END {print s+0}')
+        ts=$SECONDS
+        if (( bytes > prev_bytes )); then
+            local files
+            files=$(find "$cache_dir" -name '*.incomplete' -type f 2>/dev/null | wc -l | tr -d ' ')
+            speed_kb=$(( (bytes - prev_bytes) / (ts - prev_ts) / 1024 ))
+            printf "${GRAY}  ⇣ %d MB @ %d KB/s (%s downloading)${NC}\n" \
+                $(( bytes / 1048576 )) "$speed_kb" "$files"
+        fi
+        prev_bytes=$bytes
+        prev_ts=$ts
+    done
+}
+
 install_brewfile() {
     [[ "$OS" != "macos" ]] && return
     command -v brew &> /dev/null || return
@@ -46,7 +70,10 @@ install_brewfile() {
         }
     fi
 
-    if brew bundle --file="$brewfile_to_use"; then
+    brew bundle --file="$brewfile_to_use" &
+    local brew_pid=$!
+    [[ -t 1 ]] && show_download_progress "$brew_pid"
+    if wait "$brew_pid"; then
         log_success "Brewfile packages installed"
     else
         log_warning "Some packages failed. Retry with: brew bundle --file='$brewfile_to_use'"
